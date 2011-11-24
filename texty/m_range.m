@@ -1,11 +1,3 @@
-//
-//  m_range.m
-//  texty7
-//
-//  Created by jack on 11/24/11.
-//  Copyright (c) 2011 __MyCompanyName__. All rights reserved.
-//
-
 #import "m_range.h"
 
 @implementation m_range

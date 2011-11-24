@@ -1,11 +1,3 @@
-//
-//  m_exec.m
-//  texty7
-//
-//  Created by jack on 11/23/11.
-//  Copyright (c) 2011 __MyCompanyName__. All rights reserved.
-//
-
 #import "m_exec.h"
 #define MAX_TIMEOUT 1
 @implementation m_exec
