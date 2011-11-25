@@ -99,10 +99,12 @@
 - (NSURL *) temporaryFileURL {
 	int retry = 5;
 	NSString *name;
-	NSString *dir = [NSHomeDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"%@/TEMPORARY",TEXTY_DIR]];
+	NSDateFormatter* formatter = [[NSDateFormatter alloc] init];
+	[formatter setDateFormat:@"yyyy-MM-dd"];
+	NSString *dir = [NSHomeDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"%@/TEMPORARY/%@",TEXTY_DIR,[formatter stringFromDate:[NSDate date]]]];
 ret:
 	
-	name = [dir stringByAppendingPathComponent: [NSString stringWithFormat: @"TEMP-%lu.txt",time(NULL) * rand()]];
+	name = [dir stringByAppendingPathComponent: [NSString stringWithFormat: @"TEMP-%lu.%ld.txt",time(NULL),rand()]];
 	NSFileManager *f = [[NSFileManager alloc] init];
 	if ([f fileExistsAtPath:name]) {
 		retry--;

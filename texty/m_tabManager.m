@@ -79,7 +79,7 @@
 		}
 	}
 	/* remove the empty file */
-	if ([[t.tv string] isEqualToString:@""] && t.s.temporary) {
+	if ([[t.tv string] length] < 1 && t.s.temporary) {
 		NSFileManager *f = [[NSFileManager alloc] init];
 		[f removeItemAtURL:t.s.fileURL error:nil];
 	}
