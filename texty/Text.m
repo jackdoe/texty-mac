@@ -200,7 +200,6 @@
 
 
 #pragma mark Syntax
-
 - (void) clearColors:(NSRange) area {	
 	NSLayoutManager *lm = [[self.tv.textStorage layoutManagers] objectAtIndex: 0];
 	[lm setTemporaryAttributes:colorAttr[TEXT_COLOR_IDX] forCharacterRange:area];
