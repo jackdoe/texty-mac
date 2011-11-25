@@ -146,24 +146,29 @@
 			*stop = YES;
 		}
 	}];
-	NSRange area = NSMakeRange(pos, 0);	
+	NSRange area = [string paragraphRangeForRange:NSMakeRange(pos, 0)];
 	[self.tv setSelectedRange: area];
 	[self.tv scrollRangeToVisible: area];
 }
-
-- (NSString *) get_execute_command {
+- (NSString *) get_line:(NSInteger) lineno {
 	NSString *t = [self.tv.textStorage string];
 	__block NSString *ret = nil;
-	__block int max_line = 2; /* allow only first or second line to be execute line */
+	__block NSInteger num = 1;
 	[t enumerateLinesUsingBlock:^(NSString *line, BOOL *stop) {
-		NSRange commandRange = [line rangeOfString:EXECUTE_COMMAND];
-		if (max_line < 1)
+		if (num++ == lineno) {
+			ret = [line copy];
 			*stop = YES;
-		if (commandRange.location != NSNotFound) {
-			ret = [line substringFromIndex:commandRange.location+commandRange.length];
 		}
-		max_line--;
 	}];
+	return ret;
+}
+- (NSString *) get_execute_command {
+	NSString *line = [self get_line:2];
+	NSString *ret = nil;
+	NSRange commandRange = [line rangeOfString:EXECUTE_COMMAND];
+	if (commandRange.location != NSNotFound) {
+		ret = [line substringFromIndex:commandRange.location+commandRange.length];
+	}
 	return ret;
 }
 - (void) signal {
@@ -220,7 +225,7 @@
 - (void) parse:(m_range *) m_range {
 	NSRange range = [m_range paragraph:self.tv];
 	[self clearColors:range];
-	if ([self extIs:[NSArray arrayWithObjects:@"sh",@"c",@"h", nil]]) {
+	if ([self extIs:[NSArray arrayWithObjects:@"c",@"h", nil]]) {
 		[self colorPattern:@"\\b(\\d+)\\b" inRange:range withColor:VALUE_COLOR_IDX];
 		[self colorPattern:@"\\b(goto|break|return|continue|asm|case|default|if|else|switch|while|for|do|done)\\b" inRange:range withColor:KEYWORD_COLOR_IDX];
 		[self colorPattern:@"'(?:.|[\\n\\r]).*?'" inRange:range withColor:STRING2_COLOR_IDX];

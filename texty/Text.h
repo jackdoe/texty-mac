@@ -52,6 +52,7 @@
 - (void) save;
 - (BOOL) is_modified;
 - (void) goto_line:(NSInteger) want_line;
+- (NSString *) get_line:(NSInteger) lineno;
 - (void) responder;
 - (void) parse:(m_range *) m_range;
 - (void) signal;
