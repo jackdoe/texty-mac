@@ -12,7 +12,7 @@
 				<string>txt</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
-			<string>Untitled_green</string>
+			<string>texty_green.icns</string>
 			<key>CFBundleTypeName</key>
 			<string>text</string>
 			<key>CFBundleTypeRole</key>
@@ -22,7 +22,7 @@
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIconFile</key>
-	<string>Untitled.icns</string>
+	<string>texty.icns</string>
 	<key>CFBundleIdentifier</key>
 	<string>brokensociety.${PRODUCT_NAME:rfc1034identifier}</string>
 	<key>CFBundleInfoDictionaryVersion</key>

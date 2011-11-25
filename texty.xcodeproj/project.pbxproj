@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		0431B9DB147C418A00474A07 /* m_diff.m in Sources */ = {isa = PBXBuildFile; fileRef = 0431B9DA147C418A00474A07 /* m_diff.m */; };
+		045C348A147FEB6A00162AA1 /* texty.icns in Resources */ = {isa = PBXBuildFile; fileRef = 045C3489147FEB6A00162AA1 /* texty.icns */; };
+		045C348C147FEB9800162AA1 /* texty_green.icns in Resources */ = {isa = PBXBuildFile; fileRef = 045C348B147FEB9800162AA1 /* texty_green.icns */; };
 		046944D5147B96EA00256B61 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 046944D4147B96EA00256B61 /* Cocoa.framework */; };
 		046944DF147B96EA00256B61 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 046944DD147B96EA00256B61 /* InfoPlist.strings */; };
 		046944E1147B96EA00256B61 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 046944E0147B96EA00256B61 /* main.m */; };
@@ -17,16 +19,16 @@
 		0469450A147B97CB00256B61 /* m_tabManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 04694509147B97CB00256B61 /* m_tabManager.m */; };
 		04694510147B9C6B00256B61 /* Text.m in Sources */ = {isa = PBXBuildFile; fileRef = 0469450F147B9C6B00256B61 /* Text.m */; };
 		04694517147BB06300256B61 /* m_Storage.m in Sources */ = {isa = PBXBuildFile; fileRef = 04694516147BB06300256B61 /* m_Storage.m */; };
-		0469451A147BBB0400256B61 /* Untitled.icns in Resources */ = {isa = PBXBuildFile; fileRef = 04694519147BBB0300256B61 /* Untitled.icns */; };
 		04E84663147E281500E1E027 /* m_range.m in Sources */ = {isa = PBXBuildFile; fileRef = 04E84662147E281500E1E027 /* m_range.m */; };
 		04E84666147E413100E1E027 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04E84665147E413100E1E027 /* WebKit.framework */; };
 		04EE1C4A147D0ACB0056D73F /* m_exec.m in Sources */ = {isa = PBXBuildFile; fileRef = 04EE1C49147D0ACB0056D73F /* m_exec.m */; };
-		04EE1C4D147D2DD50056D73F /* Untitled_green.icns in Resources */ = {isa = PBXBuildFile; fileRef = 04EE1C4C147D2DD50056D73F /* Untitled_green.icns */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		0431B9D9147C418A00474A07 /* m_diff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = m_diff.h; sourceTree = "<group>"; };
 		0431B9DA147C418A00474A07 /* m_diff.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = m_diff.m; sourceTree = "<group>"; };
+		045C3489147FEB6A00162AA1 /* texty.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = texty.icns; sourceTree = "<group>"; };
+		045C348B147FEB9800162AA1 /* texty_green.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = texty_green.icns; sourceTree = "<group>"; };
 		046944D0147B96EA00256B61 /* texty.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = texty.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		046944D4147B96EA00256B61 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		046944D7147B96EA00256B61 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -47,13 +49,11 @@
 		0469450F147B9C6B00256B61 /* Text.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Text.m; sourceTree = "<group>"; };
 		04694515147BB06300256B61 /* m_Storage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = m_Storage.h; sourceTree = "<group>"; };
 		04694516147BB06300256B61 /* m_Storage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = m_Storage.m; sourceTree = "<group>"; };
-		04694519147BBB0300256B61 /* Untitled.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Untitled.icns; sourceTree = "<group>"; };
 		04E84661147E281500E1E027 /* m_range.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = m_range.h; sourceTree = "<group>"; };
 		04E84662147E281500E1E027 /* m_range.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = m_range.m; sourceTree = "<group>"; };
 		04E84665147E413100E1E027 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		04EE1C48147D0ACB0056D73F /* m_exec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = m_exec.h; sourceTree = "<group>"; };
 		04EE1C49147D0ACB0056D73F /* m_exec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = m_exec.m; sourceTree = "<group>"; };
-		04EE1C4C147D2DD50056D73F /* Untitled_green.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Untitled_green.icns; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -72,8 +72,8 @@
 		046944C5147B96EA00256B61 = {
 			isa = PBXGroup;
 			children = (
-				04694519147BBB0300256B61 /* Untitled.icns */,
-				04EE1C4C147D2DD50056D73F /* Untitled_green.icns */,
+				045C348B147FEB9800162AA1 /* texty_green.icns */,
+				045C3489147FEB6A00162AA1 /* texty.icns */,
 				046944DA147B96EA00256B61 /* texty */,
 				046944D3147B96EA00256B61 /* Frameworks */,
 				046944D1147B96EA00256B61 /* Products */,
@@ -129,7 +129,6 @@
 				046944E9147B96EB00256B61 /* MainMenu.xib */,
 				046944DB147B96EA00256B61 /* Supporting Files */,
 			);
-			name = texty;
 			path = texty;
 			sourceTree = "<group>";
 		};
@@ -198,8 +197,8 @@
 				046944DF147B96EA00256B61 /* InfoPlist.strings in Resources */,
 				046944E5147B96EA00256B61 /* Credits.rtf in Resources */,
 				046944EB147B96EB00256B61 /* MainMenu.xib in Resources */,
-				0469451A147BBB0400256B61 /* Untitled.icns in Resources */,
-				04EE1C4D147D2DD50056D73F /* Untitled_green.icns in Resources */,
+				045C348A147FEB6A00162AA1 /* texty.icns in Resources */,
+				045C348C147FEB9800162AA1 /* texty_green.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
