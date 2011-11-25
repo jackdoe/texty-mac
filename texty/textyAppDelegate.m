@@ -30,7 +30,4 @@
 - (NSApplicationTerminateReply) applicationShouldTerminate:(NSApplication *)sender {
 	return [self.tab gonna_terminate];
 }
-- (BOOL) windowShouldClose:(id)sender {
-	return [self.tab gonna_terminate];
-}
 @end
