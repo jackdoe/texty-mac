@@ -11,16 +11,22 @@
 	unichar first = [s characterAtIndex:para.location];
 	NSLog(@"first: '%c', last:'%c'",first,last);
 }
+- (BOOL) range:(NSRange) _range fitsInside:(NSInteger) len {
+	NSInteger max = NSMaxRange(_range);
+	if (max < len)
+		return YES;
+	return NO;
+}
 - (NSRange) paragraph:(NSTextView *) tv {
 	NSString *s = [tv string];
 	NSInteger len = [s length];
 	if (len < 1)
 		return NSMakeRange(0, 0);
+
 	NSRange para = [s paragraphRangeForRange:self.range];
-	NSRange selected = [s paragraphRangeForRange:[tv selectedRange]];
-	NSRange inter = NSIntersectionRange(para, selected);
-	if (inter.length != 0) {
-		return [s paragraphRangeForRange:inter];
+	NSRange combine = NSMakeRange(para.location, para.length+1); /* just get the next line */
+	if ([self range:combine fitsInside:len]) {
+		return [s paragraphRangeForRange:combine];
 	}
 	return para;
 }

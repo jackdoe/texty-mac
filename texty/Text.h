@@ -28,10 +28,10 @@
 #define COMMENT_COLOR_IDX 7
 #define TEXT_COLOR_IDX 8
 #define EXECUTE_COMMAND @"TEXTY_RUN_SHELL"
+#define SYNTAX_TYPE_REGEXP 1
+#define SYNTAX_TYPE_DICT 2
 #define RGB(r, g, b) [NSColor colorWithSRGBRed:r/255.0 green:g/255.0 blue:b/255.0 alpha:1]
 #endif
-#define MAX_LOCATION 1048576
-#define MAX_LOCATION_MASK 1048575
 
 @interface Text : NSObject <NSTextStorageDelegate>{
 	NSTabViewItem *tabItem;
@@ -42,6 +42,7 @@
 	BOOL something_changed,need_to_autosave;
 	unsigned long autosave_ts;
 	NSLock *serializator;
+	NSMutableArray *patterns;
 	NSDictionary *colorAttr[20];
 	NSColor *colorSet[20];
 }
@@ -58,6 +59,8 @@
 - (void) signal;
 - (void) resign;
 - (NSString *) get_execute_command;
+- (void) initSyntax;
+- (void) addSyntax:(NSString *) pattern withColor:(NSInteger) color andType:(int) type;
 @property (strong,retain) NSTabViewItem *tabItem;
 @property (retain) NSTextView *tv;
 @property (retain) NSScrollView *sv;
@@ -66,4 +69,5 @@
 @property (atomic,assign) BOOL something_changed,need_to_autosave;
 @property (assign) unsigned long autosave_ts;
 @property (retain) NSLock *serializator;
+@property (retain) NSMutableArray *patterns;
 @end

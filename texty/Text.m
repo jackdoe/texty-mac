@@ -1,6 +1,6 @@
 #import "Text.h"
 @implementation Text
-@synthesize tv,sv,box,tabItem,s,something_changed,autosave_ts,serializator,need_to_autosave;
+@synthesize tv,sv,box,tabItem,s,something_changed,autosave_ts,serializator,need_to_autosave,patterns;
 
 - (Text *) initWithFrame:(NSRect) frame {
 	self = [super init];
@@ -104,7 +104,10 @@
 		[self.tv setSelectedRange:NSMakeRange(0, 0)];
 		[self.sv becomeFirstResponder];
 }
+
+
 - (BOOL) open:(NSURL *)file {
+	self.patterns = nil;
 	if ([self.s open:file]) {
 		[self.tv setString:self.s.data];
 		self.tabItem.label = [self.s basename];
@@ -114,12 +117,14 @@
 		range.change = [[self.tv string] length];
 		[self parse:range];
 		self.autosave_ts = 0;
+		[self initSyntax];
 		return YES;
 	}
 	return NO;
 }
 - (void) saveAs:(NSURL *) to {
 	[self.s migrate:to];
+	[self initSyntax];
 	self.tabItem.label = [self.s basename];
 }
 - (void) save {
@@ -205,14 +210,6 @@
 	NSLayoutManager *lm = [[self.tv.textStorage layoutManagers] objectAtIndex: 0];
 	[lm setTemporaryAttributes:colorAttr[color] forCharacterRange:range];
 }
-- (void) colorPattern:(NSString *)pattern inRange:(NSRange) range withColor:(int) color {
-	NSString *t = [self.tv string];
-	NSRegularExpression *regexp = [NSRegularExpression regularExpressionWithPattern:pattern options:0 error:nil];
-	NSArray *matches = [regexp matchesInString:t options:0 range:range];
-	for (NSTextCheckingResult *match in matches) {
-		[self color:[match range] withColor:color];
-	}
-}
 
 - (BOOL) extIs:(NSArray *) ext {
 	NSString *fileExt = [self.s.fileURL pathExtension];
@@ -224,18 +221,72 @@
 
 - (void) parse:(m_range *) m_range {
 	NSRange range = [m_range paragraph:self.tv];
-	[self clearColors:range];
-	if ([self extIs:[NSArray arrayWithObjects:@"c",@"h", nil]]) {
-		[self colorPattern:@"\\b(\\d+)\\b" inRange:range withColor:VALUE_COLOR_IDX];
-		[self colorPattern:@"\\b(goto|break|return|continue|asm|case|default|if|else|switch|while|for|do|done)\\b" inRange:range withColor:KEYWORD_COLOR_IDX];
-		[self colorPattern:@"'(?:.|[\\n\\r]).*?'" inRange:range withColor:STRING2_COLOR_IDX];
-		[self colorPattern:@"\"[^\"\\]*(?:\\.[^\"\\]*)*\"" inRange:range withColor:STRING1_COLOR_IDX];
-		[self colorPattern:@"(//|#).*" inRange:range withColor:COMMENT_COLOR_IDX];
-		[self colorPattern:@"/\\*(?:.|[\\n\\r])*?\\*/" inRange:range withColor:COMMENT_COLOR_IDX];
+	NSString *t = [self.tv string];
+	
+	if (self.patterns) {
+		[self clearColors:range];
+		for (NSMutableArray *item in self.patterns) {
+			int color = [[item objectAtIndex:1] intValue];
+			id value = [item objectAtIndex:0];
+			if ([value isKindOfClass:[NSMutableDictionary class]]) {
+				[t enumerateSubstringsInRange:range options:NSStringEnumerationByWords usingBlock:^(NSString *substring, NSRange substringRange, NSRange enclosingRange, BOOL *stop) {
+					if ([(NSMutableDictionary *) value objectForKey:substring]) {
+						[self color:substringRange withColor:color];
+					}
+				}];
+			} else {
+				NSArray *matches = [(NSRegularExpression *) value matchesInString:t options:0 range:range];
+				for (NSTextCheckingResult *match in matches) {
+					[self color:[match range] withColor:color];
+				}
+			}
+		}
 	}
-	[self colorPattern:[NSString stringWithFormat:@"\\b%@\\b",EXECUTE_COMMAND] inRange:range withColor:CONDITION_COLOR_IDX];
+}
+- (void) addSyntax:(NSString *) pattern withColor:(NSInteger) color andType:(int) type {
+	NSMutableArray *item = [NSMutableArray array];
+
+	if (type == SYNTAX_TYPE_REGEXP) {
+		NSError *err;
+		NSRegularExpression *regexp = [[NSRegularExpression alloc] initWithPattern:pattern options:0 error:&err];
+		if (err) {
+			NSLog(@"failed to create %@",pattern);
+			return;
+		}
+		[item addObject:[regexp copy]];
+	} else {
+		NSArray *c = [pattern componentsSeparatedByString:@" "];
+		NSMutableDictionary *value = [NSMutableDictionary dictionary];
+		for (NSString *e in c) {
+			[value setValue:@"" forKey:[e copy]];
+		}
+		[item addObject:value];
+	}
+	[item addObject:[NSNumber numberWithInteger:color]];
+	[self.patterns addObject:item];
+
 }
 
+- (void) initSyntax {
+	self.patterns = nil;
+	self.patterns = [[NSMutableArray alloc] init];
+	if ([self extIs:[NSArray arrayWithObjects:@"c",@"h", nil]]) {
+		[self addSyntax:@"\\b(\\d+)\\b" withColor:VALUE_COLOR_IDX andType:SYNTAX_TYPE_REGEXP];
+		[self addSyntax:@"goto break return continue asm case default if else switch while for do" withColor:KEYWORD_COLOR_IDX andType:SYNTAX_TYPE_DICT];
+		[self addSyntax:@"int long short char void signed unsigned float double size_t ssize_t off_t wchar_t ptrdiff_t sig_atomic_t fpos_t clock_t time_t va_list jmp_buf FILE DIR div_t ldiv_t mbstate_t wctrans_t wint_t wctype_t bool complex int8_t int16_t int32_t int64_t uint8_t uint16_t uint32_t uint64_t int_least8_t int_least16_t int_least32_t int_least64_t  uint_least8_t uint_least16_t uint_least32_t uint_least64_t int_fast8_t int_fast16_t int_fast32_t int_fast64_t  uint_fast8_t uint_fast16_t uint_fast32_t uint_fast64_t intptr_t uintptr_t intmax_t uintmax_t __label__ __complex__ __volatile__ struct union enum typedef static register auto volatile extern const" withColor:VARTYPE_COLOR_IDX andType:SYNTAX_TYPE_DICT];
+		[self addSyntax:@"\".*\"" withColor:STRING1_COLOR_IDX andType:SYNTAX_TYPE_REGEXP]; /* XXX */
+		[self addSyntax:@"'.*'"	withColor:STRING2_COLOR_IDX andType:SYNTAX_TYPE_REGEXP]; /* XXX */
+		[self addSyntax:@"//.*?[\\n|\\r]" withColor:COMMENT_COLOR_IDX andType:SYNTAX_TYPE_REGEXP];
+	} else if ([self extIs:[NSArray arrayWithObjects:@"php", nil]]) {
+		[self addSyntax:@"\\b(\\d+)\\b" withColor:VALUE_COLOR_IDX andType:SYNTAX_TYPE_REGEXP];
+		[self addSyntax:@"goto break return continue asm case default if else switch while for do" withColor:KEYWORD_COLOR_IDX andType:SYNTAX_TYPE_DICT];
+		[self addSyntax:@"\".*\"" withColor:STRING1_COLOR_IDX andType:SYNTAX_TYPE_REGEXP]; /* XXX */
+		[self addSyntax:@"'.*'"	withColor:STRING2_COLOR_IDX andType:SYNTAX_TYPE_REGEXP]; /* XXX */
+		[self addSyntax:@"\\$\\w+" withColor:VARTYPE_COLOR_IDX andType:SYNTAX_TYPE_REGEXP];
+		[self addSyntax:@"//.*?[\\n|\\r]" withColor:COMMENT_COLOR_IDX andType:SYNTAX_TYPE_REGEXP];
+	}
+	[self addSyntax:[NSString stringWithFormat:@"\\b%@\\b",EXECUTE_COMMAND] withColor:CONDITION_COLOR_IDX andType:SYNTAX_TYPE_REGEXP];
+}
 - (void) textStorageWillProcessEditing:(NSNotification *)notification {
 	[self.serializator lock];
 	self.something_changed = YES;
