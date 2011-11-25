@@ -179,7 +179,7 @@
 - (void) signal {
 	[self.serializator lock];
 	if (self.need_to_autosave) {
-		if (time(NULL) - self.autosave_ts > 60) {
+		if (time(NULL) - self.autosave_ts > AUTOSAVE_INTERVAL) {
 			if (self.s.temporary)
 				[self save];
 			else 

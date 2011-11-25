@@ -31,6 +31,8 @@
 #define SYNTAX_TYPE_REGEXP 1
 #define SYNTAX_TYPE_DICT 2
 #define RGB(r, g, b) [NSColor colorWithSRGBRed:r/255.0 green:g/255.0 blue:b/255.0 alpha:1]
+
+#define AUTOSAVE_INTERVAL 60 /* in seconds */
 #endif
 
 @interface Text : NSObject <NSTextStorageDelegate>{
