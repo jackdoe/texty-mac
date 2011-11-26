@@ -77,7 +77,8 @@ struct _hash_table {
         SLIST_HEAD(,_hash_entry) head;
 };
 struct _hash_entry {
-        char data[WORD_SIZE];
+		/* we are not using struct word to keep this a minimum size entry */
+        unichar data[WORD_SIZE]; 
         char len;
         char color;
         SLIST_ENTRY(_hash_entry) list;  
@@ -106,10 +107,11 @@ static inline void word_begin(struct word *w, NSInteger pos);
 static inline void word_end(struct word *w);
 static inline int word_append(struct word *w, unichar c, NSInteger pos,char current_block_type);
 static inline int word_is_valid_word(struct word *w);
+static inline void word_dump(struct word *w);
 static struct word * word_new(struct word_head *wh);
 #endif
 
-@interface Text : NSObject <NSTextStorageDelegate>{
+@interface Text : NSObject <NSTextStorageDelegate,NSTextViewDelegate>{
 	NSTabViewItem *tabItem;
 	NSTextView *tv;
 	NSScrollView *sv;

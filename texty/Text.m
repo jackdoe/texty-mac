@@ -45,6 +45,7 @@
 	self.tabItem.identifier = self;
 	self.tabItem.view = self.sv;
 	self.tv = [[NSTextView alloc] initWithFrame:NSMakeRect(0, 0, contentSize.width, contentSize.height)];
+	self.tv.delegate = self;
 	self.tv.textStorage.delegate = self;
 	[self.tv setMinSize:NSMakeSize(0.0, contentSize.height)];
 	[self.tv setMaxSize:NSMakeSize(FLT_MAX, FLT_MAX)];
@@ -52,7 +53,7 @@
 	[self.tv setHorizontallyResizable:YES];
 	[self.tv setAutoresizingMask:NSViewWidthSizable];
 	self.tv.allowsUndo = YES;
-	self.tv.usesRuler = NO;
+	[self.tv setUsesRuler:NO];
 	self.tv.usesFindBar = YES;
 	[self.tv.textStorage setParagraphs:nil];
 	[self.tv setAutomaticDashSubstitutionEnabled:NO];
@@ -63,14 +64,17 @@
 	[self.tv setImportsGraphics:NO];
 	[[self.tv textContainer] setContainerSize:NSMakeSize(contentSize.width, FLT_MAX)];
 	[[self.tv textContainer] setWidthTracksTextView:YES];
+	NSMutableDictionary *selected = [[self.tv selectedTextAttributes] mutableCopy];
+	NSMutableParagraphStyle *para = [[NSMutableParagraphStyle alloc] init];
+	[para setLineSpacing:NSLineBreakByTruncatingHead];
+	[para setDefaultTabInterval:36.];
+	[para setTabStops:[NSArray array]];	
+	[self.tv setDefaultParagraphStyle:para];
+	[self.tv setTypingAttributes:[NSDictionary dictionaryWithObject:para forKey:NSParagraphStyleAttributeName]];
 	[self.tv setFont:FONT];
 	[self.tv setRichText:NO];
 	[self.tv setTextColor:TEXT_COLOR];
 	[self.tv setCanDrawConcurrently:NO];
-	NSMutableDictionary *selected = [[self.tv selectedTextAttributes] mutableCopy];
-	NSMutableParagraphStyle *para = [[self.tv defaultParagraphStyle] mutableCopy];
-	[para setLineSpacing:NSLineBreakByTruncatingHead];
-	[self.tv setDefaultParagraphStyle:para];
 	[selected setObject:BG_COLOR forKey:NSForegroundColorAttributeName];
 	[selected setObject:TEXT_COLOR forKey:NSBackgroundColorAttributeName];
 	[self.tv setSelectedTextAttributes:selected];
@@ -237,6 +241,22 @@ static void hash_init(struct _hash_table *t) {
 		t[i].count = 0;
 	}
 }
+- (NSArray *) hash_to_array:(NSString *) part {
+	NSMutableArray *ret = [NSMutableArray array];
+	for (int i=0;i<HASH_SIZE;i++) {
+		if (!SLIST_EMPTY(&hash[i].head)) {
+			struct _hash_entry *e;
+			SLIST_FOREACH(e, &hash[i].head, list) {
+				NSString *word = [NSString stringWithCharacters:e->data length:e->len];
+				NSRange range = [word rangeOfString:part];
+				if (range.location == 0) {
+					[ret addObject:[word copy]];
+				}
+			}
+		}
+	}
+	return [NSArray arrayWithArray:ret];
+}
 static unsigned long hash_get_bucket(unichar *word) {
         /* from gawk */
         unsigned long hash = 0;
@@ -268,10 +288,10 @@ static struct _hash_entry *hash_insert(struct _hash_table *t,struct word *w) {
 		NSLog(@"no mem for hash entry");
 		return NULL;
 	}
+	bzero(e,sizeof(*e));
 	e->len = w->len;
-	bcopy(w->data,e->data,w->len);
+	bcopy(w->data,e->data,WORD_SIZE);
 	unsigned long k = hash_get_bucket(w->data);
-
 	t[k].count++;
 	SLIST_INSERT_HEAD(&t[k].head, e, list);
 	return e;
@@ -420,6 +440,7 @@ keyword_only:
 		}
 		prev = c;
 	}
+
 	if (block_end(&b,B_FORCE)) {
 		[self color:b.range withColor:b.color];
 	}
@@ -480,11 +501,13 @@ next:
 	self.syntax_var_symbol = 0;
 	self.syntax_color_numbers = 0;
 	self.syntax_color = 0;
+	[self.box setHidden:YES];
 	if ([self extIs:[NSArray arrayWithObjects:@"c",@"h", nil]]) {
 		[self addKeywords:@"goto break return continue asm case default if else switch while for do" withColor:KEYWORD_COLOR_IDX];
 		[self addKeywords:@"int long short char void signed unsigned float double size_t ssize_t off_t wchar_t ptrdiff_t sig_atomic_t fpos_t clock_t time_t va_list jmp_buf FILE DIR div_t ldiv_t mbstate_t wctrans_t wint_t wctype_t bool complex int8_t int16_t int32_t int64_t uint8_t uint16_t uint32_t uint64_t int_least8_t int_least16_t int_least32_t int_least64_t  uint_least8_t uint_least16_t uint_least32_t uint_least64_t int_fast8_t int_fast16_t int_fast32_t int_fast64_t  uint_fast8_t uint_fast16_t uint_fast32_t uint_fast64_t intptr_t uintptr_t intmax_t uintmax_t __label__ __complex__ __volatile__ struct union enum typedef static register auto volatile extern const" withColor:VARTYPE_COLOR_IDX];
 		self.syntax_color_numbers=1;
 		self.syntax_color = 1;
+		[self.box setHidden:NO];
 	} else if ([self extIs:[NSArray arrayWithObjects:@"php", nil]]) {
 		[self addKeywords:@"abstract and as break case catch class clone const continue declare default do else elseif enddeclare endfor endforeach endif end switch while extends array final for foreach function global goto if implements interface instanceof namespace new or private protected public static switch throw try use var while xor __CLASS__ __DIR__ __FILE__ __LINE__ __FUNCTION__ __METHOD__ __NAMESPACE__" withColor:KEYWORD_COLOR_IDX];
 		self.syntax_var_symbol = '$';
@@ -498,7 +521,11 @@ next:
 	}
 	[self addKeywords:EXECUTE_COMMAND withColor:CONDITION_COLOR_IDX];
 }
-
+#pragma mark textStorage proto
+- (NSArray *) textView:(NSTextView *)textView completions:(NSArray *)words forPartialWordRange:(NSRange)charRange indexOfSelectedItem:(NSInteger *)index {
+	NSString *part = [[self.tv string] substringWithRange:charRange];
+	return [self hash_to_array:part];
+}
 - (void) textStorageWillProcessEditing:(NSNotification *)notification {
 	[self.serializator lock];
 	self.something_changed = YES;

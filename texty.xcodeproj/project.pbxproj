@@ -303,6 +303,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "texty/texty-Prefix.pch";
 				INFOPLIST_FILE = "texty/texty-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = texty;
 				WRAPPER_EXTENSION = app;
 			};
@@ -314,6 +315,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "texty/texty-Prefix.pch";
 				INFOPLIST_FILE = "texty/texty-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = texty;
 				WRAPPER_EXTENSION = app;
 			};

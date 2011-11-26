@@ -20,11 +20,11 @@
 - (NSRange) paragraph:(NSTextView *) tv {
 	NSString *s = [tv string];
 	NSInteger len = [s length];
-	if (len < 1)
-		return NSMakeRange(0, 0);
+	if (len < 1 || ![self range:self.range fitsInside:len])
+		return NSMakeRange(0, len);
 
 	NSRange para = [s paragraphRangeForRange:self.range];
-	NSRange combine = NSMakeRange(para.location, para.length+1); /* just get the next line */
+	NSRange combine = NSMakeRange(para.location, para.length+1); /* just get the next line */	
 	if ([self range:combine fitsInside:len]) {
 		return [s paragraphRangeForRange:combine];
 	}
