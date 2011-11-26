@@ -1,6 +1,6 @@
 #import "Text.h"
 @implementation Text
-@synthesize tv,sv,box,tabItem,s,something_changed,autosave_ts,serializator,need_to_autosave,syntax_var_symbol;
+@synthesize tv,sv,box,tabItem,s,something_changed,autosave_ts,serializator,need_to_autosave,syntax_var_symbol,syntax_color_numbers,syntax_color;
 
 - (Text *) initWithFrame:(NSRect) frame {
 	self = [super init];
@@ -221,28 +221,6 @@
 	NSRange range = [m_range paragraph:self.tv];
 	[self clearColors:range];
 	[self highlight:range];
-	
-//	return;
-//	NSString *t = [self.tv string];
-//	if (self.patterns) {
-//		[self clearColors:range];
-//		for (NSMutableArray *item in self.patterns) {
-//			int color = [[item objectAtIndex:1] intValue];
-//			id value = [item objectAtIndex:0];
-//			if ([value isKindOfClass:[NSMutableDictionary class]]) {
-//				[t enumerateSubstringsInRange:range options:NSStringEnumerationByWords usingBlock:^(NSString *substring, NSRange substringRange, NSRange enclosingRange, BOOL *stop) {
-//					if ([(NSMutableDictionary *) value objectForKey:substring]) {
-//						[self color:substringRange withColor:color];
-//					}
-//				}];
-//			} else {
-//				NSArray *matches = [(NSRegularExpression *) value matchesInString:t options:0 range:range];
-//				for (NSTextCheckingResult *match in matches) {
-//					[self color:[match range] withColor:color];
-//				}
-//			}
-//		}
-//	}
 }
 
 static void hash_init(struct _hash_table *t) {
@@ -270,8 +248,6 @@ static unsigned long hash_get_bucket(unichar *word) {
 }
 
 static struct _hash_entry *hash_lookup(struct _hash_table *t,struct word *w) {
-//	NSLog(@"looking(%ld) for %@",w->len,[NSString stringWithCharacters:w->data length:w->len]);
-
 	unsigned long k = hash_get_bucket(w->data);
 	if (t[k].count == 0)
 		return NULL;
@@ -312,48 +288,76 @@ static inline void block_begin(struct block *b, NSInteger pos, int type, int col
 static inline int block_end(struct block *b,int type) {
 	if (b->started && (type == b->type || type == B_FORCE)) {
 		b->started = 0;
+		b->type = 0;
 		return 1;
 	}
 	return 0;
 }
 static inline void word_begin(struct word *w, NSInteger pos) {
-	if (w->started == 0) {
-		w->pos = pos;
-		w->started = 1;
-		w->flags = 0;
-		w->data[0] = '\0';
-		w->len = 0;
-	}
+	w->pos = pos;
+	w->started = 1;
+	w->flags = 0;
+	w->data[0] = '\0';
+	w->len = 0;
 }
-static inline int word_end(struct word *w) {
-	if (w->started) {
-		w->started = 0;
-		w->data[w->len & WORD_MASK] = '\0';
-		return 1;
-	}
-	return 0;
+static inline void word_dump(struct word *w) {
+	NSLog(@"word pos,len:%ld,%ld data: '%@'",w->pos,w->len,[NSString stringWithCharacters:w->data length:w->len]);
+}
+static inline void word_end(struct word *w) {
+	w->started = 0;
+	w->data[w->len & WORD_MASK] = '\0';
 }
 static inline int word_is_valid_word(struct word *w) {
 	return ((w->flags & (WORD_NUMBER|WORD_ALPHA_LOWER|WORD_ALPHA_UPPER|WORD_DASH|WORD_VARSYMBOL)) == w->flags);
 }
-static inline int word_append(struct word *w, unichar c, NSInteger pos) {
+static inline int word_valid_symbol(unichar c) {
+	if (c >= 'a' && c <= 'z')
+		return WORD_ALPHA_LOWER;
+	else if (c >= '0' && c <= '9') 
+		return WORD_NUMBER;
+	else if (c >= 'A' && c <= 'Z') 
+		return  WORD_ALPHA_UPPER;
+	else if (c == '_')
+		return WORD_DASH;
+	else if (c == '$') 
+		return WORD_VARSYMBOL;
+//	else if (c == '#') 
+//		return WORD_SHARP;
+	else 
+		return WORD_INVALID;
+}
+static inline int word_append(struct word *w, unichar c, NSInteger pos,char current_block_type) {
+	if (!w) {
+		/* no mem */
+		return 0;
+	}
+	int flags = word_valid_symbol(c);
+	if (flags == WORD_INVALID) {
+		if (w->started) {
+			word_end(w);	
+			return WORD_ENDED;
+		} else {
+			return WORD_CONTINUE;
+		}
+		flags = 0;
+	}
 	if (!w->started)
 		word_begin(w,pos);
-	
-	if (c >= 'a' && c <= 'z')
-		w->flags |= WORD_ALPHA_LOWER;
-	else if (c >= '0' && c <= '9') 
-		w->flags |= WORD_NUMBER;
-	else if (c >= 'A' && c <= 'Z') 
-		w->flags |= WORD_ALPHA_UPPER;
-	else if (c == '_' || c == '-')
-		w->flags |= WORD_DASH;
-	else if (c == '$') 
-		w->flags |= WORD_VARSYMBOL;
-	else 
-		return word_end(w);
+
+	w->current_block_type = current_block_type;
+	w->flags |= flags;
 	w->data[w->len++ & WORD_MASK] = c;
-	return 0;
+	return WORD_CONTINUE;
+}
+
+static struct word * word_new(struct word_head *wh) {
+	struct word *w;
+	w = malloc(sizeof(*w));
+	if (w) {
+		bzero(w,sizeof(*w));
+		Q_APPEND(wh, w);
+	}
+	return w;
 }
 
 - (void) highlight:(NSRange) range {
@@ -361,11 +365,16 @@ static inline int word_append(struct word *w, unichar c, NSInteger pos) {
 	NSInteger pos;
 	unichar prev=0,c;
 	struct block b;
-	struct word w;
+	struct word *w;
+	struct word_head wh;
 	bzero(&b,sizeof(b));
-	bzero(&w,sizeof(w));
+	bzero(&wh,sizeof(wh));
+	w = word_new(&wh);
+	
 	for (pos = range.location; pos < NSMaxRange(range); pos++) {
 		c = [string characterAtIndex:pos];
+		if (!self.syntax_color)
+			goto keyword_only;
 		switch(c) {
 		case '/':
 			if (prev == '/' && !b.started) {
@@ -388,6 +397,7 @@ static inline int word_append(struct word *w, unichar c, NSInteger pos) {
 		case '"':
 			if (prev == '\\')
 				break;
+				
 			if (!b.started) {
 				block_begin(&b,pos,B_STRING_1,STRING1_COLOR_IDX);
 			} else if (block_end(&b,B_STRING_1)) {
@@ -404,24 +414,46 @@ static inline int word_append(struct word *w, unichar c, NSInteger pos) {
 		}
 		b.range.length++;
 
-		if (word_append(&w,c,pos)) {
-			if (b.type != B_COMMENT && word_is_valid_word(&w)) {
-				NSRange wordRange = NSMakeRange(w.pos, w.len);
-				if (self.syntax_var_symbol && w.data[0] == self.syntax_var_symbol) {
-					[self color:wordRange withColor:VARTYPE_COLOR_IDX];
-				} else if ((w.flags & WORD_NUMBER) == w.flags) {
-					[self color:wordRange withColor:VALUE_COLOR_IDX];
-				} else {
-					struct _hash_entry *e = hash_lookup(&hash[0],&w);
-					if (e) 
-						[self color:wordRange withColor:e->color];
-				}
-			}
+keyword_only:
+		if (word_append(w,c,pos,b.type) == WORD_ENDED) {
+			w = word_new(&wh);
 		}
 		prev = c;
 	}
 	if (block_end(&b,B_FORCE)) {
 		[self color:b.range withColor:b.color];
+	}
+
+	while ((w = wh.head) != NULL) {
+		wh.head = w->next;
+		if (!word_is_valid_word(w))
+			goto next;
+		switch (w->current_block_type) {
+		case B_COMMENT:
+				/* nothing */
+		break;
+		case B_STRING_1:
+		case B_STRING_2:
+				/* color only variables */
+				if (self.syntax_var_symbol > 0 && w->data[0] == self.syntax_var_symbol) {
+					[self color:NSMakeRange(w->pos, w->len) withColor:VARTYPE_COLOR_IDX];				
+				}
+		break;
+		default:
+			if ((w->flags & WORD_NUMBER) == w->flags) {
+				if (self.syntax_color_numbers) /* assume we have no number only keywords */
+					[self color:NSMakeRange(w->pos, w->len) withColor:VALUE_COLOR_IDX];	
+			} else if (self.syntax_var_symbol > 0 && w->data[0] == self.syntax_var_symbol) {
+				[self color:NSMakeRange(w->pos, w->len) withColor:VARTYPE_COLOR_IDX];
+			} else {
+				struct _hash_entry *e = hash_lookup(&hash[0],w);
+				if (e) 
+					[self color:NSMakeRange(w->pos, w->len) withColor:e->color];			
+			}
+		break;
+		}
+next:
+		free(w);
 	}
 }
 - (void) string:(NSString *) source toWordStruct:(struct word *) w {
@@ -446,12 +478,23 @@ static inline int word_append(struct word *w, unichar c, NSInteger pos) {
 - (void) initSyntax {
 	hash_init(&hash[0]);
 	self.syntax_var_symbol = 0;
+	self.syntax_color_numbers = 0;
+	self.syntax_color = 0;
 	if ([self extIs:[NSArray arrayWithObjects:@"c",@"h", nil]]) {
 		[self addKeywords:@"goto break return continue asm case default if else switch while for do" withColor:KEYWORD_COLOR_IDX];
 		[self addKeywords:@"int long short char void signed unsigned float double size_t ssize_t off_t wchar_t ptrdiff_t sig_atomic_t fpos_t clock_t time_t va_list jmp_buf FILE DIR div_t ldiv_t mbstate_t wctrans_t wint_t wctype_t bool complex int8_t int16_t int32_t int64_t uint8_t uint16_t uint32_t uint64_t int_least8_t int_least16_t int_least32_t int_least64_t  uint_least8_t uint_least16_t uint_least32_t uint_least64_t int_fast8_t int_fast16_t int_fast32_t int_fast64_t  uint_fast8_t uint_fast16_t uint_fast32_t uint_fast64_t intptr_t uintptr_t intmax_t uintmax_t __label__ __complex__ __volatile__ struct union enum typedef static register auto volatile extern const" withColor:VARTYPE_COLOR_IDX];
+		self.syntax_color_numbers=1;
+		self.syntax_color = 1;
 	} else if ([self extIs:[NSArray arrayWithObjects:@"php", nil]]) {
 		[self addKeywords:@"abstract and as break case catch class clone const continue declare default do else elseif enddeclare endfor endforeach endif end switch while extends array final for foreach function global goto if implements interface instanceof namespace new or private protected public static switch throw try use var while xor __CLASS__ __DIR__ __FILE__ __LINE__ __FUNCTION__ __METHOD__ __NAMESPACE__" withColor:KEYWORD_COLOR_IDX];
 		self.syntax_var_symbol = '$';
+		self.syntax_color_numbers = 1;
+		self.syntax_color = 1;
+	} else if ([self extIs:[NSArray arrayWithObjects:@"sh", nil]]) {
+		[self addKeywords:@"esac break return continue case default if else switch while for do" withColor:KEYWORD_COLOR_IDX];
+		self.syntax_var_symbol = '$';
+		self.syntax_color_numbers = 1;		
+		self.syntax_color = 1;
 	}
 	[self addKeywords:EXECUTE_COMMAND withColor:CONDITION_COLOR_IDX];
 }

@@ -40,12 +40,17 @@
 #define HASH_MASK HASH_SIZE - 1
 #define WORD_SIZE 32
 #define WORD_MASK WORD_SIZE - 1
+#define WORD_INVALID 		0
 #define WORD_ALPHA_LOWER 	1
 #define WORD_ALPHA_UPPER 	2
 #define WORD_NUMBER			4
 #define WORD_OTHER			8
 #define WORD_DASH			16
 #define WORD_VARSYMBOL		32
+#define WORD_ENDED			64
+#define WORD_CONTINUE		128
+#define WORD_SHARP			256
+
 struct block {
 	NSRange range;
 	char started;
@@ -59,9 +64,14 @@ struct word {
 	NSInteger len;
 	unsigned int flags;
 	NSInteger pos;
+	char current_block_type;
 	char started;
+	struct word *next;
 };
-
+struct word_head {
+	struct word *head;
+	struct word *tail;
+};
 struct _hash_table {
         char count;
         SLIST_HEAD(,_hash_entry) head;
@@ -73,6 +83,19 @@ struct _hash_entry {
         SLIST_ENTRY(_hash_entry) list;  
 };
 
+#define Q_APPEND(_q,_m)                         \
+do {                                            \
+        if (_q->head == NULL)                   \
+                _q->head = _m;                  \
+        else                                    \
+                _q->tail->next = _m;            \
+        _q->tail = _m;                          \
+        _m->next = NULL;                        \
+} while (0);
+
+
+
+
 static void hash_init(struct _hash_table *t);
 static unsigned long hash_get_bucket(unichar *word);
 static struct _hash_entry *hash_lookup(struct _hash_table *t,struct word *w);
@@ -80,9 +103,10 @@ static struct _hash_entry *hash_insert(struct _hash_table *t,struct word *w);
 static inline void block_begin(struct block *b, NSInteger pos, int type, int color);
 static inline int block_end(struct block *b,int type);
 static inline void word_begin(struct word *w, NSInteger pos);
-static inline int word_end(struct word *w);
-static inline int word_append(struct word *w, unichar c, NSInteger pos);
+static inline void word_end(struct word *w);
+static inline int word_append(struct word *w, unichar c, NSInteger pos,char current_block_type);
 static inline int word_is_valid_word(struct word *w);
+static struct word * word_new(struct word_head *wh);
 #endif
 
 @interface Text : NSObject <NSTextStorageDelegate>{
@@ -97,6 +121,8 @@ static inline int word_is_valid_word(struct word *w);
 	NSDictionary *colorAttr[20];
 	NSColor *colorSet[20];
 	unichar syntax_var_symbol;
+	char 	syntax_color_numbers;
+	char 	syntax_color;
 	struct _hash_table hash[HASH_SIZE];
 }
 - (Text *) initWithFrame:(NSRect) frame;
@@ -126,4 +152,5 @@ static inline int word_is_valid_word(struct word *w);
 @property (assign) unsigned long autosave_ts;
 @property (retain) NSLock *serializator;
 @property (assign) unichar syntax_var_symbol;
+@property (assign) char syntax_color_numbers,syntax_color;
 @end
