@@ -4,6 +4,8 @@
 #ifndef TEXT_H
 #define TEXT_H
 #include <sys/queue.h>
+
+#define DEFAULT_EXECUTE_TIMEOUT 1
 #define FONT [NSFont fontWithName:@"Monaco" size:12]
 #define LINE_80_COLOR RGB(150, 150, 150) 
 #define TEXT_COLOR RGB(0xE0,0xE2,0xE4)

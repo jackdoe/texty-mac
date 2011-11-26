@@ -2,7 +2,7 @@
 #define EXECUTE_TYPE_SHELL 1
 #define EXECUTE_TYPE_WWW 2
 @implementation m_tabManager
-@synthesize tabView,goto_window,timer,modal_panel,modal_tv,modal_www;
+@synthesize tabView,goto_window,timer,modal_panel,modal_tv,modal_www,modal_field;
 - (m_tabManager *) init {
 	return [self initWithFrame:[[NSApp mainWindow] frame]];
 }
@@ -119,17 +119,28 @@
 	Text *t = [self.tabView selectedTabViewItem].identifier;
 	NSString *cmd = [t get_execute_command];
 	cmd = [cmd stringByReplacingOccurrencesOfString:@"{MYSELF}" withString:[t.s.fileURL path]];
+	cmd = [cmd stringByReplacingOccurrencesOfString:@"{MYDIR}" withString:[[t.s.fileURL path] stringByDeletingLastPathComponent]];
 	if (cmd) {
 		int type = EXECUTE_TYPE_SHELL;
 		NSString *data;
 		[t save];
+		[self.modal_field setStringValue:cmd];
 		NSRange found = [cmd rangeOfString:@"^\\s*?http://" options:NSRegularExpressionSearch];
 		if (found.location != NSNotFound) {
 			type = EXECUTE_TYPE_WWW;
 			data = cmd;
 			data = [cmd stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 		} else {
-			data = [m_exec execute:cmd];
+			int rc = 0;
+			int timeout = DEFAULT_EXECUTE_TIMEOUT;  
+			NSRange r = [cmd rangeOfString:@"{NOTIMEOUT}"];
+			if (r.location != NSNotFound) {
+				timeout = 0;
+				cmd = [cmd stringByReplacingOccurrencesOfString:@"{NOTIMEOUT}" withString:@""];
+			}
+			[self.modal_field setStringValue:[NSString stringWithFormat:@"executed(timeout: %@, RC: %d): %@",(timeout == 0 ? @"NOTIMEOUT" : [NSString stringWithFormat:@"%d",timeout]),rc,cmd]];
+			type = EXECUTE_TYPE_SHELL;
+			data = [m_exec execute:cmd withTimeout:timeout saveRC:&rc];
 		}
 		[self runModalWithString:data andType:type];
 	}

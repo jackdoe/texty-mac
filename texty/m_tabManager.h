@@ -8,6 +8,7 @@
 	NSWindow * IBOutlet modal_panel;
 	NSTextView * IBOutlet modal_tv;
 	WebView * IBOutlet modal_www;
+	NSTextField * IBOutlet modal_field;
 	NSTimer *timer;
 }
 - (m_tabManager *) initWithFrame:(NSRect) frame;
@@ -34,4 +35,5 @@
 @property (retain) NSWindow *modal_panel;
 @property (retain) NSTextView *modal_tv;
 @property (retain) WebView *modal_www;
+@property (retain) NSTextField *modal_field;
 @end
