@@ -29,11 +29,9 @@
 	[self.tabView selectNextTabViewItem:nil];
 }
 - (void) signal:(id) sender {
-	NSArray *a = [self.tabView tabViewItems];
-	for (NSTabViewItem *tabItem in a) {
-		Text *t = tabItem.identifier;
+	[self walk_tabs:^(Text *t) {
 		[t signal];
-	}
+	}];
 }
 - (void) handleTimer:(id) sender {
 	[self performSelectorOnMainThread:@selector(signal:) withObject:self waitUntilDone:YES];
@@ -146,28 +144,42 @@
 	}
 }
 - (void) open:(NSURL *) file{
-	Text *t = [[Text alloc] initWithFrame:[self.tabView frame]];
-	if ([t open:file]) {
-		[self.tabView addTabViewItem:t.tabItem];
-		[self.tabView selectTabViewItem:t.tabItem];
+	__block Text *o = nil;
+	[self walk_tabs:^(Text *t) {
+		if ([t.s.fileURL isEqualTo:file]) {
+			o = t;
+		};
+	}];
+	if (o) {
+		[self.tabView selectTabViewItem:o.tabItem];	
+		return;
+	}
+	
+	o = [[Text alloc] initWithFrame:[self.tabView frame]];
+	if ([o open:file]) {
+		[self.tabView addTabViewItem:o.tabItem];
+		[self.tabView selectTabViewItem:o.tabItem];
 	}
 }
 - (IBAction) save_all:(id) sender {
+	[self walk_tabs:^(Text *t) {
+		[t save];
+	}];
+}
+- (void) walk_tabs:(void (^)(Text *t)) callback {
 	NSArray *a = [self.tabView tabViewItems];
 	for (NSTabViewItem *tabItem in a) {
 		Text *t = tabItem.identifier;
-		[t save];
-	}
+		callback(t);
+	}	
 }
 - (NSApplicationTerminateReply) gonna_terminate {
-	NSArray *a = [self.tabView tabViewItems];
-	unsigned int have_unsaved = 0;
-	for (NSTabViewItem *tabItem in a) {
-		Text *t = tabItem.identifier;
+	__block unsigned int have_unsaved = 0;
+	[self walk_tabs:^(Text *t) {
 		if ([t is_modified]) {
 			have_unsaved++;;
-		}
-	}
+		}		
+	}];
 	if (have_unsaved) {
 		NSInteger alertReturn = NSRunAlertPanel(@"got unsaved data", [NSString stringWithFormat:@"You have unsaved data for %u files.",have_unsaved] ,@"Cancel", @"Save All & Exit",@"Exit without saving!");
 		if (alertReturn == NSAlertAlternateReturn) {

@@ -25,6 +25,7 @@
 - (IBAction)run_button:(id)sender;
 - (IBAction)save_all:(id)sender;
 - (IBAction)modal_escape:(id)sender;
+- (void) walk_tabs:(void (^)(Text *t)) callback;
 - (void) open:(NSURL *) file;
 - (NSApplicationTerminateReply) gonna_terminate;
 - (void)sheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo;
