@@ -1,6 +1,6 @@
 #import "Text.h"
 @implementation Text
-@synthesize tv,sv,box,tabItem,s,something_changed,autosave_ts,serializator,need_to_autosave,syntax_var_symbol,syntax_color_numbers,syntax_color;
+@synthesize tv,sv,box,tabItem,s,something_changed,autosave_ts,serializator,need_to_autosave;
 
 - (Text *) initWithFrame:(NSRect) frame {
 	self = [super init];
@@ -247,7 +247,7 @@ static void hash_init(struct _hash_table *t) {
 		if (!SLIST_EMPTY(&hash[i].head)) {
 			struct _hash_entry *e;
 			SLIST_FOREACH(e, &hash[i].head, list) {
-				NSString *word = [NSString stringWithCharacters:e->data length:e->len];
+				NSString *word = [NSString stringWithCharacters:e->w.data length:e->w.len];
 				NSRange range = [word rangeOfString:part];
 				if (range.location == 0) {
 					[ret addObject:[word copy]];
@@ -273,7 +273,7 @@ static struct _hash_entry *hash_lookup(struct _hash_table *t,struct word *w) {
 		return NULL;
 	struct _hash_entry *e;
 	SLIST_FOREACH(e, &t[k].head, list) {
-		if (e->len == w->len && bcmp(e->data,w->data,e->len) == 0) {
+		if (e->w.len == w->len && bcmp(e->w.data,w->data,e->w.len) == 0) {
 			return e;
 		}
 	}
@@ -289,30 +289,28 @@ static struct _hash_entry *hash_insert(struct _hash_table *t,struct word *w) {
 		return NULL;
 	}
 	bzero(e,sizeof(*e));
-	e->len = w->len;
-	bcopy(w->data,e->data,WORD_SIZE);
+	bcopy(w,&e->w,sizeof(*w));
 	unsigned long k = hash_get_bucket(w->data);
 	t[k].count++;
 	SLIST_INSERT_HEAD(&t[k].head, e, list);
 	return e;
 }
 
-static inline void block_begin(struct block *b, NSInteger pos, int type, int color) {
-	if (b->started == 0) {
-		b->range = NSMakeRange(pos, 0);
-		b->type = type;
-		b->started = 1;
-		b->color = color;
+static inline void block_begin(struct block *b, NSInteger pos) {
+	b->range = NSMakeRange(pos, 0);
+	b->started = 1;
+}
+#define BLOCK_BEGINS 1
+#define BLOCK_ENDS 2
+
+static inline int block_cond(struct block *b, char cmask, char pmask,int type) {
+	if (type == BLOCK_BEGINS) {
+		return (pmask != '\\' && b->char_begin == cmask && (b->char_begin_prev == 0 || b->char_begin_prev == pmask));
+	} else {
+		return (pmask != '\\' && b->char_end == cmask && (b->char_end_prev == 0 || b->char_end_prev == pmask));
 	}
 }
-static inline int block_end(struct block *b,int type) {
-	if (b->started && (type == b->type || type == B_FORCE)) {
-		b->started = 0;
-		b->type = 0;
-		return 1;
-	}
-	return 0;
-}
+
 static inline void word_begin(struct word *w, NSInteger pos) {
 	w->pos = pos;
 	w->started = 1;
@@ -341,12 +339,10 @@ static inline int word_valid_symbol(unichar c) {
 		return WORD_DASH;
 	else if (c == '$') 
 		return WORD_VARSYMBOL;
-//	else if (c == '#') 
-//		return WORD_SHARP;
 	else 
 		return WORD_INVALID;
 }
-static inline int word_append(struct word *w, unichar c, NSInteger pos,char current_block_type) {
+static inline int word_append(struct word *w, unichar c, NSInteger pos,char current_block_flags) {
 	if (!w) {
 		/* no mem */
 		return 0;
@@ -364,7 +360,7 @@ static inline int word_append(struct word *w, unichar c, NSInteger pos,char curr
 	if (!w->started)
 		word_begin(w,pos);
 
-	w->current_block_type = current_block_type;
+	w->current_block_flags = current_block_flags;
 	w->flags |= flags;
 	w->data[w->len++ & WORD_MASK] = c;
 	return WORD_CONTINUE;
@@ -384,94 +380,84 @@ static struct word * word_new(struct word_head *wh) {
 	NSString *string = [self.tv string];
 	NSInteger pos;
 	unichar prev=0,c;
-	struct block b;
 	struct word *w;
 	struct word_head wh;
-	bzero(&b,sizeof(b));
 	bzero(&wh,sizeof(wh));
 	w = word_new(&wh);
-	
+	struct block *b = NULL;
 	for (pos = range.location; pos < NSMaxRange(range); pos++) {
 		c = [string characterAtIndex:pos];
-		if (!self.syntax_color)
+		if (!_syntax_color)
 			goto keyword_only;
-		switch(c) {
-		case '/':
-			if (prev == '/' && !b.started) {
-				block_begin(&b,pos,B_COMMENT,COMMENT_COLOR_IDX);
-				/* account for the prev / */
-				b.range.location = pos-1;
-				b.range.length++;
-			}
-		break;
-		case '\'':
-			if (prev == '\\')
-				break;
-			if (!b.started) {
-				block_begin(&b,pos,B_STRING_2,STRING2_COLOR_IDX);
-			} else if (block_end(&b,B_STRING_2)) {
-				b.range.length++;
-				[self color:b.range withColor:b.color];
-			}
-		break;
-		case '"':
-			if (prev == '\\')
-				break;
-				
-			if (!b.started) {
-				block_begin(&b,pos,B_STRING_1,STRING1_COLOR_IDX);
-			} else if (block_end(&b,B_STRING_1)) {
-				b.range.length++;
-				[self color:b.range withColor:b.color];
-			}
-		break;
-		case '\n':
-		case '\r':
-			if (block_end(&b,B_FORCE)) 
-				[self color:b.range withColor:b.color];
 			
-		break;
+
+		char cmask = c & B_TABLE_MASK;
+		char pmask = prev & B_TABLE_MASK;			
+		if (b) 
+			b->range.length++;
+
+		if (b == NULL && prev != '\\') {
+			if (_syntax_blocks.b[cmask].color != 0) {
+				struct block *btemp = &_syntax_blocks.b[cmask];				
+				if (block_cond(btemp, cmask, pmask, BLOCK_BEGINS)) {
+					block_begin(btemp, pos);
+					if (btemp->char_begin_prev) {
+						btemp->range.location--;
+					}
+					b = btemp;
+					b->range.length++;
+				}
+			}
+		} else {
+			switch (c) {
+			case '\n':
+			case '\r':
+				if (prev != '\\' && (b->flags & B_ENDS_WITH_NEW_LINE)) {				
+					[self color:b->range withColor:b->color];
+					b = NULL;
+				}
+				break;
+			default:
+				if (block_cond(b, cmask, pmask, BLOCK_ENDS)) {
+						if (b->char_end_prev) {
+							b->range.length++;
+						}
+						[self color:b->range withColor:b->color];
+						b = NULL;			
+				}
+			}
 		}
-		b.range.length++;
 
 keyword_only:
-		if (word_append(w,c,pos,b.type) == WORD_ENDED) {
+		if (word_append(w,c,pos,(b ? b->flags : 0)) == WORD_ENDED) {
 			w = word_new(&wh);
 		}
 		prev = c;
 	}
 
-	if (block_end(&b,B_FORCE)) {
-		[self color:b.range withColor:b.color];
+	if (b) {
+		b->range.length++;
+		[self color:b->range withColor:b->color];
 	}
 
 	while ((w = wh.head) != NULL) {
 		wh.head = w->next;
 		if (!word_is_valid_word(w))
 			goto next;
-		switch (w->current_block_type) {
-		case B_COMMENT:
-				/* nothing */
-		break;
-		case B_STRING_1:
-		case B_STRING_2:
-				/* color only variables */
-				if (self.syntax_var_symbol > 0 && w->data[0] == self.syntax_var_symbol) {
-					[self color:NSMakeRange(w->pos, w->len) withColor:VARTYPE_COLOR_IDX];				
-				}
-		break;
-		default:
+			
+		if (w->current_block_flags && (w->current_block_flags & B_STRING_2)) {
+			if (_syntax_var_symbol > 0 && w->data[0] == _syntax_var_symbol) {
+				[self color:NSMakeRange(w->pos, w->len) withColor:VARTYPE_COLOR_IDX];				
+			}						
+		} else {
 			if ((w->flags & WORD_NUMBER) == w->flags) {
-				if (self.syntax_color_numbers) /* assume we have no number only keywords */
+				if (_syntax_color_numbers)
 					[self color:NSMakeRange(w->pos, w->len) withColor:VALUE_COLOR_IDX];	
-			} else if (self.syntax_var_symbol > 0 && w->data[0] == self.syntax_var_symbol) {
-				[self color:NSMakeRange(w->pos, w->len) withColor:VARTYPE_COLOR_IDX];
 			} else {
 				struct _hash_entry *e = hash_lookup(&hash[0],w);
 				if (e) 
-					[self color:NSMakeRange(w->pos, w->len) withColor:e->color];			
-			}
-		break;
+					[self color:NSMakeRange(w->pos, w->len) withColor:e->w.color];			
+			}		
 		}
 next:
 		free(w);
@@ -492,34 +478,64 @@ next:
 			bzero(&w,sizeof(w));
 			[self string:e toWordStruct:&w];
 			struct _hash_entry *he = hash_insert(&hash[0], &w);
-			he->color = color;
+			he->w.color = color;
 		}
 	}
 }
+
 - (void) initSyntax {
+#define SET_BLOCK(_b,_begin,_begin_prev,_end,_end_prev,_color,_flags) 		\
+do {																		\
+	_b = &_syntax_blocks.b[_begin];											\
+	_b->char_begin = _begin;												\
+	_b->char_begin_prev = _begin_prev;										\
+	_b->char_end = _end;													\
+	_b->char_end_prev = _end_prev;											\
+	_b->color = _color;														\
+	_b->flags = _flags;														\
+} while (0);
+
 	hash_init(&hash[0]);
-	self.syntax_var_symbol = 0;
-	self.syntax_color_numbers = 0;
-	self.syntax_color = 0;
+	_syntax_var_symbol = 0;
+	_syntax_color_numbers = 0;
+	_syntax_color = 1;
+	bzero(&_syntax_blocks, sizeof(_syntax_blocks));
+	struct block *b;	
 	[self.box setHidden:YES];
 	if ([self extIs:[NSArray arrayWithObjects:@"c",@"h", nil]]) {
 		[self addKeywords:@"goto break return continue asm case default if else switch while for do" withColor:KEYWORD_COLOR_IDX];
 		[self addKeywords:@"int long short char void signed unsigned float double size_t ssize_t off_t wchar_t ptrdiff_t sig_atomic_t fpos_t clock_t time_t va_list jmp_buf FILE DIR div_t ldiv_t mbstate_t wctrans_t wint_t wctype_t bool complex int8_t int16_t int32_t int64_t uint8_t uint16_t uint32_t uint64_t int_least8_t int_least16_t int_least32_t int_least64_t  uint_least8_t uint_least16_t uint_least32_t uint_least64_t int_fast8_t int_fast16_t int_fast32_t int_fast64_t  uint_fast8_t uint_fast16_t uint_fast32_t uint_fast64_t intptr_t uintptr_t intmax_t uintmax_t __label__ __complex__ __volatile__ struct union enum typedef static register auto volatile extern const" withColor:VARTYPE_COLOR_IDX];
-		self.syntax_color_numbers=1;
-		self.syntax_color = 1;
+		_syntax_color_numbers=1;
+		_syntax_color = 1;
+		SET_BLOCK(b,'*', '/', '/', '*', COMMENT_COLOR_IDX, B_COMMENT);
+		SET_BLOCK(b,'/', '/', 0, 0, COMMENT_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_COMMENT))
+		SET_BLOCK(b,'#', 0, 0, 0, PREPROCESS_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_COMMENT))
+		SET_BLOCK(b,'"', 0, '"', 0, STRING2_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_STRING_2))
+		SET_BLOCK(b,'\'', 0, '\'', 0, STRING1_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_STRING_1))
 		[self.box setHidden:NO];
 	} else if ([self extIs:[NSArray arrayWithObjects:@"php", nil]]) {
 		[self addKeywords:@"abstract and as break case catch class clone const continue declare default do else elseif enddeclare endfor endforeach endif end switch while extends array final for foreach function global goto if implements interface instanceof namespace new or private protected public static switch throw try use var while xor __CLASS__ __DIR__ __FILE__ __LINE__ __FUNCTION__ __METHOD__ __NAMESPACE__" withColor:KEYWORD_COLOR_IDX];
-		self.syntax_var_symbol = '$';
-		self.syntax_color_numbers = 1;
-		self.syntax_color = 1;
+		_syntax_var_symbol = '$';
+		_syntax_color_numbers = 1;
+		_syntax_color = 1;		
+		SET_BLOCK(b,'*', '/', '/', '*', COMMENT_COLOR_IDX, B_COMMENT);
+		SET_BLOCK(b,'/', '/', 0, 0, COMMENT_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_COMMENT))
+		SET_BLOCK(b,'#', 0, 0, 0, COMMENT_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_COMMENT))
+		SET_BLOCK(b,'"', 0, '"', 0, STRING2_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_STRING_2))
+		SET_BLOCK(b,'\'', 0, '\'', 0, STRING1_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_STRING_1))
+
+		
 	} else if ([self extIs:[NSArray arrayWithObjects:@"sh", nil]]) {
 		[self addKeywords:@"esac break return continue case default if else switch while for do" withColor:KEYWORD_COLOR_IDX];
-		self.syntax_var_symbol = '$';
-		self.syntax_color_numbers = 1;		
-		self.syntax_color = 1;
+		_syntax_var_symbol = '$';
+		_syntax_color_numbers = 1;		
+		_syntax_color = 1;
+		SET_BLOCK(b,'#', 0, 0, 0, COMMENT_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_COMMENT))
+		SET_BLOCK(b,'"', 0, '"', 0, STRING2_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_STRING_2))
+		SET_BLOCK(b,'\'', 0, '\'', 0, STRING1_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_STRING_1))
 	}
 	[self addKeywords:EXECUTE_COMMAND withColor:CONDITION_COLOR_IDX];
+#undef SET_BLOCK
 }
 #pragma mark textStorage proto
 - (NSArray *) textView:(NSTextView *)textView completions:(NSArray *)words forPartialWordRange:(NSRange)charRange indexOfSelectedItem:(NSInteger *)index {

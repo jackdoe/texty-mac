@@ -20,6 +20,7 @@
 - (NSRange) paragraph:(NSTextView *) tv {
 	NSString *s = [tv string];
 	NSInteger len = [s length];
+		
 	if (len < 1 || ![self range:self.range fitsInside:len])
 		return NSMakeRange(0, len);
 
