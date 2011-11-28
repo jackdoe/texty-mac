@@ -17,6 +17,25 @@
 		return YES;
 	return NO;
 }
++ (NSRange) rangeOfLine:(NSInteger) requested_line inString:(NSString *) s {
+	NSUInteger total_len = [s length];
+	__block NSUInteger total_lines = 0, pos = 0;
+	[s enumerateLinesUsingBlock:^(NSString *line, BOOL *stop) {
+		total_lines++;
+		if (total_lines < requested_line) {
+			pos += [line length];
+			if (pos < total_len)
+				pos++; /* new line */;
+		} else {
+			*stop = YES;
+		}
+	}];
+	if (total_lines != requested_line) {
+		return NSMakeRange(NSNotFound, 0);
+	}
+	NSRange area = [s paragraphRangeForRange:NSMakeRange(pos, 0)];
+	return area;
+}
 - (NSRange) paragraph:(NSTextView *) tv {
 	NSString *s = [tv string];
 	NSInteger len = [s length];

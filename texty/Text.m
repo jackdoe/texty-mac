@@ -83,15 +83,6 @@
 	something_changed = NO;
 	return self;
 }
-- (void) resign {
-	[sv resignFirstResponder];
-}
-- (void) responder {
-	[tv setSelectedRange:NSMakeRange(0, 0)];
-	[sv becomeFirstResponder];
-}
-
-
 - (BOOL) open:(NSURL *)file {
 	if ([s open:file]) {
 		[tv setString:s.data];
@@ -123,34 +114,18 @@
 	return ![[tv.textStorage string] isEqualToString:s.data];
 }
 - (void) goto_line:(NSInteger) want_line {
-	NSString *string = [tv.textStorage string];		
-	NSUInteger total_len = [string length];
-	__block NSUInteger total_lines = 0, pos = 0;
-	[string enumerateLinesUsingBlock:^(NSString *line, BOOL *stop) {
-		total_lines++;
-		if (total_lines < want_line) {
-			pos += [line length];
-			if (pos < total_len)
-				pos++; /* new line */;
-		} else {
-			*stop = YES;
-		}
-	}];
-	NSRange area = [string paragraphRangeForRange:NSMakeRange(pos, 0)];
-	[tv setSelectedRange: area];
-	[tv scrollRangeToVisible: area];
+	NSRange area = [m_range rangeOfLine:want_line inString:[tv string]];
+	if (area.location != NSNotFound) {
+		[tv setSelectedRange: area];
+		[tv scrollRangeToVisible: area];
+	}
 }
 - (NSString *) get_line:(NSInteger) lineno {
-	NSString *t = [tv.textStorage string];
-	__block NSString *ret = nil;
-	__block NSInteger num = 1;
-	[t enumerateLinesUsingBlock:^(NSString *line, BOOL *stop) {
-		if (num++ == lineno) {
-			ret = [line copy];
-			*stop = YES;
-		}
-	}];
-	return ret;
+	NSRange area = [m_range rangeOfLine:lineno inString:[tv string]];
+	if (area.location != NSNotFound) {
+		return [[tv string] substringWithRange:area];
+	}
+	return nil;
 }
 - (NSString *) get_execute_command {
 	NSString *line = [self get_line:2];
@@ -282,9 +257,6 @@ static inline void block_begin(struct block *b, NSInteger pos) {
 	b->range = NSMakeRange(pos, 0);
 	b->started = 1;
 }
-#define BLOCK_BEGINS 1
-#define BLOCK_ENDS 2
-
 static inline int block_cond(struct block *b, char cmask, char pmask,int type) {
 	if (pmask == '\\') 
 		return 0;
@@ -435,6 +407,8 @@ keyword_only:
 next:
 		free(w);
 	}
+	NSRange execLine = [m_range rangeOfLine:2 inString:string];
+	[self color:execLine withColor:CONDITION_COLOR_IDX];
 }
 
 - (void) colorBracket {
@@ -529,13 +503,13 @@ do {																		\
 		_syntax_color_numbers = 1;
 		_syntax_color = 1;
 	} else if ([self extIs:[NSArray arrayWithObjects:@"rb", nil]]) {
-		[self addKeywords:@"class if else while do puts end def times length yield" withColor:KEYWORD_COLOR_IDX];
+		[self addKeywords:@"class if else while do puts end def times length yield initialize inspect private protected public block_given" withColor:KEYWORD_COLOR_IDX];
 		[self addKeywords:@"echo print printf" withColor:CONSTANT_COLOR_IDX];
-		[self addKeywords:@"__CLASS__ __DIR__ __FILE__ __LINE__ __FUNCTION__ __METHOD__ __NAMESPACE__"  withColor:CONDITION_COLOR_IDX];
+		[self addKeywords:@"super attr_writer attr_reader"  withColor:CONDITION_COLOR_IDX];
 		SET_BLOCK(b,'*', '/', '/', '*', COMMENT_COLOR_IDX, B_NO_KEYWORD);
 		SET_BLOCK(b,'/', '/', 0, 0, COMMENT_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_NO_KEYWORD))
 		SET_BLOCK(b,'#', 0, 0, 0, COMMENT_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_NO_KEYWORD))
-		SET_BLOCK(b,'"', 0, '"', 0, STRING2_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_SHOW_VAR))
+		SET_BLOCK(b,'"', 0, '"', 0, STRING2_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_SHOW_VAR | B_HAS_SUBBLOCKS))		
 		SET_BLOCK(b,'\'', 0, '\'', 0, STRING1_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_NO_VAR))
 		SET_BLOCK(b,'|', 0, '|', 0, PREPROCESS_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_SHOW_VAR))
 		SET_BLOCK(b,'/', 0, '/', 0, PREPROCESS_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_NO_KEYWORD))

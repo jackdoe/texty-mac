@@ -62,6 +62,9 @@
 #define B_NO_VAR				32
 #define B_SHOW_KEYWORD			64
 #define B_NO_KEYWORD			128
+#define B_HAS_SUBBLOCKS			256
+#define BLOCK_BEGINS 	1
+#define BLOCK_ENDS 		2
 
 struct block {
 	NSRange range;
@@ -154,10 +157,8 @@ static struct word * word_new(struct word_head *wh);
 - (BOOL) is_modified;
 - (void) goto_line:(NSInteger) want_line;
 - (NSString *) get_line:(NSInteger) lineno;
-- (void) responder;
 - (void) parse:(m_range *) m_range;
 - (void) signal;
-- (void) resign;
 - (NSString *) get_execute_command;
 - (void) initSyntax;
 - (void) highlight:(NSRange) range;

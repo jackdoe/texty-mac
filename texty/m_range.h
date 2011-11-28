@@ -10,4 +10,5 @@
 @property (assign) NSInteger change;
 - (void) dump;
 - (NSRange) paragraph:(NSTextView *) tv;
++ (NSRange) rangeOfLine:(NSInteger) requested_line inString:(NSString *) s;
 @end
