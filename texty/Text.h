@@ -37,9 +37,9 @@
 #define RGB(r, g, b) [NSColor colorWithSRGBRed:r/255.0 green:g/255.0 blue:b/255.0 alpha:1]
 #define AUTOSAVE_INTERVAL 60 /* in seconds */
 
-#define HASH_SIZE 1024
+#define HASH_SIZE 4096
 #define HASH_MASK HASH_SIZE - 1
-#define WORD_SIZE 32
+#define WORD_SIZE 64
 #define WORD_MASK WORD_SIZE - 1
 #define WORD_INVALID 		0
 #define WORD_ALPHA_LOWER 	1
@@ -57,7 +57,6 @@
 #define B_COMMENT 		2
 #define B_STRING_1 		4
 #define B_STRING_2 		8
-
 struct block {
 	NSRange range;
 	char started;
@@ -135,7 +134,6 @@ static struct word * word_new(struct word_head *wh);
 	unsigned long autosave_ts;
 	NSLock *serializator;
 	NSDictionary *colorAttr[20];
-	NSColor *colorSet[20];
 	unichar _syntax_var_symbol;
 	char 	_syntax_color_numbers;
 	char 	_syntax_color;
@@ -157,15 +155,17 @@ static struct word * word_new(struct word_head *wh);
 - (NSString *) get_execute_command;
 - (void) initSyntax;
 - (void) highlight:(NSRange) range;
+- (void) colorBracket;
 - (void) string:(NSString *) source toWordStruct:(struct word *) w;
 - (void) addKeywords:(NSString *) words withColor:(int) color;
+- (void) colorPrev:(unichar) opens ends:(unichar) ends inRange:(NSRange) range inString:(NSString *) string;
 
-@property (strong,retain) NSTabViewItem *tabItem;
+@property (retain) NSTabViewItem *tabItem;
 @property (retain) NSTextView *tv;
 @property (retain) NSScrollView *sv;
 @property (retain) NSBox *box;
+@property (retain) NSLock *serializator;
 @property (retain) m_Storage *s;
 @property (atomic,assign) BOOL something_changed,need_to_autosave;
 @property (assign) unsigned long autosave_ts;
-@property (retain) NSLock *serializator;
 @end

@@ -123,16 +123,14 @@
 		NSString *data;
 		[t save];
 		[self.modal_field setStringValue:cmd];
-		NSRange found = [cmd rangeOfString:@"^\\s*?http://" options:NSRegularExpressionSearch];
-		if (found.location != NSNotFound) {
+		if ([cmd rangeOfString:@"^\\s*?http://" options:NSRegularExpressionSearch].location != NSNotFound) {
 			type = EXECUTE_TYPE_WWW;
 			data = cmd;
 			data = [cmd stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 		} else {
 			int rc = 0;
 			int timeout = DEFAULT_EXECUTE_TIMEOUT;  
-			NSRange r = [cmd rangeOfString:@"{NOTIMEOUT}"];
-			if (r.location != NSNotFound) {
+			if ([cmd rangeOfString:@"{NOTIMEOUT}"].location != NSNotFound) {
 				timeout = 0;
 				cmd = [cmd stringByReplacingOccurrencesOfString:@"{NOTIMEOUT}" withString:@""];
 			}
