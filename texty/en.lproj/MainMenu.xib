@@ -1392,7 +1392,7 @@
 					<int key="NSvFlags">256</int>
 					<string key="NSFrameSize">{640, 480}</string>
 					<reference key="NSSuperview"/>
-					<reference key="NSNextKeyView"/>
+					<reference key="NSWindow"/>
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1680, 1028}}</string>
 				<string key="NSMaxSize">{10000000000000, 10000000000000}</string>
@@ -1497,10 +1497,10 @@
 										<object class="NSTextView" id="390610371">
 											<reference key="NSNextResponder" ref="804064587"/>
 											<int key="NSvFlags">10514</int>
-											<string key="NSFrameSize">{10, 1}</string>
+											<string key="NSFrame">{{0, -13}, {10, 14}}</string>
 											<reference key="NSSuperview" ref="804064587"/>
 											<reference key="NSWindow"/>
-											<reference key="NSNextKeyView" ref="929777224"/>
+											<reference key="NSNextKeyView" ref="371734592"/>
 											<string key="NSReuseIdentifierKey">_NS:1480</string>
 											<object class="NSTextContainer" key="NSTextContainer" id="100975306">
 												<object class="NSLayoutManager" key="NSLayoutManager">
@@ -1639,7 +1639,7 @@ AAEAAQAAAT0AAwAAAAEAAgAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 							<string key="NSFrame">{{20, 20}, {984, 692}}</string>
 							<reference key="NSSuperview" ref="919599217"/>
 							<reference key="NSWindow"/>
-							<reference key="NSNextKeyView" ref="371734592"/>
+							<reference key="NSNextKeyView" ref="804064587"/>
 							<string key="NSReuseIdentifierKey">_NS:940</string>
 							<int key="NSsFlags">133136</int>
 							<reference key="NSVScroller" ref="929777224"/>
@@ -3905,7 +3905,7 @@ AAEAAQAAAT0AAwAAAAEAAgAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">627</int>
+			<int key="maxID">632</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">

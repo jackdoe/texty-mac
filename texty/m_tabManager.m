@@ -38,6 +38,8 @@
 }
 - (IBAction)openButton:(id)sender {
 	NSOpenPanel *panel	= [NSOpenPanel openPanel];
+	NSString *home = NSHomeDirectory();
+	[panel setDirectoryURL:[NSURL fileURLWithPath:[home stringByAppendingPathComponent:DEFAULT_OPEN_DIR]]];
 	panel.allowsMultipleSelection = YES;
 	if ([panel runModal] == NSOKButton) {
 		NSArray *files = [panel URLs];;
@@ -57,7 +59,8 @@
 	NSSavePanel *spanel = [NSSavePanel savePanel];
 	[spanel setPrompt:@"Save"];
 	[spanel setShowsToolbarButton:YES];
-	[spanel setRepresentedURL:t.s.fileURL];
+	[spanel setDirectoryURL:[t.s.fileURL URLByDeletingLastPathComponent]];
+	[spanel setRepresentedURL:[t.s.fileURL URLByDeletingLastPathComponent]];
 	[spanel setExtensionHidden:NO];
 	[spanel setNameFieldStringValue:[t.s basename]];
 	[spanel beginSheetModalForWindow:[NSApp mainWindow] completionHandler:^(NSInteger result) {

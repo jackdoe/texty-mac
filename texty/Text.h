@@ -5,6 +5,7 @@
 #define TEXT_H
 #include <sys/queue.h>
 
+#define DEFAULT_OPEN_DIR @"Code"
 #define DEFAULT_EXECUTE_TIMEOUT 1
 #define FONT [NSFont fontWithName:@"Monaco" size:12]
 #define LINE_80_COLOR RGB(150, 150, 150) 
@@ -12,9 +13,7 @@
 #define BG_COLOR RGB(0x29,0x31,0x34)
 #define CURSOR_COLOR RGB(255,255,255)
 
-
-#define CONDITION_COLOR RGB(0xFF,0x8B,0xFF)
-#define CONDITION_COLOR_IDX 0
+#define TEXT_COLOR_IDX 0
 #define KEYWORD_COLOR RGB(0x93,0xC7,0x63)
 #define KEYWORD_COLOR_IDX 1
 #define VARTYPE_COLOR RGB(0x77,0x9C,0xC1)
@@ -29,9 +28,10 @@
 #define PREPROCESS_COLOR_IDX 6
 #define COMMENT_COLOR RGB(0x7D,0x8C,0x93)
 #define COMMENT_COLOR_IDX 7
-#define TEXT_COLOR_IDX 8
 #define CONSTANT_COLOR RGB(0xA0,0x82,0xBD)
 #define CONSTANT_COLOR_IDX 9
+#define CONDITION_COLOR RGB(0xFF,0x8B,0xFF)
+#define CONDITION_COLOR_IDX 10
 
 #define EXECUTE_COMMAND @"TEXTY_RUN_SHELL"
 #define RGB(r, g, b) [NSColor colorWithSRGBRed:r/255.0 green:g/255.0 blue:b/255.0 alpha:1]
@@ -51,12 +51,18 @@
 #define WORD_ENDED			64
 #define WORD_CONTINUE		128
 #define WORD_SHARP			256
-#define B_TABLE_MASK		255
+
 #define B_TABLE_SIZE		256
-#define B_ENDS_WITH_NEW_LINE 1
-#define B_COMMENT 		2
-#define B_STRING_1 		4
-#define B_STRING_2 		8
+#define B_TABLE_MASK		B_TABLE_SIZE - 1
+#define B_ENDS_WITH_NEW_LINE 	1
+#define B_COMMENT 				2
+#define B_STRING_1 				4
+#define B_STRING_2 				8
+#define B_SHOW_VAR				16
+#define B_NO_VAR				32
+#define B_SHOW_KEYWORD			64
+#define B_NO_KEYWORD			128
+
 struct block {
 	NSRange range;
 	char started;
@@ -118,7 +124,7 @@ static inline void block_begin(struct block *b, NSInteger pos);
 static inline int block_cond(struct block *b, char cmask, char pmask,int type);
 static inline void word_begin(struct word *w, NSInteger pos);
 static inline void word_end(struct word *w);
-static inline int word_append(struct word *w, unichar c, NSInteger pos,char current_block_flags);
+static inline int word_append(struct word *w, unichar c, NSInteger pos,char current_block_flags,char *var_symbol_table);
 static inline int word_is_valid_word(struct word *w);
 static inline void word_dump(struct word *w);
 static struct word * word_new(struct word_head *wh);
@@ -134,7 +140,7 @@ static struct word * word_new(struct word_head *wh);
 	unsigned long autosave_ts;
 	NSLock *serializator;
 	NSDictionary *colorAttr[20];
-	unichar _syntax_var_symbol;
+	char	_syntax_var_symbol[B_TABLE_SIZE];
 	char 	_syntax_color_numbers;
 	char 	_syntax_color;
 	struct syntax_blocks _syntax_blocks;

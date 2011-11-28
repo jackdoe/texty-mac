@@ -14,7 +14,7 @@
 	
 	if (self.fileURL) 
 		[self close:NO];
-			
+	
 	self.fileURL = [URL copy];
 	NSError *err;
 	self.data = [NSString stringWithContentsOfURL:URL encoding:NSUTF8StringEncoding error:&err];
@@ -53,7 +53,8 @@
 	if (!self.fileURL)
 		return NO;
 	self.existing_backups = [self backups];
-	[[NSDocumentController sharedDocumentController] noteNewRecentDocumentURL:self.fileURL];
+	if (!temporary)
+		[[NSDocumentController sharedDocumentController] noteNewRecentDocumentURL:self.fileURL];
 	return [self write:self.data toURL:self.fileURL];
 }
 - (NSString *) autosave:(BOOL) export_only {
