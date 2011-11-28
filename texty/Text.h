@@ -4,7 +4,7 @@
 #ifndef TEXT_H
 #define TEXT_H
 #include <sys/queue.h>
-#define ACCEPT_ANY_SSL_CERT 1
+#define ACCEPT_ANY_SSL_CERT 			NO
 #define DEFAULT_OPEN_DIR @"Code"
 #define DEFAULT_EXECUTE_TIMEOUT 1
 #define FONT [NSFont fontWithName:@"Monaco" size:12]
