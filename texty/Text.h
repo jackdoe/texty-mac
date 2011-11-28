@@ -33,6 +33,7 @@
 #define CONDITION_COLOR RGB(0xFF,0x8B,0xFF)
 #define CONDITION_COLOR_IDX 10
 
+#define EXECUTE_LINE	3
 #define EXECUTE_COMMAND @"TEXTY_RUN_SHELL"
 #define RGB(r, g, b) [NSColor colorWithSRGBRed:r/255.0 green:g/255.0 blue:b/255.0 alpha:1]
 #define AUTOSAVE_INTERVAL 60 /* in seconds */

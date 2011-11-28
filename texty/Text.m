@@ -136,7 +136,7 @@
 	return nil;
 }
 - (NSString *) get_execute_command {
-	NSString *line = [self get_line:2];
+	NSString *line = [self get_line:EXECUTE_LINE];
 	NSString *ret = nil;
 	NSRange commandRange = [line rangeOfString:EXECUTE_COMMAND];
 	if (commandRange.location != NSNotFound) {
@@ -415,7 +415,7 @@ keyword_only:
 next:
 		free(w);
 	}
-	NSRange execLine = [m_range rangeOfLine:2 inString:string];
+	NSRange execLine = [m_range rangeOfLine:EXECUTE_LINE inString:string];
 	[self color:execLine withColor:CONDITION_COLOR_IDX];
 }
 
