@@ -83,6 +83,14 @@
 	something_changed = NO;
 	return self;
 }
+- (void) responder {
+	[tv setSelectedRange:NSMakeRange(0, 0)];
+	[sv becomeFirstResponder];
+}
+- (void) resign {
+	[sv resignFirstResponder];
+}
+
 - (BOOL) open:(NSURL *)file {
 	if ([s open:file]) {
 		[tv setString:s.data];

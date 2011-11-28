@@ -1,5 +1,6 @@
 #import <Foundation/Foundation.h>
 #import <WebKit/WebKit.h>
+#import <WebKit/WebFrameLoadDelegate.h>
 #import "Text.h"
 #import "m_diff.h"
 @interface m_tabManager : NSObject <NSTabViewDelegate,NSMenuDelegate> {
@@ -24,12 +25,13 @@
 - (IBAction)goto_action:(id) sender;
 - (IBAction)run_button:(id)sender;
 - (IBAction)save_all:(id)sender;
-- (IBAction)modal_escape:(id)sender;
+- (BOOL) modal_escape:(id)sender;
 - (void) walk_tabs:(void (^)(Text *t)) callback;
 - (void) open:(NSURL *) file;
 - (NSApplicationTerminateReply) gonna_terminate;
 - (void)sheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo;
 - (void) runModalWithString:(NSString *) data andType:(int) type;
+
 @property (retain) NSTabView *tabView;
 @property (retain) NSWindow *goto_window;
 @property (retain) NSTimer *timer;

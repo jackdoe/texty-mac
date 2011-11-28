@@ -1,7 +1,13 @@
 #import "m_tabManager.h"
 #define EXECUTE_TYPE_SHELL 1
 #define EXECUTE_TYPE_WWW 2
+
+@interface NSURLRequest (DummyInterface)
++ (BOOL)allowsAnyHTTPSCertificateForHost:(NSString*)host;
++ (void)setAllowsAnyHTTPSCertificate:(BOOL)allow forHost:(NSString*)host;
+@end
 @implementation m_tabManager
+
 @synthesize tabView,goto_window,timer,modal_panel,modal_tv,modal_www,modal_field;
 - (m_tabManager *) init {
 	return [self initWithFrame:[[NSApp mainWindow] frame]];
@@ -13,7 +19,7 @@
 	[self.tabView setFont:FONT];
 	[self.tabView setControlTint:NSClearControlTint];
 	[self open:nil];
-
+	[self.modal_www setResourceLoadDelegate:self];
 	self.timer = [NSTimer scheduledTimerWithTimeInterval: 1
 				target: self
 				selector: @selector(handleTimer:)
@@ -116,7 +122,8 @@
 		[self.goto_window makeKeyAndOrderFront:nil];
 }
 - (IBAction)run_button:(id)sender {
-	[self modal_escape:nil];
+	if ([self modal_escape:nil])
+		return;
 	Text *t = [self.tabView selectedTabViewItem].identifier;
 	NSString *cmd = [t get_execute_command];
 	cmd = [cmd stringByReplacingOccurrencesOfString:@"{MYSELF}" withString:[t.s.fileURL path]];
@@ -126,7 +133,7 @@
 		NSString *data;
 		[t save];
 		[self.modal_field setStringValue:cmd];
-		if ([cmd rangeOfString:@"^\\s*?http://" options:NSRegularExpressionSearch].location != NSNotFound) {
+		if ([cmd rangeOfString:@"^\\s*?http(s)?://" options:NSRegularExpressionSearch].location != NSNotFound) {
 			type = EXECUTE_TYPE_WWW;
 			data = cmd;
 			data = [cmd stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
@@ -209,7 +216,11 @@
 		[self.modal_www setShouldCloseWithWindow:NO];
 		WebFrame *mainFrame = [self.modal_www mainFrame];
 		[mainFrame stopLoading];
-		NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:data]];
+		NSURL *url = [NSURL URLWithString:data];
+		NSURLRequest *request = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:1];
+		if (ACCEPT_ANY_SSL_CERT) {
+			[NSURLRequest setAllowsAnyHTTPSCertificate:YES forHost:[url host]];
+		}
 		[mainFrame loadRequest:request];
 	} else {
 		[self.modal_www setHidden:YES];
@@ -237,8 +248,12 @@
 }
 - (void) menuDidClose:(NSMenu *)menu {
 }
-- (IBAction)modal_escape:(id)sender {
+- (BOOL)modal_escape:(id)sender {
+	BOOL ret = NO;
+	if ([self.modal_panel isVisible])
+		ret = YES;
 	[[self.modal_www mainFrame] loadHTMLString:@"<html><head></head><body color=black></body></html>" baseURL:nil];
 	[self sheetDidEnd:self.modal_panel returnCode:0 contextInfo:nil];
+	return ret;
 }
 @end
