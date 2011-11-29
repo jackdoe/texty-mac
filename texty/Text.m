@@ -265,19 +265,37 @@ static inline void block_begin(struct block *b, NSInteger pos) {
 	b->range = NSMakeRange(pos, 0);
 	b->started = 1;
 }
-static inline int block_cond(struct block *b, char cmask, char pmask,int type) {
+static inline int block_cond(struct block *b, char cmask, char pmask,int type,NSInteger pos) {
 	if (pmask == '\\') 
 		return 0;
 		
 	if (type == BLOCK_BEGINS) {
-		return (b->char_begin == cmask && (b->char_begin_prev == 0 || b->char_begin_prev == pmask));
-	} else {
-		if ((cmask == '\n' || cmask == '\r') && (b->flags & B_ENDS_WITH_NEW_LINE)) 
+		if (b->char_begin == cmask && (b->char_begin_prev == 0 || b->char_begin_prev == pmask)) {
+			block_begin(b, pos);
+			if (b->char_begin_prev) 
+				b->range.location--;
+			b->range.length++;
 			return 1;
-		return (b->char_end == cmask && (b->char_end_prev == 0 || b->char_end_prev == pmask));
+		}
+	} else {
+		if (((cmask == '\n' || cmask == '\r') && (b->flags & B_ENDS_WITH_NEW_LINE)) 
+			|| (b->char_end == cmask && (b->char_end_prev == 0 || b->char_end_prev == pmask))) {
+			
+			if (b->char_end_prev) 
+				b->range.length++;
+			return 1;
+		}
 	}
+	return 0;
 }
-
+-(void) block_color:(struct block *)b superBlock:(struct block *)superblock {
+		if ((b->flags & B_REQUIRE_SUPERBLOCK)) {
+			if (superblock) 
+				[self color:b->range withColor:b->color];
+		} else {
+			[self color:b->range withColor:b->color];
+		}
+}
 static inline void word_begin(struct word *w, NSInteger pos) {
 	w->pos = pos;
 	w->started = 1;
@@ -344,6 +362,7 @@ static struct word * word_new(struct word_head *wh) {
 }
 
 - (void) highlight:(NSRange) range {
+	/* XXX: getting more and more ugly */
 	NSString *string = [tv string];
 	NSInteger pos;
 	char prev=0,c;
@@ -355,35 +374,37 @@ static struct word * word_new(struct word_head *wh) {
 	NSInteger begin,end;
 	begin = range.location;
 	end = NSMaxRange(range);
+	struct block *superblock = NULL;
+	if (!_syntax_color)
+		goto exec;
+
 	for (pos = begin; pos < end; pos++) {
 		c = [string characterAtIndex:pos] & B_TABLE_MASK;
-		if (!_syntax_color)
-			goto keyword_only;
+		if (superblock && block_cond(superblock, c, prev, BLOCK_ENDS, pos)) {
+			superblock = NULL;
+		}
+		
 		if (b == NULL) {
 			if (_syntax_blocks.b[c].color != 0) {
-				b = &_syntax_blocks.b[c];				
-				if (block_cond(b, c, prev, BLOCK_BEGINS)) {
-					block_begin(b, pos);
-					if (b->char_begin_prev) 
-						b->range.location--;
-					
-					b->range.length++;
-				} else {
+				b = &_syntax_blocks.b[c];
+				if (!block_cond(b, c, prev, BLOCK_BEGINS,pos)) {
 					b = NULL;
+				} else {
+					if (b->flags & B_SUPERBLOCK) {
+						/* beginning of the uncolored superblock */
+						superblock = b;
+						b = NULL;
+					}
 				}
 			}
 		} else {
 			b->range.length++;
-			if (block_cond(b, c, prev, BLOCK_ENDS)) {
-				if (b->char_end_prev) 
-					b->range.length++;
-				
-				[self color:b->range withColor:b->color];
-				b = NULL;			
+			if (block_cond(b, c, prev, BLOCK_ENDS,pos)) {
+				[self block_color:b superBlock:superblock];
+				b = NULL;
 			}
 		}
 
-keyword_only:
 		if (word_append(w,c,pos,(b ? b->flags : 0),_syntax_var_symbol) == WORD_ENDED) {
 			w = word_new(&wh);
 		}
@@ -392,7 +413,7 @@ keyword_only:
 
 	if (b) {
 		b->range.length++;
-		[self color:b->range withColor:b->color];
+		[self block_color:b superBlock:superblock];
 	}
 
 	while ((w = wh.head) != NULL) {
@@ -400,7 +421,7 @@ keyword_only:
 		if (!word_is_valid_word(w) || w->current_block_flags & B_NO_KEYWORD)
 			goto next;
 		if (_syntax_var_symbol[(char)w->data[0]]) {
-			if (!(w->current_block_flags & B_NO_VAR)) /* dont color vars in single quoted strings */
+			if (!(w->current_block_flags & B_NO_VAR)) 	/* dont color vars in single quoted strings */
 				[self color:NSMakeRange(w->pos, w->len) withColor:_syntax_var_symbol[(char) w->data[0]]];				
 		} else if (w->current_block_flags == 0) { 		/* find keywords and numbers outside of blocks */
 			if ((w->flags & WORD_NUMBER) == w->flags) {
@@ -415,8 +436,8 @@ keyword_only:
 next:
 		free(w);
 	}
-	NSRange execLine = [m_range rangeOfLine:EXECUTE_LINE inString:string];
-	[self color:execLine withColor:CONDITION_COLOR_IDX];
+exec:
+	[self color:[m_range rangeOfLine:EXECUTE_LINE inString:string] withColor:CONDITION_COLOR_IDX];
 }
 
 - (void) colorBracket {
@@ -510,17 +531,22 @@ do {																		\
 		_syntax_var_symbol['$'] = VARTYPE_COLOR_IDX;
 		_syntax_color_numbers = 1;
 		_syntax_color = 1;
-	} else if ([self extIs:[NSArray arrayWithObjects:@"rb", nil]]) {
+	} else if ([self extIs:[NSArray arrayWithObjects:@"rb", @"erb",nil]]) {
+		int flags = 0;
+		if ([[s.fileURL pathExtension] isEqualToString:@"erb"]) {
+			flags = B_REQUIRE_SUPERBLOCK;
+			SET_BLOCK(b,'%', '<', '>', '%', COMMENT_COLOR_IDX, (B_SUPERBLOCK | B_SHOW_VAR | B_SHOW_KEYWORD));
+		}
 		[self addKeywords:@"class if else while do puts end def times length yield initialize inspect private protected public block_given" withColor:KEYWORD_COLOR_IDX];
 		[self addKeywords:@"echo print printf" withColor:CONSTANT_COLOR_IDX];
 		[self addKeywords:@"super attr_writer attr_reader"  withColor:CONDITION_COLOR_IDX];
-		SET_BLOCK(b,'*', '/', '/', '*', COMMENT_COLOR_IDX, B_NO_KEYWORD);
-		SET_BLOCK(b,'/', '/', 0, 0, COMMENT_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_NO_KEYWORD))
-		SET_BLOCK(b,'#', 0, 0, 0, COMMENT_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_NO_KEYWORD))
-		SET_BLOCK(b,'"', 0, '"', 0, STRING2_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_SHOW_VAR | B_HAS_SUBBLOCKS))		
-		SET_BLOCK(b,'\'', 0, '\'', 0, STRING1_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_NO_VAR))
-		SET_BLOCK(b,'|', 0, '|', 0, PREPROCESS_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_SHOW_VAR))
-		SET_BLOCK(b,'/', 0, '/', 0, PREPROCESS_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_NO_KEYWORD))
+		SET_BLOCK(b,'*', '/', '/', '*', COMMENT_COLOR_IDX, B_NO_KEYWORD| flags);
+		SET_BLOCK(b,'/', '/', 0, 0, COMMENT_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_NO_KEYWORD | flags))
+		SET_BLOCK(b,'#', 0, 0, 0, COMMENT_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_NO_KEYWORD | flags))
+		SET_BLOCK(b,'"', 0, '"', 0, STRING2_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_SHOW_VAR | flags))		
+		SET_BLOCK(b,'\'', 0, '\'', 0, STRING1_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_NO_VAR | flags))
+		SET_BLOCK(b,'|', 0, '|', 0, PREPROCESS_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_SHOW_VAR | flags))
+		SET_BLOCK(b,'/', 0, '/', 0, PREPROCESS_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_NO_KEYWORD | flags))
 		_syntax_var_symbol['@'] = VARTYPE_COLOR_IDX;
 		_syntax_var_symbol[':'] = VARTYPE_COLOR_IDX;
 		_syntax_var_symbol['$'] = VARTYPE_COLOR_IDX;

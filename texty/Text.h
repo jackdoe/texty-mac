@@ -63,7 +63,8 @@
 #define B_NO_VAR				32
 #define B_SHOW_KEYWORD			64
 #define B_NO_KEYWORD			128
-#define B_HAS_SUBBLOCKS			256
+#define B_SUPERBLOCK			256
+#define B_REQUIRE_SUPERBLOCK	512
 #define BLOCK_BEGINS 	1
 #define BLOCK_ENDS 		2
 
@@ -78,6 +79,7 @@ struct block {
 	unichar char_end_prev;
 	unichar char_escape;
 	unsigned int flags;
+	struct block *fallback;
 };
 struct syntax_blocks {
 	struct block b[B_TABLE_SIZE];
@@ -125,7 +127,7 @@ static unsigned long hash_get_bucket(unichar *word);
 static struct _hash_entry *hash_lookup(struct _hash_table *t,struct word *w);
 static struct _hash_entry *hash_insert(struct _hash_table *t,struct word *w);
 static inline void block_begin(struct block *b, NSInteger pos);
-static inline int block_cond(struct block *b, char cmask, char pmask,int type);
+static inline int block_cond(struct block *b, char cmask, char pmask,int type,NSInteger pos);
 static inline void word_begin(struct word *w, NSInteger pos);
 static inline void word_end(struct word *w);
 static inline int word_append(struct word *w, unichar c, NSInteger pos,char current_block_flags,char *var_symbol_table);
