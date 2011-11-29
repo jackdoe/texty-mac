@@ -439,7 +439,8 @@ next:
 		free(w);
 	}
 exec:
-	[self color:[m_range rangeOfLine:EXECUTE_LINE inString:string] withColor:CONDITION_COLOR_IDX];
+	if ([self get_execute_command]) 
+		[self color:[m_range rangeOfLine:EXECUTE_LINE inString:string] withColor:CONDITION_COLOR_IDX];
 }
 
 - (void) colorBracket {
@@ -550,7 +551,7 @@ do {																		\
 		SET_BLOCK(b,'|', 0, '|', 0, PREPROCESS_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_SHOW_VAR | flags))
 		SET_BLOCK(b,'/', 0, '/', 0, PREPROCESS_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_NO_KEYWORD | flags))
 		_syntax_var_symbol['@'] = VARTYPE_COLOR_IDX;
-		_syntax_var_symbol[':'] = VARTYPE_COLOR_IDX;
+		_syntax_var_symbol[':'] = CONSTANT_COLOR_IDX;
 		_syntax_var_symbol['$'] = VARTYPE_COLOR_IDX;
 		_syntax_color_numbers = 1;
 		_syntax_color = 1;
