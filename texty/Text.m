@@ -289,6 +289,8 @@ static inline int block_cond(struct block *b, char cmask, char pmask,int type,NS
 	return 0;
 }
 -(void) block_color:(struct block *)b superBlock:(struct block *)superblock {
+		if (b->flags & B_SUPERBLOCK)
+			return;
 		if ((b->flags & B_REQUIRE_SUPERBLOCK)) {
 			if (superblock) 
 				[self color:b->range withColor:b->color];
