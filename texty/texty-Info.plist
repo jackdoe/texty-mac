@@ -48,9 +48,21 @@
 				<string>rb</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
-			<string>texty_green</string>
+			<string>texty_red.icns</string>
 			<key>CFBundleTypeName</key>
 			<string>rb</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>erb</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>texty</string>
+			<key>CFBundleTypeName</key>
+			<string>erb</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 		</dict>
@@ -58,7 +70,7 @@
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIconFile</key>
-	<string>texty.icns</string>
+	<string>texty_red.icns</string>
 	<key>CFBundleIdentifier</key>
 	<string>brokensociety.${PRODUCT_NAME:rfc1034identifier}</string>
 	<key>CFBundleInfoDictionaryVersion</key>

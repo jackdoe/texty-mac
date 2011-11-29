@@ -19,6 +19,7 @@
 		0469450A147B97CB00256B61 /* m_tabManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 04694509147B97CB00256B61 /* m_tabManager.m */; };
 		04694510147B9C6B00256B61 /* Text.m in Sources */ = {isa = PBXBuildFile; fileRef = 0469450F147B9C6B00256B61 /* Text.m */; };
 		04694517147BB06300256B61 /* m_Storage.m in Sources */ = {isa = PBXBuildFile; fileRef = 04694516147BB06300256B61 /* m_Storage.m */; };
+		04842D55148557A6007782F6 /* texty_red.icns in Resources */ = {isa = PBXBuildFile; fileRef = 04842D54148557A6007782F6 /* texty_red.icns */; };
 		04E84663147E281500E1E027 /* m_range.m in Sources */ = {isa = PBXBuildFile; fileRef = 04E84662147E281500E1E027 /* m_range.m */; };
 		04E84666147E413100E1E027 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04E84665147E413100E1E027 /* WebKit.framework */; };
 		04EE1C4A147D0ACB0056D73F /* m_exec.m in Sources */ = {isa = PBXBuildFile; fileRef = 04EE1C49147D0ACB0056D73F /* m_exec.m */; };
@@ -49,6 +50,7 @@
 		0469450F147B9C6B00256B61 /* Text.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Text.m; sourceTree = "<group>"; };
 		04694515147BB06300256B61 /* m_Storage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = m_Storage.h; sourceTree = "<group>"; };
 		04694516147BB06300256B61 /* m_Storage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = m_Storage.m; sourceTree = "<group>"; };
+		04842D54148557A6007782F6 /* texty_red.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = texty_red.icns; sourceTree = "<group>"; };
 		04E84661147E281500E1E027 /* m_range.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = m_range.h; sourceTree = "<group>"; };
 		04E84662147E281500E1E027 /* m_range.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = m_range.m; sourceTree = "<group>"; };
 		04E84665147E413100E1E027 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
@@ -72,6 +74,7 @@
 		046944C5147B96EA00256B61 = {
 			isa = PBXGroup;
 			children = (
+				04842D54148557A6007782F6 /* texty_red.icns */,
 				045C348B147FEB9800162AA1 /* texty_green.icns */,
 				045C3489147FEB6A00162AA1 /* texty.icns */,
 				046944DA147B96EA00256B61 /* texty */,
@@ -199,6 +202,7 @@
 				046944EB147B96EB00256B61 /* MainMenu.xib in Resources */,
 				045C348A147FEB6A00162AA1 /* texty.icns in Resources */,
 				045C348C147FEB9800162AA1 /* texty_green.icns in Resources */,
+				04842D55148557A6007782F6 /* texty_red.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
