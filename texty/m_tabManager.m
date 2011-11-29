@@ -43,6 +43,7 @@
 	[self performSelectorOnMainThread:@selector(signal:) withObject:self waitUntilDone:YES];
 }
 - (IBAction)openButton:(id)sender {
+	[self modal_escape:nil];
 	NSOpenPanel *panel	= [NSOpenPanel openPanel];
 	NSString *home = NSHomeDirectory();
 	[panel setDirectoryURL:[NSURL fileURLWithPath:[home stringByAppendingPathComponent:DEFAULT_OPEN_DIR]]];
@@ -61,6 +62,7 @@
 	[t save];
 }
 - (IBAction)saveAsButton:(id)sender {
+	[self modal_escape:nil];
 	Text *t = [self.tabView selectedTabViewItem].identifier;
 	NSSavePanel *spanel = [NSSavePanel savePanel];
 	[spanel setPrompt:@"Save"];
@@ -252,7 +254,6 @@
 	BOOL ret = NO;
 	if ([self.modal_panel isVisible])
 		ret = YES;
-	[[self.modal_www mainFrame] loadHTMLString:@"<html><head></head><body color=black></body></html>" baseURL:nil];
 	[self sheetDidEnd:self.modal_panel returnCode:0 contextInfo:nil];
 	return ret;
 }

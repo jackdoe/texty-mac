@@ -1393,6 +1393,7 @@
 					<string key="NSFrameSize">{640, 480}</string>
 					<reference key="NSSuperview"/>
 					<reference key="NSWindow"/>
+					<reference key="NSNextKeyView"/>
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1680, 1028}}</string>
 				<string key="NSMaxSize">{10000000000000, 10000000000000}</string>
@@ -1419,7 +1420,7 @@
 				<string key="NSWindowContentMaxSize">{136, 51}</string>
 				<string key="NSWindowContentMinSize">{136, 51}</string>
 				<object class="NSView" key="NSWindowView" id="1053201374">
-					<nil key="NSNextResponder"/>
+					<reference key="NSNextResponder"/>
 					<int key="NSvFlags">256</int>
 					<array class="NSMutableArray" key="NSSubviews">
 						<object class="NSTextField" id="567628953">
@@ -1427,6 +1428,8 @@
 							<int key="NSvFlags">268</int>
 							<string key="NSFrame">{{20, 18}, {96, 22}}</string>
 							<reference key="NSSuperview" ref="1053201374"/>
+							<reference key="NSWindow"/>
+							<reference key="NSNextKeyView"/>
 							<string key="NSReuseIdentifierKey">_NS:903</string>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSTextFieldCell" key="NSCell" id="485702925">
@@ -1463,6 +1466,8 @@
 						</object>
 					</array>
 					<string key="NSFrameSize">{136, 51}</string>
+					<reference key="NSSuperview"/>
+					<reference key="NSWindow"/>
 					<reference key="NSNextKeyView" ref="567628953"/>
 					<string key="NSReuseIdentifierKey">_NS:207</string>
 				</object>
@@ -1500,7 +1505,7 @@
 											<string key="NSFrame">{{0, -13}, {10, 14}}</string>
 											<reference key="NSSuperview" ref="804064587"/>
 											<reference key="NSWindow"/>
-											<reference key="NSNextKeyView" ref="371734592"/>
+											<reference key="NSNextKeyView" ref="929777224"/>
 											<string key="NSReuseIdentifierKey">_NS:1480</string>
 											<object class="NSTextContainer" key="NSTextContainer" id="100975306">
 												<object class="NSLayoutManager" key="NSLayoutManager">
@@ -1639,7 +1644,7 @@ AAEAAQAAAT0AAwAAAAEAAgAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 							<string key="NSFrame">{{20, 20}, {984, 692}}</string>
 							<reference key="NSSuperview" ref="919599217"/>
 							<reference key="NSWindow"/>
-							<reference key="NSNextKeyView" ref="804064587"/>
+							<reference key="NSNextKeyView" ref="371734592"/>
 							<string key="NSReuseIdentifierKey">_NS:940</string>
 							<int key="NSsFlags">133136</int>
 							<reference key="NSVScroller" ref="929777224"/>
@@ -3905,7 +3910,7 @@ AAEAAQAAAT0AAwAAAAEAAgAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">632</int>
+			<int key="maxID">635</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -3977,7 +3982,6 @@ AAEAAQAAAT0AAwAAAAEAAgAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 						<string key="goRight:">id</string>
 						<string key="goto_action:">id</string>
 						<string key="goto_button:">id</string>
-						<string key="modal_escape:">id</string>
 						<string key="newTabButton:">id</string>
 						<string key="openButton:">id</string>
 						<string key="revertToSavedButton:">id</string>
@@ -4007,10 +4011,6 @@ AAEAAQAAAT0AAwAAAAEAAgAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 							<string key="name">goto_button:</string>
 							<string key="candidateClassName">id</string>
 						</object>
-						<object class="IBActionInfo" key="modal_escape:">
-							<string key="name">modal_escape:</string>
-							<string key="candidateClassName">id</string>
-						</object>
 						<object class="IBActionInfo" key="newTabButton:">
 							<string key="name">newTabButton:</string>
 							<string key="candidateClassName">id</string>
@@ -4038,6 +4038,30 @@ AAEAAQAAAT0AAwAAAAEAAgAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 						<object class="IBActionInfo" key="save_all:">
 							<string key="name">save_all:</string>
 							<string key="candidateClassName">id</string>
+						</object>
+					</dictionary>
+					<dictionary class="NSMutableDictionary" key="outlets">
+						<string key="modal_field">NSTextField</string>
+						<string key="modal_panel">NSWindow</string>
+						<string key="modal_tv">NSTextView</string>
+						<string key="modal_www">WebView</string>
+					</dictionary>
+					<dictionary class="NSMutableDictionary" key="toOneOutletInfosByName">
+						<object class="IBToOneOutletInfo" key="modal_field">
+							<string key="name">modal_field</string>
+							<string key="candidateClassName">NSTextField</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="modal_panel">
+							<string key="name">modal_panel</string>
+							<string key="candidateClassName">NSWindow</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="modal_tv">
+							<string key="name">modal_tv</string>
+							<string key="candidateClassName">NSTextView</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="modal_www">
+							<string key="name">modal_www</string>
+							<string key="candidateClassName">WebView</string>
 						</object>
 					</dictionary>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">

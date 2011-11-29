@@ -78,7 +78,7 @@
 	[box setHidden:YES];
 	[tv addSubview:box];
 	[sv setDocumentView:tv];
-	tabItem.label = @"aaaaa :) should never happen";	
+	tabItem.label = @"aaaaa :) should never happen";
 	self.s = [[m_Storage alloc] init];
 	something_changed = NO;
 	return self;
@@ -572,6 +572,11 @@ do {																		\
 	NSString *part = [[tv string] substringWithRange:charRange];
 	return [self hash_to_array:part];
 }
+//- (void) textViewDidChangeSelection:(NSNotification *)notification {
+//	NSEvent *currentEvent = [NSApp currentEvent];
+//    if (([currentEvent modifierFlags] & NSAlternateKeyMask) == NSAlternateKeyMask) {
+//    }
+//}
 - (void) textStorageWillProcessEditing:(NSNotification *)notification {
 	if ([tv.textStorage editedMask] & NSTextStorageEditedCharacters) {
 		[serializator lock];
