@@ -31,7 +31,8 @@
 - (NSApplicationTerminateReply) gonna_terminate;
 - (void)sheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo;
 - (void) runModalWithString:(NSString *) data andType:(int) type;
-
+- (BOOL) openStoredURLs;
+- (void) storeOpenedURLs;
 @property (retain) NSTabView *tabView;
 @property (retain) NSWindow *goto_window;
 @property (retain) NSTimer *timer;

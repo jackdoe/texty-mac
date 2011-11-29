@@ -18,15 +18,34 @@
 	self.tabView.delegate = self;
 	[self.tabView setFont:FONT];
 	[self.tabView setControlTint:NSClearControlTint];
-	[self open:nil];
 	[self.modal_www setResourceLoadDelegate:self];
 	self.timer = [NSTimer scheduledTimerWithTimeInterval: 1
 				target: self
 				selector: @selector(handleTimer:)
 				userInfo: nil
 				repeats: YES];
-
+	if (![self openStoredURLs]) {
+		[self open:nil];
+	}
 	return self;
+}
+- (BOOL) openStoredURLs {
+	BOOL ret = NO;
+	NSUserDefaults *preferences = [NSUserDefaults standardUserDefaults];
+	NSArray *d = [preferences objectForKey:@"openedTabs"];
+	for (NSString *f in d) {
+		[self open:[NSURL fileURLWithPath:f]];
+		ret = YES;
+	}
+	return ret;
+}
+- (void) storeOpenedURLs {
+	NSUserDefaults *preferences = [NSUserDefaults standardUserDefaults];
+	NSMutableArray *opened = [NSMutableArray array];
+	[self walk_tabs:^(Text *t) {
+			[opened addObject:[t.s.fileURL path]];
+	}];
+	[preferences setObject:[NSArray arrayWithArray:opened] forKey:@"openedTabs"];
 }
 - (void) goLeft:(id) sender {
 	[self.tabView selectPreviousTabViewItem:nil];
@@ -184,6 +203,7 @@
 	}	
 }
 - (NSApplicationTerminateReply) gonna_terminate {
+	[self storeOpenedURLs];
 	__block unsigned int have_unsaved = 0;
 	[self walk_tabs:^(Text *t) {
 		if ([t is_modified]) {
