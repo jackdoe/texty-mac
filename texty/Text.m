@@ -540,9 +540,8 @@ do {																		\
 			flags = B_REQUIRE_SUPERBLOCK;
 			SET_BLOCK(b,'%', '<', '>', '%', COMMENT_COLOR_IDX, (B_SUPERBLOCK | B_SHOW_VAR | B_SHOW_KEYWORD));
 		}
-		[self addKeywords:@"class if else while do puts end def times length yield initialize inspect private protected public block_given" withColor:KEYWORD_COLOR_IDX];
-		[self addKeywords:@"require module" withColor:CONDITION_COLOR_IDX];
-		[self addKeywords:@"super attr_writer attr_reader"  withColor:CONDITION_COLOR_IDX];
+		[self addKeywords:@"BEGIN END __ENCODING__ __END__ __FILE__ __LINE__ alias and begin break case class def defined? do else elsif end ensure false for if in module next nil not or redo rescue retry return super then true undef unless until when while yield protected private require" withColor:KEYWORD_COLOR_IDX];
+		[self addKeywords:@"self attr_writer attr_reader attr_accessor"  withColor:CONDITION_COLOR_IDX];
 		SET_BLOCK(b,'*', '/', '/', '*', COMMENT_COLOR_IDX, B_NO_KEYWORD| flags);
 		SET_BLOCK(b,'/', '/', 0, 0, COMMENT_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_NO_KEYWORD | flags))
 		SET_BLOCK(b,'#', 0, 0, 0, COMMENT_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_NO_KEYWORD | flags))

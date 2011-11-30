@@ -109,8 +109,7 @@
 	if ([panel runModal] == NSOKButton) {
 		NSArray *files = [panel URLs];;
 		for (NSURL *url in files) {
-			if (url)
-				[self open:url];		
+			[self performSelector:@selector(open:) withObject:url afterDelay:0];
 		}
 	}	
 
