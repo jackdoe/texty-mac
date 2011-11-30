@@ -10,7 +10,7 @@ Texty
 The idea is very simple - single window-tab based text editor, which creates temporary files, auto saves them, backups everything on each save, and has diff between the current and each of the saved versions.
 
 and currently looks like this:
-[![](http://farm8.staticflickr.com/7015/6429917701_cb4fed23a4.jpg)](http://www.flickr.com/photos/71088131@N07/6429917701//)
+[![](http://farm8.staticflickr.com/7015/6429917701_cb4fed23a4.jpg)](http://www.flickr.com/photos/71088131@N07/6429917701/)
 
 Requirements
 ============
@@ -66,7 +66,7 @@ Overview
 
 	and here is the output:
 
-	[![](http://farm8.staticflickr.com/7017/6429997929_31ef564d25.jpg)]("http://www.flickr.com/photos/71088131@N07/6429997929/)
+	[![](http://farm8.staticflickr.com/7017/6429997929_31ef564d25.jpg)](http://www.flickr.com/photos/71088131@N07/6429997929/)
 
 
 	When you click run - a modal window with the output of the command will be displayed. 
