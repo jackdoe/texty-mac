@@ -52,7 +52,7 @@ Overview
 
 	> example: TEXTY_RUN_SHELL ~/script.sh arg1 {MYSELF} arg2 # or see this README.mdown at line 3
 
-	* {MYSELF} - is auto replaced with the actual file you are editting.
+	* {MYSELF} - is auto replaced with the full path of the file you are editting.
 	* {MYDIR} - file's directory 
 	* {NOTIMEOUT} - if you want the command to run forever /* remove from the line at execute time */
 
@@ -62,7 +62,7 @@ Overview
 	
 	becomes:
 
-	> sh -c "cd /Users/jack/work/texty && git add README.mdown && git commit -m "fix readme" && git push"
+	> sh -c "cd /Users/jack/work/texty && git add /Users/jack/work/texty/README.mdown && git commit -m "fix readme" && git push"
 
 	and here is the output:
 
