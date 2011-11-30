@@ -35,8 +35,8 @@
 	NSUserDefaults *preferences = [NSUserDefaults standardUserDefaults];
 	NSArray *d = [preferences objectForKey:@"openedTabs"];
 	for (NSString *f in d) {
-		[self open:[NSURL fileURLWithPath:f]];
-		ret = YES;
+		if ([self open:[NSURL fileURLWithPath:f]])
+			ret = YES;
 	}
 	return ret;
 }
@@ -211,7 +211,7 @@
 		[self runModalWithString:data andType:type];
 	}
 }
-- (void) open:(NSURL *) file{
+- (BOOL) open:(NSURL *) file {
 	__block Text *o = nil;
 	[self walk_tabs:^(Text *t) {
 		if ([t.s.fileURL isEqualTo:file]) {
@@ -223,15 +223,18 @@
 		if (alertReturn == NSOKButton) {
 			[o open:file];
 			[self.tabView selectTabViewItem:o.tabItem];
+			return YES;
 		}
-		return;
+		return NO;
 	}
 	
 	o = [[Text alloc] initWithFrame:[self.tabView frame]];
 	if ([o open:file]) {
 		[self.tabView addTabViewItem:o.tabItem];
 		[self.tabView selectTabViewItem:o.tabItem];
+		return YES;
 	}
+	return NO;
 }
 - (IBAction) save_all:(id) sender {
 	[self walk_tabs:^(Text *t) {

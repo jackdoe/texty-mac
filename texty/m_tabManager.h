@@ -29,7 +29,7 @@
 - (IBAction)save_all:(id)sender;
 - (BOOL) modal_escape:(id)sender;
 - (void) walk_tabs:(void (^)(Text *t)) callback;
-- (void) open:(NSURL *) file;
+- (BOOL) open:(NSURL *) file;
 - (NSApplicationTerminateReply) gonna_terminate;
 - (void)sheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo;
 - (void) runModalWithString:(NSString *) data andType:(int) type;
