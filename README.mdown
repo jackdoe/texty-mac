@@ -12,34 +12,34 @@ and currently looks like this:
 Requirements
 ============
 
-requires: Mac OSX Lion
-and xcode to build the project
+* requires: Mac OSX Lion
+* xcode to build the project
 
 Overview
 ========
 
 2. directories
-everything is inside ~/TEXTY_DATA
-/Users/jack/TEXTY_DATA/
-/Users/jack/TEXTY_DATA/TEMPORARY/yyyy-MM-dd/TEMP-time().rand().txt
-/Users/jack/TEXTY_DATA/BACKUP/'fileURL.replace:/ with:_'/time().txt
-/Users/jack/TEXTY_DATA/AUTOSAVE/'fileURL.replace:/ with:_/'filename
+* everything is inside ~/TEXTY_DATA
+* /Users/jack/TEXTY_DATA/
+* /Users/jack/TEXTY_DATA/TEMPORARY/yyyy-MM-dd/TEMP-time().rand().txt
+* /Users/jack/TEXTY_DATA/BACKUP/'fileURL.replace:/ with:_'/time().txt
+* /Users/jack/TEXTY_DATA/AUTOSAVE/'fileURL.replace:/ with:_/'filename
 
 2.1 autosave/backup
-	Every 60 seconds the temporary files are auto saved at their
+	* Every 60 seconds the temporary files are auto saved at their
 	actual location (texty_data/temporaty/yyyy-MM-dd/..).
-	Non temporary files are saved in texty_data/autosave../
-	Every time you hit save, a backup is made inside BACKUP/.
+	* Non temporary files are saved in texty_data/autosave../
+	* Every time you hit save, a backup is made inside BACKUP/.
 
 3. execute
 	on line number 3 (counting from 1 - ugh.) you can have:
 	TEXTY_RUN_SHELL command
 	if the command begins with http:// a modal window displaying the http
 	page will be opened.
-		 example: TEXTY_RUN_SHELL http://localhost/~jack/index.php
+		 * example: TEXTY_RUN_SHELL http://localhost/~jack/index.php
 
 	other wise a command is ran using /bin/sh -c "command"
-		 example: TEXTY_RUN_SHELL {MYSELF} arg1 arg2
+		 * example: TEXTY_RUN_SHELL {MYSELF} arg1 arg2
 		 example: TEXTY_RUN_SHELL ~/script.sh arg1 {MYSELF} arg2
 	* {MYSELF} - is auto replaced with the actual file you are editting.
 	* {MYDIR} - file's directory 
