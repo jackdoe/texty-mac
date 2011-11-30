@@ -1,7 +1,8 @@
 #import "m_tabManager.h"
 #define EXECUTE_TYPE_SHELL 1
 #define EXECUTE_TYPE_WWW 2
-
+#define DIRECTION_LEFT 1
+#define DIRECTION_RIGHT 2
 @interface NSURLRequest (DummyInterface)
 + (BOOL)allowsAnyHTTPSCertificateForHost:(NSString*)host;
 + (void)setAllowsAnyHTTPSCertificate:(BOOL)allow forHost:(NSString*)host;
@@ -48,10 +49,48 @@
 	[preferences setObject:[NSArray arrayWithArray:opened] forKey:@"openedTabs"];
 }
 - (void) goLeft:(id) sender {
-	[self.tabView selectPreviousTabViewItem:nil];
+	[self.tabView selectTabViewItemAtIndex:[self getTabIndex:DIRECTION_LEFT]];
 }
 - (void) goRight:(id) sender {
-	[self.tabView selectNextTabViewItem:nil];
+	[self.tabView selectTabViewItemAtIndex:[self getTabIndex:DIRECTION_RIGHT]];
+}
+- (NSInteger) getTabIndex:(int) direction {
+	NSTabViewItem *selected = [self.tabView selectedTabViewItem];
+	NSInteger selectedIndex = [self.tabView indexOfTabViewItem:selected];
+	NSInteger firstIndex = 0;
+	NSInteger lastIndex = [self.tabView numberOfTabViewItems] - 1;
+	if (lastIndex == firstIndex)
+		return selectedIndex;
+
+	if (direction == DIRECTION_LEFT) {
+		if (selectedIndex > 0)
+			return selectedIndex - 1;
+		return lastIndex;
+	} else {
+		if (selectedIndex < lastIndex)
+			return selectedIndex + 1;
+		return 0;
+	}
+}
+- (void) swapTab:(NSInteger) first With:(NSInteger) second {
+	NSTabViewItem *f, *s;
+	f = [self.tabView tabViewItemAtIndex:first];
+	s = [self.tabView tabViewItemAtIndex:second];
+	if ([f isEqual:s])
+		return;
+	[self.tabView removeTabViewItem:f];
+	[self.tabView insertTabViewItem:f atIndex:second];
+	[self.tabView selectTabViewItemAtIndex:second];
+}
+- (IBAction)swapRight:(id)sender {
+	NSInteger rightIndex = [self getTabIndex:DIRECTION_RIGHT];
+	NSInteger selectedIndex = [self.tabView indexOfTabViewItem:[self.tabView selectedTabViewItem]];
+	[self swapTab:selectedIndex With:rightIndex];
+}
+- (IBAction)swapLeft:(id)sender {
+	NSInteger leftIndex = [self getTabIndex:DIRECTION_LEFT];
+	NSInteger selectedIndex = [self.tabView indexOfTabViewItem:[self.tabView selectedTabViewItem]];
+	[self swapTab:selectedIndex With:leftIndex];
 }
 - (void) signal:(id) sender {
 	[self walk_tabs:^(Text *t) {

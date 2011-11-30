@@ -21,6 +21,8 @@
 - (IBAction)saveAsButton:(id)sender;
 - (IBAction)goLeft:(id) sender;
 - (IBAction)goRight:(id) sender;
+- (IBAction)swapLeft:(id)sender;
+- (IBAction)swapRight:(id)sender;
 - (IBAction)goto_button:(id) sender;
 - (IBAction)goto_action:(id) sender;
 - (IBAction)run_button:(id)sender;
@@ -33,6 +35,7 @@
 - (void) runModalWithString:(NSString *) data andType:(int) type;
 - (BOOL) openStoredURLs;
 - (void) storeOpenedURLs;
+- (NSInteger) getTabIndex:(int) direction;
 @property (retain) NSTabView *tabView;
 @property (retain) NSWindow *goto_window;
 @property (retain) NSTimer *timer;
