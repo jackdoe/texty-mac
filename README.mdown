@@ -21,7 +21,8 @@ Requirements
 Overview
 ========
 
-1. Directories
+Directories
+___________
 
 	+ everything is inside ~/TEXTY_DATA
 	+ /Users/jack/TEXTY_DATA/
@@ -29,13 +30,15 @@ Overview
 	+ /Users/jack/TEXTY_DATA/BACKUP/'fileURL.replace:/ with:_'/time().txt
 	+ /Users/jack/TEXTY_DATA/AUTOSAVE/'fileURL.replace:/ with:_/'filename
 
-2 Autosave/backup
+Autosave/backup
+_______________
 
 	* Every 60 seconds the temporary files are auto saved at their actual location (texty_data/temporaty/yyyy-MM-dd/..).
 	* Non temporary files are saved in texty_data/autosave../
 	* Every time you hit save, a backup is made inside BACKUP/.
 
-3. Execute
+Execute
+_______
 
 	on line number 3 (counting from 1 - ugh.) you can have:
 
@@ -71,11 +74,14 @@ Overview
 	When you click run - a modal window with the output of the command will be displayed. 
 	note: maximum time out for a job is 1 second, after that the task will be terminated.
 
-4. Syntax highlighting
+Syntax highlighting
+___________________
 
-	This is still very experimental.
+	This is still very experimental, supports keywords superblocks and blocks that require superblocks.
 
-5. Bugs
+Bugs
+____
+
 	5.1 TEXTY_RUN_SHELL
 	+ http:// does not work with https
 	+ does not show popups and javascript alerts and etc
