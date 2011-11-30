@@ -186,10 +186,12 @@
 	return NO;
 }
 
-- (void) parse:(m_range *) m_range {
-	NSRange range = [m_range paragraph:tv];
+- (void) parse:(m_range *) _range {
+	NSRange range = [_range paragraph:tv];
 	[self clearColors:range];
 	[self highlight:range];
+	if ([self get_execute_command]) 
+		[self color:[m_range rangeOfLine:EXECUTE_LINE inString:[tv string]] withColor:CONDITION_COLOR_IDX];
 }
 
 static void hash_init(struct _hash_table *t) {
@@ -365,6 +367,9 @@ static struct word * word_new(struct word_head *wh) {
 
 - (void) highlight:(NSRange) range {
 	/* XXX: getting more and more ugly */
+	if (!_syntax_color)
+		return;
+
 	NSString *string = [tv string];
 	NSInteger pos;
 	char prev=0,c;
@@ -377,8 +382,6 @@ static struct word * word_new(struct word_head *wh) {
 	begin = range.location;
 	end = NSMaxRange(range);
 	struct block *superblock = NULL;
-	if (!_syntax_color)
-		goto exec;
 
 	for (pos = begin; pos < end; pos++) {
 		c = [string characterAtIndex:pos] & B_TABLE_MASK;
@@ -438,9 +441,6 @@ static struct word * word_new(struct word_head *wh) {
 next:
 		free(w);
 	}
-exec:
-	if ([self get_execute_command]) 
-		[self color:[m_range rangeOfLine:EXECUTE_LINE inString:string] withColor:CONDITION_COLOR_IDX];
 }
 
 - (void) colorBracket {

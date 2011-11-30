@@ -160,7 +160,7 @@ static struct word * word_new(struct word_head *wh);
 - (BOOL) is_modified;
 - (void) goto_line:(NSInteger) want_line;
 - (NSString *) get_line:(NSInteger) lineno;
-- (void) parse:(m_range *) m_range;
+- (void) parse:(m_range *) _range;
 - (void) signal;
 - (NSString *) get_execute_command;
 - (void) initSyntax;

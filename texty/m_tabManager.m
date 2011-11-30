@@ -219,7 +219,11 @@
 		};
 	}];
 	if (o) {
-		[self.tabView selectTabViewItem:o.tabItem];	
+		NSInteger alertReturn = NSRunAlertPanel(@"file is already opened", [NSString stringWithFormat:@"File: %@ is already open, do you want to reload it from disk?",[file path]] ,@"Reload", @"Cancel",nil);
+		if (alertReturn == NSOKButton) {
+			[o open:file];
+			[self.tabView selectTabViewItem:o.tabItem];
+		}
 		return;
 	}
 	

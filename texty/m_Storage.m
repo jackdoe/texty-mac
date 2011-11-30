@@ -2,6 +2,9 @@
 @implementation m_Storage
 @synthesize fileURL, data,temporary,existing_backups;
 - (BOOL) open:(NSURL *) URL {
+	self.data = nil;
+	self.fileURL = nil;
+	self.existing_backups = nil;
 	if (!URL) {
 		URL = [self temporaryFileURL];
 		if (!URL) {
