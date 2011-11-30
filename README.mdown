@@ -1,9 +1,13 @@
+WARNING
+=======
+*** WARNING: this is still work in porgress ***
+
 Texty
 =====
 The idea is very simple - single window-tab based text editor, which creates temporary files, auto saves them, backups everything on each save, and has diff between the current and each of the saved versions.
 
 and currently looks like this:
-[![](http://www.flickr.com/photos/71088131@N07/6429917701/sizes/l/in/photostream/)](http://farm8.staticflickr.com/7015/6429917701_cb4fed23a4.jpg)
+[![](http://farm8.staticflickr.com/7015/6429917701_cb4fed23a4.jpg)](http://www.flickr.com/photos/71088131@N07/6429917701/sizes/l/in/photostream/)
 
 Requirements
 ============
