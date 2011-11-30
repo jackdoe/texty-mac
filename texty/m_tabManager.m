@@ -137,10 +137,10 @@
 - (IBAction)closeButton:(id)sender {
 	Text *t = [self.tabView selectedTabViewItem].identifier;
 	if ([t is_modified]) {
-		NSInteger alertReturn = NSRunAlertPanel(@"got unsaved data", @"You have unsaved data." , @"Save & Close",@"Close Without Saving", @"Cancel");
-		if (alertReturn == NSAlertDefaultReturn) { 		/* Save */
+		NSInteger alertReturn = NSRunAlertPanel(@"WARNING: unsaved data.", @"You have unsaved data for 1 file." , @"Cancel",@"Save & Close", @"Close w/o Save");
+		if (alertReturn == NSAlertAlternateReturn) { 		/* Save */
 			[t save];
-		} else if (alertReturn == NSAlertOtherReturn) { /* Cancel */
+		} else if (alertReturn == NSAlertDefaultReturn) { /* Cancel */
 			return; 
 		}
 	}
@@ -256,7 +256,7 @@
 		}		
 	}];
 	if (have_unsaved) {
-		NSInteger alertReturn = NSRunAlertPanel(@"got unsaved data", [NSString stringWithFormat:@"You have unsaved data for %u files.",have_unsaved] ,@"Cancel", @"Save All & Exit",@"Exit without saving!");
+		NSInteger alertReturn = NSRunAlertPanel(@"WARNING: unsaved data.", [NSString stringWithFormat:@"You have unsaved data for %u file%s",have_unsaved,(have_unsaved > 1 ? "s." : ".")] ,@"Cancel", @"Save All & Exit",@"Exit without saving!");
 		if (alertReturn == NSAlertAlternateReturn) {
 			[self save_all:nil];
 			return NSTerminateNow;
