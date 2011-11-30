@@ -428,7 +428,7 @@ static struct word * word_new(struct word_head *wh) {
 		if (_syntax_var_symbol[(char)w->data[0]]) {
 			if (!(w->current_block_flags & B_NO_VAR)) 	/* dont color vars in single quoted strings */
 				[self color:NSMakeRange(w->pos, w->len) withColor:_syntax_var_symbol[(char) w->data[0]]];				
-		} else if (w->current_block_flags == 0) { 		/* find keywords and numbers outside of blocks */
+		} else if (w->current_block_flags == 0 || w->current_block_flags & B_SHOW_KEYWORD) { 		/* find keywords and numbers outside of blocks */
 			if ((w->flags & WORD_NUMBER) == w->flags) {
 				if (_syntax_color_numbers)
 					[self color:NSMakeRange(w->pos, w->len) withColor:VALUE_COLOR_IDX];	
@@ -558,9 +558,12 @@ do {																		\
 		_syntax_color_numbers = 1;
 		_syntax_color = 1;
 	} else if ([self extIs:[NSArray arrayWithObjects:@"sh", nil]]) {
-		[self addKeywords:@"esac break return continue case default if else switch while for do" withColor:KEYWORD_COLOR_IDX];
+		[self addKeywords:@"esac break return continue case default if else switch while for do in for expr true false done" withColor:KEYWORD_COLOR_IDX];
+		[self addKeywords:@"echo print printf read exit"  withColor:CONDITION_COLOR_IDX];
+
 		SET_BLOCK(b,'#', 0, 0, 0, COMMENT_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_NO_KEYWORD))
 		SET_BLOCK(b,'"', 0, '"', 0, STRING2_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_SHOW_VAR))
+		SET_BLOCK(b,'`', 0, '`', 0, CONSTANT_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_SHOW_VAR | B_SHOW_KEYWORD))
 		SET_BLOCK(b,'\'', 0, '\'', 0, STRING1_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_NO_VAR))
 		_syntax_var_symbol['$'] = VARTYPE_COLOR_IDX;
 		_syntax_color_numbers = 1;		
