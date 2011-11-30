@@ -256,7 +256,7 @@
 		}		
 	}];
 	if (have_unsaved) {
-		NSInteger alertReturn = NSRunAlertPanel(@"WARNING: unsaved data.", [NSString stringWithFormat:@"You have unsaved data for %u file%s",have_unsaved,(have_unsaved > 1 ? "s." : ".")] ,@"Cancel", @"Save All & Exit",@"Exit without saving!");
+		NSInteger alertReturn = NSRunAlertPanel(@"WARNING: unsaved data.", [NSString stringWithFormat:@"You have unsaved data for %u file%s",have_unsaved,(have_unsaved > 1 ? "s." : ".")] ,@"Cancel", @"Save & Close",@"Close w/o Save");
 		if (alertReturn == NSAlertAlternateReturn) {
 			[self save_all:nil];
 			return NSTerminateNow;
