@@ -1,8 +1,8 @@
 WARNING
 =======
-+ TEXTY_RUN_SHELL cd {MYDIR} && git add {MYSELF} && git commit -m "fix readme" && git push {NOTIMEOUT}
+> TEXTY_RUN_SHELL cd {MYDIR} && git add {MYSELF} && git commit -m "fix readme" && git push {NOTIMEOUT}
 
-*** WARNING: this is still work in porgress ***
+__WARNING: this is still work in porgress__
 
 Texty
 =====
@@ -43,8 +43,11 @@ Overview
 	> example: TEXTY_RUN_SHELL http://localhost/~jack/index.php
 
 	other wise a command is ran using /bin/sh -c "command"
+
 	> example: TEXTY_RUN_SHELL {MYSELF} arg1 arg2
+
 	> example: TEXTY_RUN_SHELL ~/script.sh arg1 {MYSELF} arg2 # or see this README.mdown at line 3
+
 	* {MYSELF} - is auto replaced with the actual file you are editting.
 	* {MYDIR} - file's directory 
 	* {NOTIMEOUT} - if you want the command to run forever /* remove from the line at execute time */
@@ -56,9 +59,7 @@ Overview
 	This is still very experimental.
 
 5. Bugs
-	The TEXTU_RUN_SHELL http:// does not work with https, does not show popups
-	and javascript alerts and etc, its just [[webview alloc] initWithRequest:],
-	so its not very usefull, but this is gonna change
+	* The TEXTU_RUN_SHELL http:// does not work with https, does not show popups and javascript alerts and etc, its just [[webview alloc] initWithRequest:], so its not very usefull, but this is gonna change
 
 
 
