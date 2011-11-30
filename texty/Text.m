@@ -541,7 +541,7 @@ do {																		\
 			SET_BLOCK(b,'%', '<', '>', '%', COMMENT_COLOR_IDX, (B_SUPERBLOCK | B_SHOW_VAR | B_SHOW_KEYWORD));
 		}
 		[self addKeywords:@"class if else while do puts end def times length yield initialize inspect private protected public block_given" withColor:KEYWORD_COLOR_IDX];
-		[self addKeywords:@"echo print printf" withColor:CONSTANT_COLOR_IDX];
+		[self addKeywords:@"require module" withColor:CONDITION_COLOR_IDX];
 		[self addKeywords:@"super attr_writer attr_reader"  withColor:CONDITION_COLOR_IDX];
 		SET_BLOCK(b,'*', '/', '/', '*', COMMENT_COLOR_IDX, B_NO_KEYWORD| flags);
 		SET_BLOCK(b,'/', '/', 0, 0, COMMENT_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_NO_KEYWORD | flags))
@@ -553,6 +553,8 @@ do {																		\
 		_syntax_var_symbol['@'] = VARTYPE_COLOR_IDX;
 		_syntax_var_symbol[':'] = CONSTANT_COLOR_IDX;
 		_syntax_var_symbol['$'] = VARTYPE_COLOR_IDX;
+		_syntax_var_symbol['%'] = VARTYPE_COLOR_IDX;
+
 		_syntax_color_numbers = 1;
 		_syntax_color = 1;
 	} else if ([self extIs:[NSArray arrayWithObjects:@"sh", nil]]) {
