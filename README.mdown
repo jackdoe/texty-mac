@@ -30,19 +30,22 @@ Overview
 	+ /Users/jack/TEXTY_DATA/AUTOSAVE/'fileURL.replace:/ with:_/'filename
 
 2 Autosave/backup
+
 	* Every 60 seconds the temporary files are auto saved at their actual location (texty_data/temporaty/yyyy-MM-dd/..).
 	* Non temporary files are saved in texty_data/autosave../
 	* Every time you hit save, a backup is made inside BACKUP/.
 
 3. Execute
+
 	on line number 3 (counting from 1 - ugh.) you can have:
 
 	> TEXTY_RUN_SHELL command
 
 	if the command begins with http:// a modal window displaying the http page will be opened.
+
 	> example: TEXTY_RUN_SHELL http://localhost/~jack/index.php
 
-	other wise a command is ran using /bin/sh -c "command"
+	else a command is ran using /bin/sh -c "command"
 
 	> example: TEXTY_RUN_SHELL {MYSELF} arg1 arg2
 
@@ -51,6 +54,7 @@ Overview
 	* {MYSELF} - is auto replaced with the actual file you are editting.
 	* {MYDIR} - file's directory 
 	* {NOTIMEOUT} - if you want the command to run forever /* remove from the line at execute time */
+
 	When you click run - a modal window with the output of the command will be displayed. 
 	note: maximum time out for a job is 1 second, after that the task will be terminated.
 
@@ -59,7 +63,10 @@ Overview
 	This is still very experimental.
 
 5. Bugs
-	* The TEXTU_RUN_SHELL http:// does not work with https, does not show popups and javascript alerts and etc, its just [[webview alloc] initWithRequest:], so its not very usefull, but this is gonna change
+	* TEXTY_RUN_SHELL
+	+ http:// does not work with https
+	+ does not show popups and javascript alerts and etc
+	+ its just [[webview alloc] initWithRequest:], so its not very usefull, but this is gonna change
 
 
 
