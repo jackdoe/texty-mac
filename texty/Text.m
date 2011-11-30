@@ -315,7 +315,7 @@ static inline void word_end(struct word *w) {
 	w->data[w->len & WORD_MASK] = '\0';
 }
 static inline int word_is_valid_word(struct word *w) {
-	return ((w->flags & (WORD_NUMBER|WORD_ALPHA_LOWER|WORD_ALPHA_UPPER|WORD_DASH|WORD_VARSYMBOL)) == w->flags);
+	return (w->len >= MIN_WORD_LEN && (w->flags & (WORD_NUMBER|WORD_ALPHA_LOWER|WORD_ALPHA_UPPER|WORD_DASH|WORD_VARSYMBOL)) == w->flags);
 }
 static inline int word_valid_symbol(unichar c, char *var_symbol_table) {
 	if (c >= 'a' && c <= 'z')

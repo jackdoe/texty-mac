@@ -67,6 +67,7 @@
 #define B_REQUIRE_SUPERBLOCK	512
 #define BLOCK_BEGINS 	1
 #define BLOCK_ENDS 		2
+#define MIN_WORD_LEN	2
 
 struct block {
 	NSRange range;
