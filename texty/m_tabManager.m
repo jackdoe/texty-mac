@@ -190,6 +190,8 @@
 	if (cmd) {
 		int type = EXECUTE_TYPE_SHELL;
 		NSString *data;
+		BOOL output = ([cmd rangeOfString:@"{NOOUTPUT}"].location == NSNotFound);
+
 		[t save];
 		[self.modal_field setStringValue:cmd];
 		if ([cmd rangeOfString:@"^\\s*?http(s)?://" options:NSRegularExpressionSearch].location != NSNotFound) {
@@ -203,11 +205,13 @@
 				timeout = 0;
 				cmd = [cmd stringByReplacingOccurrencesOfString:@"{NOTIMEOUT}" withString:@""];
 			}
-			[self.modal_field setStringValue:[NSString stringWithFormat:@"executed(timeout: %@, RC: %d): %@",(timeout == 0 ? @"NOTIMEOUT" : [NSString stringWithFormat:@"%d",timeout]),rc,cmd]];
+			if (output)
+				[self.modal_field setStringValue:[NSString stringWithFormat:@"executed(timeout: %@, RC: %d): %@",(timeout == 0 ? @"NOTIMEOUT" : [NSString stringWithFormat:@"%d",timeout]),rc,cmd]];
 			type = EXECUTE_TYPE_SHELL;
 			data = [m_exec execute:cmd withTimeout:timeout saveRC:&rc];
 		}
-		[self runModalWithString:data andType:type];
+		if (output)
+			[self runModalWithString:data andType:type];
 	}
 }
 - (BOOL) open:(NSURL *) file {
