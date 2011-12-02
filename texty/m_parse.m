@@ -125,7 +125,7 @@ static inline void word_end(struct word *w) {
 static inline int word_is_valid_word(struct word *w) {
 	return (w->len >= MIN_WORD_LEN && (w->flags & (WORD_NUMBER|WORD_ALPHA_LOWER|WORD_ALPHA_UPPER|WORD_DASH|WORD_VARSYMBOL)) == w->flags);
 }
-static inline int word_valid_symbol(unichar c, char *var_symbol_table) {
+static inline int word_valid_symbol(unichar c, struct var_symbol *var_symbol_table) {
 	if (c >= 'a' && c <= 'z')
 		return WORD_ALPHA_LOWER;
 	else if (c >= '0' && c <= '9') 
@@ -134,12 +134,12 @@ static inline int word_valid_symbol(unichar c, char *var_symbol_table) {
 		return  WORD_ALPHA_UPPER;
 	else if (c == '_')
 		return WORD_DASH;
-	else if (c < B_TABLE_SIZE && var_symbol_table[c]) 
+	else if (c < B_TABLE_SIZE && var_symbol_table[c].color) 
 		return WORD_VARSYMBOL;
 	else 
 		return WORD_INVALID;
 }
-static inline int word_append(struct word *w, unichar c, NSInteger pos,char current_block_flags, char *var_symbol_table) {
+static inline int word_append(struct word *w, unichar c, NSInteger pos,char current_block_flags, struct var_symbol *var_symbol_table) {
 	if (!w) {
 		/* no mem */
 		return 0;
@@ -249,9 +249,9 @@ static struct word * word_new(struct word_head *wh) {
 		wh.head = w->next;
 		if (!word_is_valid_word(w) || w->current_block_flags & B_NO_KEYWORD)
 			goto next;
-		if (_syntax_var_symbol[(char)w->data[0]]) {
+		if (_syntax_var_symbol[(char)w->data[0]].color && w->len >= _syntax_var_symbol[(char)w->data[0]].required_len) {
 			if (!(w->current_block_flags & B_NO_VAR)) 	/* dont color vars in single quoted strings */
-				[self color:NSMakeRange(w->pos, w->len) withColor:_syntax_var_symbol[(char) w->data[0]] inTextView:tv];				
+				[self color:NSMakeRange(w->pos, w->len) withColor:_syntax_var_symbol[(char) w->data[0]].color inTextView:tv];
 		} else if (w->current_block_flags == 0 || w->current_block_flags & B_SHOW_KEYWORD) { 		/* find keywords and numbers outside of blocks */
 			if ((w->flags & WORD_NUMBER) == w->flags) {
 				if (_syntax_color_numbers)
@@ -339,6 +339,9 @@ do {																		\
 
 	hash_init(&hash[0]);
 	bzero(_syntax_var_symbol,sizeof(_syntax_var_symbol));
+	for (int i = 0;i < B_TABLE_SIZE; i++) {
+		_syntax_var_symbol[i].required_len = 2;
+	}
 	_syntax_color_numbers = 0;
 	_syntax_color = 0;
 	bzero(&_syntax_blocks, sizeof(_syntax_blocks));
@@ -364,7 +367,7 @@ do {																		\
 		SET_BLOCK(b,'#', 0, 0, 0, COMMENT_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_NO_KEYWORD))
 		SET_BLOCK(b,'"', 0, '"', 0, STRING2_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_SHOW_VAR))
 		SET_BLOCK(b,'\'', 0, '\'', 0, STRING1_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_NO_VAR))
-		_syntax_var_symbol['$'] = VARTYPE_COLOR_IDX;
+		_syntax_var_symbol['$'].color = VARTYPE_COLOR_IDX;
 		_syntax_color_numbers = 1;
 		_syntax_color = 1;
 	} else if ([self ext:ext is:@"rb erb rhtml"]) {
@@ -382,10 +385,10 @@ do {																		\
 		SET_BLOCK(b,'\'', 0, '\'', 0, STRING1_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_NO_VAR | flags))
 		SET_BLOCK(b,'|', 0, '|', 0, PREPROCESS_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_SHOW_VAR | flags))
 		SET_BLOCK(b,'/', 0, '/', 0, PREPROCESS_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_NO_KEYWORD | flags))
-		_syntax_var_symbol['@'] = VARTYPE_COLOR_IDX;
-		_syntax_var_symbol[':'] = CONSTANT_COLOR_IDX;
-		_syntax_var_symbol['$'] = VARTYPE_COLOR_IDX;
-		_syntax_var_symbol['%'] = VARTYPE_COLOR_IDX;
+		_syntax_var_symbol['@'].color = VARTYPE_COLOR_IDX;
+		_syntax_var_symbol[':'].color = CONSTANT_COLOR_IDX;
+		_syntax_var_symbol['$'].color = VARTYPE_COLOR_IDX;
+		_syntax_var_symbol['%'].color = VARTYPE_COLOR_IDX;
 		_syntax_color_numbers = 1;
 		_syntax_color = 1;
 	} else if ([self ext:ext is:@"sh pl"]) {
@@ -396,7 +399,7 @@ do {																		\
 		SET_BLOCK(b,'"', 0, '"', 0, STRING2_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_SHOW_VAR))
 		SET_BLOCK(b,'`', 0, '`', 0, CONSTANT_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_SHOW_VAR | B_SHOW_KEYWORD))
 		SET_BLOCK(b,'\'', 0, '\'', 0, STRING1_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_NO_VAR))
-		_syntax_var_symbol['$'] = VARTYPE_COLOR_IDX;
+		_syntax_var_symbol['$'].color = VARTYPE_COLOR_IDX;
 		_syntax_color_numbers = 1;		
 		_syntax_color = 1;
 	}

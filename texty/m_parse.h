@@ -67,7 +67,7 @@
 #define B_REQUIRE_SUPERBLOCK	512
 #define BLOCK_BEGINS 	1
 #define BLOCK_ENDS 		2
-#define MIN_WORD_LEN	2
+#define MIN_WORD_LEN	1
 
 struct block {
 	NSRange range;
@@ -109,7 +109,10 @@ struct _hash_entry {
 		struct word w;
         SLIST_ENTRY(_hash_entry) list;  
 };
-
+struct var_symbol {
+	char color;
+	char required_len;
+};
 #define Q_APPEND(_q,_m)                         \
 do {                                            \
         if (_q->head == NULL)                   \
@@ -129,7 +132,7 @@ static inline void block_begin(struct block *b, NSInteger pos);
 static inline int block_cond(struct block *b, char cmask, char pmask,int type,NSInteger pos);
 static inline void word_begin(struct word *w, NSInteger pos);
 static inline void word_end(struct word *w);
-static inline int word_append(struct word *w, unichar c, NSInteger pos,char current_block_flags,char *var_symbol_table);
+static inline int word_append(struct word *w, unichar c, NSInteger pos,char current_block_flags,struct var_symbol *var_symbol_table);
 static inline int word_is_valid_word(struct word *w);
 static inline void word_dump(struct word *w);
 static struct word * word_new(struct word_head *wh);
@@ -137,7 +140,7 @@ NSDictionary *colorAttr[20];
 #endif
 
 @interface m_parse : NSObject{
-	char	_syntax_var_symbol[B_TABLE_SIZE];
+	struct var_symbol _syntax_var_symbol[B_TABLE_SIZE];
 	char 	_syntax_color_numbers;
 	char 	_syntax_color;
 	struct syntax_blocks _syntax_blocks;
