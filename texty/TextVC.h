@@ -17,6 +17,8 @@
 	m_Storage *s;
 	m_parse *parser;
 	NSTabViewItem *tabItem;
+	BOOL something_changed, need_to_autosave;
+	long autosave_ts;
 }
 - (BOOL) open:(NSURL *)file;
 - (void) saveAs:(NSURL *) to;

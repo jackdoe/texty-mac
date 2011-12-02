@@ -11,7 +11,25 @@
 @implementation TextVC
 @synthesize tabItem,s,parser;
 - (void) signal {
-
+	if (need_to_autosave) {
+		if (time(NULL) - autosave_ts > AUTOSAVE_INTERVAL) {
+			if (s.temporary)
+				[self save];
+			else 
+				[s autosave:NO];
+			autosave_ts = time(NULL);
+			need_to_autosave = NO;
+		}
+	}
+	if (something_changed) {
+		if ([self is_modified]) {
+			tabItem.label = [NSString stringWithFormat:@"%@ *",[s basename]];
+			need_to_autosave = YES;
+		} else {
+			tabItem.label = [NSString stringWithFormat:@"%@",[s basename]];		
+		}
+		something_changed = NO;
+	}
 }
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
@@ -95,6 +113,7 @@
 	[text setString:s.data];
 }
 - (BOOL) is_modified {
+//	NSLog(@"%@ vs %@",[text string], s.data);
 	return ![[text string] isEqualToString:s.data];
 }
 - (void) goto_line:(NSInteger) want_line {
@@ -150,6 +169,7 @@
 		NSRange editted = [ts editedRange];
 		range._change = change;
 		range._range = editted;
+		something_changed = YES;
 		[self performSelector:@selector(parse:) withObject:range afterDelay:0];		
 	}
 }
