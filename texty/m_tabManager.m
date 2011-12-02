@@ -8,7 +8,6 @@
 + (void)setAllowsAnyHTTPSCertificate:(BOOL)allow forHost:(NSString*)host;
 @end
 @implementation m_tabManager
-
 @synthesize tabView,goto_window,timer,modal_panel,modal_tv,modal_www,modal_field;
 - (m_tabManager *) init {
 	return [self initWithFrame:[[NSApp mainWindow] frame]];
@@ -25,6 +24,19 @@
 				selector: @selector(handleTimer:)
 				userInfo: nil
 				repeats: YES];
+
+	colorAttr[VARTYPE_COLOR_IDX] = [NSDictionary dictionaryWithObject:VARTYPE_COLOR forKey:NSForegroundColorAttributeName];
+	colorAttr[VALUE_COLOR_IDX] = [NSDictionary dictionaryWithObject:VALUE_COLOR forKey:NSForegroundColorAttributeName];
+	colorAttr[KEYWORD_COLOR_IDX] = [NSDictionary dictionaryWithObject:KEYWORD_COLOR forKey:NSForegroundColorAttributeName];
+	colorAttr[COMMENT_COLOR_IDX] = [NSDictionary dictionaryWithObject:COMMENT_COLOR forKey:NSForegroundColorAttributeName];
+	colorAttr[STRING1_COLOR_IDX] = [NSDictionary dictionaryWithObject:STRING1_COLOR forKey:NSForegroundColorAttributeName];
+	colorAttr[STRING2_COLOR_IDX] = [NSDictionary dictionaryWithObject:STRING2_COLOR forKey:NSForegroundColorAttributeName];
+	colorAttr[PREPROCESS_COLOR_IDX] = [NSDictionary dictionaryWithObject:PREPROCESS_COLOR forKey:NSForegroundColorAttributeName];
+	colorAttr[CONDITION_COLOR_IDX] = [NSDictionary dictionaryWithObject:CONDITION_COLOR forKey:NSForegroundColorAttributeName];
+	colorAttr[TEXT_COLOR_IDX] = [NSDictionary dictionaryWithObject:TEXT_COLOR forKey:NSForegroundColorAttributeName];
+	colorAttr[CONSTANT_COLOR_IDX] = [NSDictionary dictionaryWithObject:CONSTANT_COLOR forKey:NSForegroundColorAttributeName];
+
+
 	if (![self openStoredURLs]) {
 		[self open:nil];
 	}
@@ -38,15 +50,29 @@
 		if ([self open:[NSURL fileURLWithPath:f]])
 			ret = YES;
 	}
+	NSString *selected = [preferences objectForKey:@"selectedTab"];
+	__block TextVC *exists = nil;
+	if (selected) {
+		[self walk_tabs:^(TextVC *t) {
+			if ([[t.s.fileURL path] isEqualToString:selected]) {
+				exists = t;
+			}
+		}];
+		if (exists) {
+			[self.tabView selectTabViewItem:exists.tabItem];
+		}
+	}
 	return ret;
 }
 - (void) storeOpenedURLs {
 	NSUserDefaults *preferences = [NSUserDefaults standardUserDefaults];
 	NSMutableArray *opened = [NSMutableArray array];
-	[self walk_tabs:^(Text *t) {
+	[self walk_tabs:^(TextVC *t) {
 			[opened addObject:[t.s.fileURL path]];
 	}];
+	TextVC *t = [self.tabView selectedTabViewItem].identifier;
 	[preferences setObject:[NSArray arrayWithArray:opened] forKey:@"openedTabs"];
+	[preferences setObject:[t.s.fileURL path] forKey:@"selectedTab"];
 }
 - (void) goLeft:(id) sender {
 	[self.tabView selectTabViewItemAtIndex:[self getTabIndex:DIRECTION_LEFT]];
@@ -93,7 +119,7 @@
 	[self swapTab:selectedIndex With:leftIndex];
 }
 - (void) signal:(id) sender {
-	[self walk_tabs:^(Text *t) {
+	[self walk_tabs:^(TextVC *t) {
 		[t signal];
 	}];
 }
@@ -115,12 +141,12 @@
 
 }
 - (IBAction)saveButton:(id)sender {
-	Text *t = [self.tabView selectedTabViewItem].identifier;
+	TextVC *t = [self.tabView selectedTabViewItem].identifier;
 	[t save];
 }
 - (IBAction)saveAsButton:(id)sender {
 	[self modal_escape:nil];
-	Text *t = [self.tabView selectedTabViewItem].identifier;
+	TextVC *t = [self.tabView selectedTabViewItem].identifier;
 	NSSavePanel *spanel = [NSSavePanel savePanel];
 	[spanel setPrompt:@"Save"];
 	[spanel setShowsToolbarButton:YES];
@@ -134,8 +160,10 @@
 		}
 	}];
 }
+
+
 - (IBAction)closeButton:(id)sender {
-	Text *t = [self.tabView selectedTabViewItem].identifier;
+	TextVC *t = [self.tabView selectedTabViewItem].identifier;
 	if ([t is_modified]) {
 		NSInteger alertReturn = NSRunAlertPanel(@"WARNING: unsaved data.", @"You have unsaved data for 1 file." , @"Cancel",@"Save & Close", @"Close w/o Save");
 		if (alertReturn == NSAlertAlternateReturn) { 		/* Save */
@@ -145,7 +173,7 @@
 		}
 	}
 	/* remove the empty file */
-	if ([[t.tv string] length] < 1 && t.s.temporary) {
+	if ([t strlen] < 1 && t.s.temporary) {
 		NSFileManager *f = [[NSFileManager alloc] init];
 		[f removeItemAtURL:t.s.fileURL error:nil];
 	}
@@ -155,7 +183,7 @@
 	}
 }
 - (IBAction)revertToSavedButton:(id)sender {
-	Text *t = [self.tabView selectedTabViewItem].identifier;
+	TextVC *t = [self.tabView selectedTabViewItem].identifier;
  	[t revertToSaved];
 }
 - (IBAction)newTabButton:(id)sender {
@@ -164,7 +192,7 @@
 - (IBAction)goto_action:(id)sender {
 	NSTextField *field = sender;
 	NSString *value = [field stringValue];
-	Text *t = [self.tabView selectedTabViewItem].identifier;
+	TextVC *t = [self.tabView selectedTabViewItem].identifier;
 	[t goto_line:[value integerValue]];	
 	[self.goto_window orderOut:nil];
 	[NSApp endSheet:self.goto_window];
@@ -183,7 +211,7 @@
 - (IBAction)run_button:(id)sender {
 	if ([self modal_escape:nil])
 		return;
-	Text *t = [self.tabView selectedTabViewItem].identifier;
+	TextVC *t = [self.tabView selectedTabViewItem].identifier;
 	NSString *cmd = [t get_execute_command];
 	cmd = [cmd stringByReplacingOccurrencesOfString:@"{MYSELF}" withString:[t.s.fileURL path]];
 	cmd = [cmd stringByReplacingOccurrencesOfString:@"{MYDIR}" withString:[[t.s.fileURL path] stringByDeletingLastPathComponent]];
@@ -215,8 +243,8 @@
 	}
 }
 - (BOOL) open:(NSURL *) file {
-	__block Text *o = nil;
-	[self walk_tabs:^(Text *t) {
+	__block TextVC *o = nil;
+	[self walk_tabs:^(TextVC *t) {
 		if ([t.s.fileURL isEqualTo:file]) {
 			o = t;
 		};
@@ -230,8 +258,7 @@
 		}
 		return NO;
 	}
-	
-	o = [[Text alloc] initWithFrame:[self.tabView frame]];
+	o = [[TextVC alloc] initWithNibName:@"TextVC" bundle:nil];
 	if ([o open:file]) {
 		[self.tabView addTabViewItem:o.tabItem];
 		[self.tabView selectTabViewItem:o.tabItem];
@@ -240,21 +267,21 @@
 	return NO;
 }
 - (IBAction) save_all:(id) sender {
-	[self walk_tabs:^(Text *t) {
+	[self walk_tabs:^(TextVC *t) {
 		[t save];
 	}];
 }
-- (void) walk_tabs:(void (^)(Text *t)) callback {
+- (void) walk_tabs:(void (^)(TextVC *t)) callback {
 	NSArray *a = [self.tabView tabViewItems];
 	for (NSTabViewItem *tabItem in a) {
-		Text *t = tabItem.identifier;
+		TextVC *t = tabItem.identifier;
 		callback(t);
 	}	
 }
 - (NSApplicationTerminateReply) gonna_terminate {
 	[self storeOpenedURLs];
 	__block unsigned int have_unsaved = 0;
-	[self walk_tabs:^(Text *t) {
+	[self walk_tabs:^(TextVC *t) {
 		if ([t is_modified]) {
 			have_unsaved++;;
 		}		
@@ -274,11 +301,12 @@
 	[self modal_escape:nil];
 	NSMenuItem *item = sender;
 	m_diff *d = [[m_diff alloc] init];
-	Text *t = [self.tabView selectedTabViewItem].identifier;
+	TextVC *t = [self.tabView selectedTabViewItem].identifier;
 	d.a = t.s.fileURL;
 	d.b = [NSURL fileURLWithPath:[item title]];
 	[self runModalWithString:[d diff] andType:EXECUTE_TYPE_SHELL];
 }
+
 - (void) runModalWithString:(NSString *) data andType:(int) type{
 	if (type == EXECUTE_TYPE_WWW) {
 		[self.modal_tv setHidden:YES];
@@ -310,7 +338,7 @@
 }
 - (void) menuWillOpen:(NSMenu *)menu {
 	[menu removeAllItems];
-	Text *t = [self.tabView selectedTabViewItem].identifier;
+	TextVC *t = [self.tabView selectedTabViewItem].identifier;
 	for (NSString *b in t.s.backups) {
 		NSMenuItem *m = [[NSMenuItem alloc] initWithTitle:b action:@selector(diff_button:) keyEquivalent:@""];
 		[m setTarget:self];

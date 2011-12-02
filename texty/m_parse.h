@@ -1,9 +1,9 @@
 #import <Foundation/Foundation.h>
-#import "m_Storage.h"
 #import "m_range.h"
-#ifndef TEXT_H
-#define TEXT_H
 #include <sys/queue.h>
+
+#ifndef _M_PARSE_H
+#define _M_PARSE_H
 #define ACCEPT_ANY_SSL_CERT 			NO
 #define DEFAULT_OPEN_DIR @"Code"
 #define DEFAULT_EXECUTE_TIMEOUT 1
@@ -121,8 +121,6 @@ do {                                            \
 } while (0);
 
 
-
-
 static void hash_init(struct _hash_table *t);
 static unsigned long hash_get_bucket(unichar *word);
 static struct _hash_entry *hash_lookup(struct _hash_table *t,struct word *w);
@@ -135,48 +133,20 @@ static inline int word_append(struct word *w, unichar c, NSInteger pos,char curr
 static inline int word_is_valid_word(struct word *w);
 static inline void word_dump(struct word *w);
 static struct word * word_new(struct word_head *wh);
+NSDictionary *colorAttr[20];
 #endif
 
-@interface Text : NSObject <NSTextStorageDelegate,NSTextViewDelegate>{
-	NSTabViewItem *tabItem;
-	NSTextView *tv;
-	NSScrollView *sv;
-	NSBox *box;
-	m_Storage *s;
-	BOOL something_changed,need_to_autosave;
-	unsigned long autosave_ts;
-	NSLock *serializator;
-	NSDictionary *colorAttr[20];
+@interface m_parse : NSObject{
 	char	_syntax_var_symbol[B_TABLE_SIZE];
 	char 	_syntax_color_numbers;
 	char 	_syntax_color;
 	struct syntax_blocks _syntax_blocks;
 	struct _hash_table hash[HASH_SIZE];
 }
-- (Text *) initWithFrame:(NSRect) frame;
-- (BOOL) open:(NSURL *) file;
-- (void) revertToSaved;
-- (void) saveAs:(NSURL *) to;
-- (void) save;
-- (BOOL) is_modified;
-- (void) goto_line:(NSInteger) want_line;
-- (NSString *) get_line:(NSInteger) lineno;
-- (void) parse:(m_range *) _range;
-- (void) signal;
-- (NSString *) get_execute_command;
-- (void) initSyntax;
-- (void) highlight:(NSRange) range;
-- (void) colorBracket;
-- (void) string:(NSString *) source toWordStruct:(struct word *) w;
-- (void) addKeywords:(NSString *) words withColor:(int) color;
-- (void) colorPrev:(unichar) opens ends:(unichar) ends inRange:(NSRange) range inString:(NSString *) string;
+- (void) initSyntax:(NSString *) ext;
+- (void) parse:(m_range *) range inTextView:(NSTextView *) tv;
+- (NSArray *) hash_to_array:(NSString *) part;
+- (NSString *) get_line:(NSInteger) lineno inTextView:(NSTextView *) tv;
+- (NSString *) get_execute_command:(NSTextView *) tv;
 
-@property (retain) NSTabViewItem *tabItem;
-@property (retain) NSTextView *tv;
-@property (retain) NSScrollView *sv;
-@property (retain) NSBox *box;
-@property (retain) NSLock *serializator;
-@property (retain) m_Storage *s;
-@property (atomic,assign) BOOL something_changed,need_to_autosave;
-@property (assign) unsigned long autosave_ts;
 @end

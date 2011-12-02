@@ -1,18 +1,18 @@
 #import "m_range.h"
 
 @implementation m_range
-@synthesize range,color,change;
+@synthesize _range,_color,_change;
 - (void) dump {
-	NSLog(@"change: %ld range: %@",change,NSStringFromRange(range));
+	NSLog(@"change: %ld range: %@",_change,NSStringFromRange(_range));
 }
 - (void) dump:(NSString *) s {
-	NSRange para = [s paragraphRangeForRange:range];
+	NSRange para = [s paragraphRangeForRange:_range];
 	unichar last = [s characterAtIndex:NSMaxRange(para)-1];
 	unichar first = [s characterAtIndex:para.location];
 	NSLog(@"first: '%c', last:'%c'",first,last);
 }
-- (BOOL) range:(NSRange) _range fitsInside:(NSInteger) len {
-	NSInteger max = NSMaxRange(_range);
+- (BOOL) range:(NSRange) range fitsInside:(NSInteger) len {
+	NSInteger max = NSMaxRange(range);
 	if (max < len)
 		return YES;
 	return NO;

@@ -1,199 +1,6 @@
-#import "Text.h"
-@implementation Text
-@synthesize tv,sv,box,tabItem,s,something_changed,autosave_ts,serializator,need_to_autosave;
+#import "m_parse.h"
 
-- (Text *) initWithFrame:(NSRect) frame {
-	self = [super init];
-	colorAttr[VARTYPE_COLOR_IDX] = [NSDictionary dictionaryWithObject:VARTYPE_COLOR forKey:NSForegroundColorAttributeName];
-	colorAttr[VALUE_COLOR_IDX] = [NSDictionary dictionaryWithObject:VALUE_COLOR forKey:NSForegroundColorAttributeName];
-	colorAttr[KEYWORD_COLOR_IDX] = [NSDictionary dictionaryWithObject:KEYWORD_COLOR forKey:NSForegroundColorAttributeName];
-	colorAttr[COMMENT_COLOR_IDX] = [NSDictionary dictionaryWithObject:COMMENT_COLOR forKey:NSForegroundColorAttributeName];
-	colorAttr[STRING1_COLOR_IDX] = [NSDictionary dictionaryWithObject:STRING1_COLOR forKey:NSForegroundColorAttributeName];
-	colorAttr[STRING2_COLOR_IDX] = [NSDictionary dictionaryWithObject:STRING2_COLOR forKey:NSForegroundColorAttributeName];
-	colorAttr[PREPROCESS_COLOR_IDX] = [NSDictionary dictionaryWithObject:PREPROCESS_COLOR forKey:NSForegroundColorAttributeName];
-	colorAttr[CONDITION_COLOR_IDX] = [NSDictionary dictionaryWithObject:CONDITION_COLOR forKey:NSForegroundColorAttributeName];
-	colorAttr[TEXT_COLOR_IDX] = [NSDictionary dictionaryWithObject:TEXT_COLOR forKey:NSForegroundColorAttributeName];
-	colorAttr[CONSTANT_COLOR_IDX] = [NSDictionary dictionaryWithObject:CONSTANT_COLOR forKey:NSForegroundColorAttributeName];
-
-
-	self.serializator = [[NSLock alloc] init];
-	self.sv = [[NSScrollView alloc] initWithFrame:frame];
-	NSSize contentSize = [sv contentSize];
-	[sv setBorderType:NSNoBorder];
-	[sv setHasVerticalScroller:YES];
-	[sv setHasHorizontalScroller:YES];
-	[sv setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
-	self.tabItem = [[NSTabViewItem alloc] init];
-	tabItem.identifier = self;
-	tabItem.view = sv;
-	self.tv = [[NSTextView alloc] initWithFrame:NSMakeRect(0, 0, contentSize.width, contentSize.height)];
-	tv.delegate = self;
-	tv.textStorage.delegate = self;
-	[tv setMinSize:NSMakeSize(0.0, contentSize.height)];
-	[tv setMaxSize:NSMakeSize(FLT_MAX, FLT_MAX)];
-	[tv setVerticallyResizable:YES];
-	[tv setHorizontallyResizable:YES];
-	[tv setAutoresizingMask:NSViewWidthSizable];
-	tv.allowsUndo = YES;
-	[tv setUsesRuler:NO];
-	tv.usesFindBar = YES;
-	[tv.textStorage setParagraphs:nil];
-	[tv setAutomaticDashSubstitutionEnabled:NO];
-	[tv setAutomaticQuoteSubstitutionEnabled:NO];
-	[tv setAutomaticLinkDetectionEnabled:NO];
-	[tv setAutomaticSpellingCorrectionEnabled:NO];
-	[tv setAutomaticTextReplacementEnabled:NO];
-	[tv setImportsGraphics:NO];
-	[[tv textContainer] setContainerSize:NSMakeSize(contentSize.width, FLT_MAX)];
-	[[tv textContainer] setWidthTracksTextView:YES];
-	NSMutableDictionary *selected = [[tv selectedTextAttributes] mutableCopy];
-	NSMutableParagraphStyle *para = [[NSMutableParagraphStyle alloc] init];
-	[para setLineSpacing:NSLineBreakByTruncatingHead];
-	[para setDefaultTabInterval:36.];
-	[para setTabStops:[NSArray array]];	
-	[tv setDefaultParagraphStyle:para];
-	[tv setTypingAttributes:[NSDictionary dictionaryWithObject:para forKey:NSParagraphStyleAttributeName]];
-	[tv setFont:FONT];
-	[tv setRichText:NO];
-	[tv setTextColor:TEXT_COLOR];
-	[tv setCanDrawConcurrently:NO];
-	[selected setObject:BG_COLOR forKey:NSForegroundColorAttributeName];
-	[selected setObject:TEXT_COLOR forKey:NSBackgroundColorAttributeName];
-	[tv setSelectedTextAttributes:selected];
-	[tv setBackgroundColor:BG_COLOR];
-	[tv setInsertionPointColor:CURSOR_COLOR];
-	NSRect boxRect = frame;
-	NSSize char_size = [[NSString stringWithString:@"a"] sizeWithAttributes: [NSDictionary dictionaryWithObject:FONT forKey: NSFontAttributeName]];
-	boxRect.size.width = 1;
-	boxRect.origin.y = 0;
-	boxRect.origin.x +=  char_size.width * 80;
-	self.box = [[NSBox alloc] initWithFrame:boxRect];
-	[box setBoxType:NSBoxCustom];
-	box.fillColor = [NSColor clearColor];
-	box.borderType =  NSLineBorder;
-	box.borderColor = LINE_80_COLOR;
-	[box setTitlePosition:NSNoTitle];
-	[box setAutoresizingMask:NSViewHeightSizable];
-	[box setTransparent:NO];
-	[box setHidden:YES];
-	[tv addSubview:box];
-	[sv setDocumentView:tv];
-	tabItem.label = @"aaaaa :) should never happen";
-	self.s = [[m_Storage alloc] init];
-	something_changed = NO;
-	return self;
-}
-- (void) responder {
-	[tv setSelectedRange:NSMakeRange(0, 0)];
-	[sv becomeFirstResponder];
-}
-- (void) resign {
-	[sv resignFirstResponder];
-}
-
-- (BOOL) open:(NSURL *)file {
-	if ([s open:file]) {
-		[tv setString:s.data];
-		tabItem.label = [s basename];
-		[self performSelector:@selector(responder) withObject:self afterDelay:0];
-		m_range *range = [[m_range alloc] init];
-		range.range = NSMakeRange(0, [[tv string] length]);
-		range.change = [[tv string] length];
-		[self parse:range];
-		autosave_ts = 0;
-		[self initSyntax];
-		return YES;
-	}
-	return NO;
-}
-- (void) saveAs:(NSURL *) to {
-	[s migrate:to];
-	[self initSyntax];
-	tabItem.label = [s basename];
-}
-- (void) save {
-	if ([s overwrite:[tv.textStorage string]]) 
-		tabItem.label = [s basename];
-}
-- (void) revertToSaved {
-	[tv setString:s.data];
-}
-- (BOOL) is_modified {
-	return ![[tv.textStorage string] isEqualToString:s.data];
-}
-- (void) goto_line:(NSInteger) want_line {
-	NSRange area = [m_range rangeOfLine:want_line inString:[tv string]];
-	if (area.location != NSNotFound) {
-		[tv setSelectedRange: area];
-		[tv scrollRangeToVisible: area];
-	}
-}
-- (NSString *) get_line:(NSInteger) lineno {
-	NSRange area = [m_range rangeOfLine:lineno inString:[tv string]];
-	if (area.location != NSNotFound) {
-		return [[tv string] substringWithRange:area];
-	}
-	return nil;
-}
-- (NSString *) get_execute_command {
-	NSString *line = [self get_line:EXECUTE_LINE];
-	NSString *ret = nil;
-	NSRange commandRange = [line rangeOfString:EXECUTE_COMMAND];
-	if (commandRange.location != NSNotFound) {
-		ret = [line substringFromIndex:commandRange.location+commandRange.length];
-	}
-	return ret;
-}
-- (void) signal {
-	[serializator lock];
-	if (need_to_autosave) {
-		if (time(NULL) - autosave_ts > AUTOSAVE_INTERVAL) {
-			if (s.temporary)
-				[self save];
-			else 
-				[s autosave:NO];
-			autosave_ts = time(NULL);
-			need_to_autosave = NO;
-		}
-	}
-	if (something_changed) {
-		if ([self is_modified]) {
-			tabItem.label = [NSString stringWithFormat:@"%@ *",[s basename]];
-			need_to_autosave = YES;
-		}
-		something_changed = NO;
-	}
-	[serializator unlock];
-}
-
-
-#pragma mark Syntax
-- (void) clearColors:(NSRange) area {	
-	NSLayoutManager *lm = [[tv.textStorage layoutManagers] objectAtIndex: 0];
-	[lm setTemporaryAttributes:colorAttr[TEXT_COLOR_IDX] forCharacterRange:area];
-}
-
-- (void) color:(NSRange) range withColor:(unsigned char) color {
-	NSLayoutManager *lm = [[tv.textStorage layoutManagers] objectAtIndex: 0];
-	[lm setTemporaryAttributes:colorAttr[color] forCharacterRange:range];
-}
-
-- (BOOL) extIs:(NSArray *) ext {
-	NSString *fileExt = [s.fileURL pathExtension];
-	for (NSString *str in ext)
-		if ([fileExt isEqualToString:str])
-			return YES;
-	return NO;
-}
-
-- (void) parse:(m_range *) _range {
-	NSRange range = [_range paragraph:tv];
-	[self clearColors:range];
-	[self highlight:range];
-	if ([self get_execute_command]) 
-		[self color:[m_range rangeOfLine:EXECUTE_LINE inString:[tv string]] withColor:CONDITION_COLOR_IDX];
-}
-
+@implementation m_parse
 static void hash_init(struct _hash_table *t) {
 	for (int i=0;i<HASH_SIZE;i++) {
 		if (!SLIST_EMPTY(&t[i].head)) {
@@ -290,15 +97,16 @@ static inline int block_cond(struct block *b, char cmask, char pmask,int type,NS
 	}
 	return 0;
 }
--(void) block_color:(struct block *)b superBlock:(struct block *)superblock {
-		if (b->flags & B_SUPERBLOCK)
-			return;
-		if ((b->flags & B_REQUIRE_SUPERBLOCK)) {
-			if (superblock) 
-				[self color:b->range withColor:b->color];
-		} else {
-			[self color:b->range withColor:b->color];
-		}
+-(BOOL) block_color:(struct block *)b superBlock:(struct block *)superblock {
+	if (b->flags & B_SUPERBLOCK)
+		return NO;
+	if ((b->flags & B_REQUIRE_SUPERBLOCK)) {
+		if (superblock) 
+			return YES;
+	} else {
+		return YES;
+	}
+	return NO;
 }
 static inline void word_begin(struct word *w, NSInteger pos) {
 	w->pos = pos;
@@ -365,7 +173,19 @@ static struct word * word_new(struct word_head *wh) {
 	return w;
 }
 
-- (void) highlight:(NSRange) range {
+- (void) clearColors:(NSRange) area inTextView:(NSTextView *) tv{	
+	NSLayoutManager *lm = [[tv.textStorage layoutManagers] objectAtIndex: 0];
+	[lm setTemporaryAttributes:colorAttr[TEXT_COLOR_IDX] forCharacterRange:area];
+}
+
+- (void) color:(NSRange) range withColor:(unsigned char) color inTextView:(NSTextView *) tv{
+	NSLayoutManager *lm = [[tv.textStorage layoutManagers] objectAtIndex: 0];
+	[lm setTemporaryAttributes:colorAttr[color] forCharacterRange:range];
+}
+
+
+
+- (void) highlight:(NSRange) range inTextView:(NSTextView *) tv {
 	/* XXX: getting more and more ugly */
 	if (!_syntax_color)
 		return;
@@ -405,7 +225,9 @@ static struct word * word_new(struct word_head *wh) {
 		} else {
 			b->range.length++;
 			if (block_cond(b, c, prev, BLOCK_ENDS,pos)) {
-				[self block_color:b superBlock:superblock];
+				if ([self block_color:b superBlock:superblock])
+					[self color:b->range withColor:b->color inTextView:tv];
+				
 				b = NULL;
 			}
 		}
@@ -418,7 +240,9 @@ static struct word * word_new(struct word_head *wh) {
 
 	if (b) {
 		b->range.length++;
-		[self block_color:b superBlock:superblock];
+		if ([self block_color:b superBlock:superblock])
+			[self color:b->range withColor:b->color inTextView:tv];
+
 	}
 
 	while ((w = wh.head) != NULL) {
@@ -427,36 +251,36 @@ static struct word * word_new(struct word_head *wh) {
 			goto next;
 		if (_syntax_var_symbol[(char)w->data[0]]) {
 			if (!(w->current_block_flags & B_NO_VAR)) 	/* dont color vars in single quoted strings */
-				[self color:NSMakeRange(w->pos, w->len) withColor:_syntax_var_symbol[(char) w->data[0]]];				
+				[self color:NSMakeRange(w->pos, w->len) withColor:_syntax_var_symbol[(char) w->data[0]] inTextView:tv];				
 		} else if (w->current_block_flags == 0 || w->current_block_flags & B_SHOW_KEYWORD) { 		/* find keywords and numbers outside of blocks */
 			if ((w->flags & WORD_NUMBER) == w->flags) {
 				if (_syntax_color_numbers)
-					[self color:NSMakeRange(w->pos, w->len) withColor:VALUE_COLOR_IDX];	
+					[self color:NSMakeRange(w->pos, w->len) withColor:VALUE_COLOR_IDX inTextView:tv];	
 			} else {
 				struct _hash_entry *e = hash_lookup(&hash[0],w);
 				if (e) 
-					[self color:NSMakeRange(w->pos, w->len) withColor:e->w.color];			
+					[self color:NSMakeRange(w->pos, w->len) withColor:e->w.color inTextView:tv];			
 			}		
 		}
 next:
 		free(w);
 	}
 }
-
-- (void) colorBracket {
-	NSString *string = [tv string];
-	NSRange selected = [tv selectedRange];
-	unichar cursor = (selected.location != NSNotFound && selected.location > 0) ? [string characterAtIndex:selected.location-1] : 0;
-	switch (cursor) {
-	case '}':
-		[self colorPrev:'{' ends:'}' inRange:selected inString:string];
-	case ')':
-		[self colorPrev:'(' ends:')' inRange:selected inString:string];
-	case ']':
-		[self colorPrev:'[' ends:']' inRange:selected inString:string];
-	break;
-	}
-}
+//
+//- (void) colorBracket {
+//	NSString *string = [tv string];
+//	NSRange selected = [tv selectedRange];
+//	unichar cursor = (selected.location != NSNotFound && selected.location > 0) ? [string characterAtIndex:selected.location-1] : 0;
+//	switch (cursor) {
+//	case '}':
+//		[self colorPrev:'{' ends:'}' inRange:selected inString:string];
+//	case ')':
+//		[self colorPrev:'(' ends:')' inRange:selected inString:string];
+//	case ']':
+//		[self colorPrev:'[' ends:']' inRange:selected inString:string];
+//	break;
+//	}
+//}
 - (void) colorPrev:(unichar) opens ends:(unichar) ends inRange:(NSRange) range inString:(NSString *) string{
 	NSInteger open,pos;
 	open = 0;
@@ -492,7 +316,16 @@ next:
 	}
 }
 
-- (void) initSyntax {
+
+- (BOOL) ext:(NSString *) ext is:(NSString *) like {
+	NSArray *l = [like componentsSeparatedByString:@" "];
+	for (NSString *s in l) {
+		if ([ext isEqualToString:s])
+			return YES;
+	}
+	return NO;
+}
+- (void) initSyntax:(NSString *) ext {
 #define SET_BLOCK(_b,_begin,_begin_prev,_end,_end_prev,_color,_flags) 		\
 do {																		\
 	_b = &_syntax_blocks.b[_begin];											\
@@ -510,8 +343,8 @@ do {																		\
 	_syntax_color = 0;
 	bzero(&_syntax_blocks, sizeof(_syntax_blocks));
 	struct block *b;	
-	[box setHidden:YES];
-	if ([self extIs:[NSArray arrayWithObjects:@"c",@"h", nil]]) {
+//	[box setHidden:YES];
+	if ([self ext:ext is:@"c h"]) {
 		[self addKeywords:@"goto break return continue asm case default if else switch while for do" withColor:KEYWORD_COLOR_IDX];
 		[self addKeywords:@"int long short char void signed unsigned float double size_t ssize_t off_t wchar_t ptrdiff_t sig_atomic_t fpos_t clock_t time_t va_list jmp_buf FILE DIR div_t ldiv_t mbstate_t wctrans_t wint_t wctype_t bool complex int8_t int16_t int32_t int64_t uint8_t uint16_t uint32_t uint64_t int_least8_t int_least16_t int_least32_t int_least64_t  uint_least8_t uint_least16_t uint_least32_t uint_least64_t int_fast8_t int_fast16_t int_fast32_t int_fast64_t  uint_fast8_t uint_fast16_t uint_fast32_t uint_fast64_t intptr_t uintptr_t intmax_t uintmax_t __label__ __complex__ __volatile__ struct union enum typedef static register auto volatile extern const" withColor:VARTYPE_COLOR_IDX];
 		_syntax_color_numbers=1;
@@ -521,8 +354,8 @@ do {																		\
 		SET_BLOCK(b,'#', 0, 0, 0, PREPROCESS_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_NO_KEYWORD))
 		SET_BLOCK(b,'"', 0, '"', 0, STRING2_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_SHOW_VAR))
 		SET_BLOCK(b,'\'', 0, '\'', 0, STRING1_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_NO_VAR))
-		[box setHidden:NO];
-	} else if ([self extIs:[NSArray arrayWithObjects:@"php", nil]]) {
+//		[box setHidden:NO];
+	} else if ([self ext:ext is:@"php"]) {
 		[self addKeywords:@"abstract and as break case catch clone const continue declare default do else elseif enddeclare endfor endforeach endif end switch while extends array final for foreach function global goto if implements interface instanceof namespace new or private protected public static switch throw try use var while xor class function" withColor:KEYWORD_COLOR_IDX];
 		[self addKeywords:@"echo print printf" withColor:CONSTANT_COLOR_IDX];
 		[self addKeywords:@"__CLASS__ __DIR__ __FILE__ __LINE__ __FUNCTION__ __METHOD__ __NAMESPACE__"  withColor:CONDITION_COLOR_IDX];
@@ -534,9 +367,9 @@ do {																		\
 		_syntax_var_symbol['$'] = VARTYPE_COLOR_IDX;
 		_syntax_color_numbers = 1;
 		_syntax_color = 1;
-	} else if ([self extIs:[NSArray arrayWithObjects:@"rb", @"erb",nil]]) {
+	} else if ([self ext:ext is:@"rb erb rhtml"]) {
 		int flags = 0;
-		if ([[s.fileURL pathExtension] isEqualToString:@"erb"]) {
+		if ([self ext:ext is:@"erb rhtml"]) {
 			flags = B_REQUIRE_SUPERBLOCK;
 			SET_BLOCK(b,'%', '<', '>', '%', COMMENT_COLOR_IDX, (B_SUPERBLOCK | B_SHOW_VAR | B_SHOW_KEYWORD));
 		}
@@ -553,10 +386,9 @@ do {																		\
 		_syntax_var_symbol[':'] = CONSTANT_COLOR_IDX;
 		_syntax_var_symbol['$'] = VARTYPE_COLOR_IDX;
 		_syntax_var_symbol['%'] = VARTYPE_COLOR_IDX;
-
 		_syntax_color_numbers = 1;
 		_syntax_color = 1;
-	} else if ([self extIs:[NSArray arrayWithObjects:@"sh", nil]]) {
+	} else if ([self ext:ext is:@"sh pl"]) {
 		[self addKeywords:@"esac break return continue case default if else switch while for do in for expr true false done" withColor:KEYWORD_COLOR_IDX];
 		[self addKeywords:@"echo print printf read exit"  withColor:CONDITION_COLOR_IDX];
 
@@ -571,31 +403,38 @@ do {																		\
 	[self addKeywords:EXECUTE_COMMAND withColor:CONDITION_COLOR_IDX];
 #undef SET_BLOCK
 }
-#pragma mark textStorage proto
-- (NSArray *) textView:(NSTextView *)textView completions:(NSArray *)words forPartialWordRange:(NSRange)charRange indexOfSelectedItem:(NSInteger *)index {
-	NSString *part = [[tv string] substringWithRange:charRange];
-	return [self hash_to_array:part];
-}
-//- (void) textViewDidChangeSelection:(NSNotification *)notification {
-//	NSEvent *currentEvent = [NSApp currentEvent];
-//    if (([currentEvent modifierFlags] & NSAlternateKeyMask) == NSAlternateKeyMask) {
-//    }
-//}
-- (void) textStorageWillProcessEditing:(NSNotification *)notification {
-	if ([tv.textStorage editedMask] & NSTextStorageEditedCharacters) {
-		[serializator lock];
-		something_changed = YES;
-		[serializator unlock];
-		NSTextStorage *storage = tv.textStorage;
-		m_range *range = [[m_range alloc] init];
-		NSInteger change = [storage changeInLength];
-		NSRange editted = [storage editedRange];
-		range.change = change;
-		range.range = editted;
-		[self performSelector:@selector(parse:) withObject:range afterDelay:0];		
+
+
+- (NSString *) get_line:(NSInteger) lineno inTextView:(NSTextView *) tv {
+	NSRange area = [m_range rangeOfLine:lineno inString:[tv string]];
+	if (area.location != NSNotFound) {
+		return [[tv string] substringWithRange:area];
 	}
+	return nil;
 }
+- (NSString *) get_execute_command:(NSTextView *) tv {
+	NSString *line = [self get_line:EXECUTE_LINE inTextView:tv];
+	NSString *ret = nil;
+	NSRange commandRange = [line rangeOfString:EXECUTE_COMMAND];
+	if (commandRange.location != NSNotFound) {
+		ret = [line substringFromIndex:commandRange.location+commandRange.length];
+	}
+	return ret;
+}
+
+
+- (void) parse:(m_range *) _range inTextView:(NSTextView *)tv{
+	NSRange area = [_range paragraph:tv];
+	[self clearColors:area inTextView:tv];
+	[self highlight:area inTextView:tv];
+	if ([self get_execute_command:tv]) 
+		[self color:[m_range rangeOfLine:EXECUTE_LINE inString:[tv string]] withColor:CONDITION_COLOR_IDX inTextView:tv];
+}
+
+#pragma mark textView proto
 - (void) dealloc {
 	hash_init(&hash[0]);
 }
+
+
 @end
