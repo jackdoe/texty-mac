@@ -55,7 +55,7 @@ Overview
 	* {MYSELF} - is auto replaced with the full path of the file you are editting.
 	* {MYDIR} - file's directory 
 	* {NOTIMEOUT} - if you want the command to run forever /* removed from the line at execute time */
-
+	* {NOOUTPUT} - just run the command without presenting the output in the modal window
 	For example when you hit RUN on README.mdown as you can see on line no:3
 
 	> TEXTY_RUN_SHELL cd {MYDIR} && git add {MYSELF} && git commit -m "fix readme" && git push {NOTIMEOUT}
