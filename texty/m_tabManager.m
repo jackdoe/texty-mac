@@ -310,7 +310,7 @@
 		}
 	}
 	if (ret == NSTerminateNow)
-		[e.task	terminate];
+		[self stopTask:nil];
 	return ret;
 }
 - (BOOL) AlertIfTaskIsRunning {
