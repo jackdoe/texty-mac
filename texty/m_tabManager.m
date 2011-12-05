@@ -4,21 +4,9 @@
 #define DIRECTION_LEFT 1
 #define DIRECTION_RIGHT 2
 @implementation m_tabManager
-@synthesize tabView,goto_window,timer,modal_panel,modal_tv = _modal_tv,modal_field,e,_status;
+@synthesize tabView,goto_window = _goto_window,timer,modal_panel = _modal_panel,modal_tv = _modal_tv,modal_field = _modal_field,e,_status;
 - (m_tabManager *) init {
 	return [self initWithFrame:[[NSApp mainWindow] frame]];
-}
-- (void) fixModalTextView {
-	[self.modal_tv setHidden:NO];
-	[self.modal_tv setFont:FONT];
-	[self.modal_tv setTextColor:TEXT_COLOR];
-	NSMutableDictionary *selected = [[self.modal_tv selectedTextAttributes] mutableCopy];
-	[selected setObject:BG_COLOR forKey:NSForegroundColorAttributeName];
-	[selected setObject:TEXT_COLOR forKey:NSBackgroundColorAttributeName];
-	[self.modal_tv setSelectedTextAttributes:selected];
-	[self.modal_tv setBackgroundColor:BG_COLOR];
-	[self.modal_tv setInsertionPointColor:CURSOR_COLOR];
-
 }
 - (m_tabManager *) initWithFrame:(NSRect) frame {
 	self = [super init];
@@ -52,6 +40,8 @@
 	}
 	return self;
 }
+
+#pragma mark restore workspace
 - (BOOL) openStoredURLs {
 	BOOL ret = NO;
 	NSUserDefaults *preferences = [NSUserDefaults standardUserDefaults];
@@ -84,6 +74,8 @@
 	[preferences setObject:[NSArray arrayWithArray:opened] forKey:@"openedTabs"];
 	[preferences setObject:[t.s.fileURL path] forKey:@"selectedTab"];
 }
+
+#pragma mark tabManagement
 - (void) goLeft:(id) sender {
 	[self.tabView selectTabViewItemAtIndex:[self getTabIndex:DIRECTION_LEFT]];
 }
@@ -128,21 +120,9 @@
 	NSInteger selectedIndex = [self.tabView indexOfTabViewItem:[self.tabView selectedTabViewItem]];
 	[self swapTab:selectedIndex With:leftIndex];
 }
-- (void) signal:(id) sender {
-	if ([self.e.task isRunning]) {
-		[_status enable];
-	} else {
-		[_status disable];
-	}
-	[self walk_tabs:^(TextVC *t) {
-		[t signal];
-	}];
-}
-- (void) handleTimer:(id) sender {
-	[self performSelectorOnMainThread:@selector(signal:) withObject:self waitUntilDone:YES];
-}
+
+#pragma mark Open/Save/Close/Goto
 - (IBAction)openButton:(id)sender {
-	[self modal_escape:nil];
 	NSOpenPanel *panel	= [NSOpenPanel openPanel];
 	NSString *home = NSHomeDirectory();
 	[panel setDirectoryURL:[NSURL fileURLWithPath:[home stringByAppendingPathComponent:DEFAULT_OPEN_DIR]]];
@@ -160,7 +140,6 @@
 	[t save];
 }
 - (IBAction)saveAsButton:(id)sender {
-	[self modal_escape:nil];
 	TextVC *t = [self.tabView selectedTabViewItem].identifier;
 	NSSavePanel *spanel = [NSSavePanel savePanel];
 	[spanel setPrompt:@"Save"];
@@ -175,7 +154,6 @@
 		}
 	}];
 }
-
 
 - (IBAction)closeButton:(id)sender {
 	TextVC *t = [self.tabView selectedTabViewItem].identifier;
@@ -212,48 +190,11 @@
 	[t goto_line:[value integerValue]];	
 	[self.goto_window orderOut:nil];
 }
-- (void)sheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo {
-    [NSApp endSheet:sheet];
-}
 - (IBAction)goto_button:(id)sender {
 	if ([self.goto_window isVisible])
 		[self.goto_window orderOut:nil];
 	else 
 		[self.goto_window makeKeyAndOrderFront:nil];
-}
-- (IBAction)run_button:(id)sender {
-	if ([self modal_escape:nil])
-		return; 
-	TextVC *t = [self.tabView selectedTabViewItem].identifier;
-	NSString *cmd = [t get_execute_command];
-	if (!cmd) 
-		return;
-	[t save];
-
-	cmd = [cmd stringByReplacingOccurrencesOfString:@"{MYSELF}" withString:[t.s.fileURL path]];
-	cmd = [cmd stringByReplacingOccurrencesOfString:@"{MYSELF_BASENAME}" withString:[t.s basename]];
-	cmd = [cmd stringByReplacingOccurrencesOfString:@"{MYSELF_BASENAME_NOEXT}" withString:[[t.s basename] stringByDeletingPathExtension]];
-	cmd = [cmd stringByReplacingOccurrencesOfString:@"{MYDIR}" withString:[[t.s.fileURL path] stringByDeletingLastPathComponent]];
-	BOOL output = ([cmd rangeOfString:@"{NOOUTPUT}"].location == NSNotFound);
-	int timeout = DEFAULT_EXECUTE_TIMEOUT;  
-	if ([cmd rangeOfString:@"{NOTIMEOUT}"].location != NSNotFound) {
-		timeout = 0;
-		cmd = [cmd stringByReplacingOccurrencesOfString:@"{NOTIMEOUT}" withString:@""];
-	}
-		
-	if ([cmd rangeOfString:@"^\\s*?http(s)?://" options:NSRegularExpressionSearch].location != NSNotFound) {
-		[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:[cmd stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]]];
-		return;
-	}
-
-	if (![cmd isEqualToString:self.e._command]) { /* if we are trying to run different command alert */
-		if ([self AlertIfTaskIsRunning] == NO)
-			return;
-	}
-	[e execute:cmd withTimeout:timeout];
-	if (output) {
-		[self displayModalTV];
-	}
 }
 - (BOOL) open:(NSURL *) file {
 	__block TextVC *o = nil;
@@ -291,6 +232,7 @@
 		callback(t);
 	}	
 }
+
 - (NSApplicationTerminateReply) gonna_terminate {
 	[self storeOpenedURLs];
 	__block unsigned int have_unsaved = 0;
@@ -309,39 +251,10 @@
 			ret = NSTerminateCancel;
 		}
 	}
-	if (ret == NSTerminateNow)
+	if (ret == NSTerminateNow) {
 		[self stopTask:nil];
+	}
 	return ret;
-}
-- (BOOL) AlertIfTaskIsRunning {
-	
-	if ([self.e.task isRunning]) {
-		NSString *running = [NSString stringWithFormat:@"CURRENT TASK:\n%@",self.e._command];
-		NSInteger ret = NSRunAlertPanel(@"There is a task running.", running , @"Close", @"Stop Task",nil);
-		if (ret != NSAlertDefaultReturn) {
-			[self stopTask:nil];
-			return YES;
-		}
-		return NO;
-	}
-	return YES;
-}
-- (void) diff_button:(id) sender {
-	if ([self AlertIfTaskIsRunning] == NO)
-		return;
-	[self modal_escape:nil];
-	NSMenuItem *item = sender;
-	TextVC *t = [self.tabView selectedTabViewItem].identifier;
-	NSURL *a = t.s.fileURL;
-	NSURL *b = [NSURL fileURLWithPath:[item title]];
-	if ([e diff:a against:b]) {
-		[self displayModalTV];
-	}
-}
-
-- (void) displayModalTV {
-	[self scrollEnd];
-	[NSApp beginSheet:self.modal_panel modalForWindow:[NSApp mainWindow] modalDelegate:self didEndSelector:@selector(sheetDidEnd:returnCode:contextInfo:) contextInfo:nil];
 }
 - (void) menuWillOpen:(NSMenu *)menu {
 	[menu removeAllItems];
@@ -355,18 +268,83 @@
 - (void) menuDidClose:(NSMenu *)menu {
 }
 
+
+#pragma mark ExecutePanelWindow
+
+- (IBAction)run_button:(id)sender {
+	if ([self.modal_panel isVisible])
+		return; 
+	TextVC *t = [self.tabView selectedTabViewItem].identifier;
+	NSString *cmd = [t get_execute_command];
+	if (!cmd) 
+		return;
+	[t save];
+
+	cmd = [cmd stringByReplacingOccurrencesOfString:@"{MYSELF}" withString:[t.s.fileURL path]];
+	cmd = [cmd stringByReplacingOccurrencesOfString:@"{MYSELF_BASENAME}" withString:[t.s basename]];
+	cmd = [cmd stringByReplacingOccurrencesOfString:@"{MYSELF_BASENAME_NOEXT}" withString:[[t.s basename] stringByDeletingPathExtension]];
+	cmd = [cmd stringByReplacingOccurrencesOfString:@"{MYDIR}" withString:[[t.s.fileURL path] stringByDeletingLastPathComponent]];
+	int timeout = DEFAULT_EXECUTE_TIMEOUT;  
+	if ([cmd rangeOfString:@"{NOTIMEOUT}"].location != NSNotFound) {
+		timeout = 0;
+		cmd = [cmd stringByReplacingOccurrencesOfString:@"{NOTIMEOUT}" withString:@""];
+	}
+		
+	if ([cmd rangeOfString:@"^\\s*?http(s)?://" options:NSRegularExpressionSearch].location != NSNotFound) {
+		[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:[cmd stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]]];
+		return;
+	}
+
+	if (![cmd isEqualToString:self.e._command]) { /* if we are trying to run different command alert */
+		if ([self AlertIfTaskIsRunning] == NO)
+			return;
+	}
+	[e execute:cmd withTimeout:timeout];
+	[self displayModalTV];
+}
+- (IBAction)restartTask:(id)sender {
+	[e restart];
+}
+- (BOOL) AlertIfTaskIsRunning {
+	if ([self.e.task isRunning]) {
+		NSString *running = [NSString stringWithFormat:@"CURRENT TASK:\n%@",self.e._command];
+		NSInteger ret = NSRunAlertPanel(@"There is a task running.", running , @"Close", @"Stop Task",nil);
+		if (ret != NSAlertDefaultReturn) {
+			[self stopTask:nil];
+			sleep(1); /* wait for terminate */
+			return YES;
+		}
+		return NO;
+	}
+	return YES;
+}
+- (void) diff_button:(id) sender {
+	if ([self AlertIfTaskIsRunning] == NO)
+		return;
+	NSMenuItem *item = sender;
+	TextVC *t = [self.tabView selectedTabViewItem].identifier;
+	NSURL *a = t.s.fileURL;
+	NSURL *b = [NSURL fileURLWithPath:[item title]];
+	if ([e diff:a against:b]) {
+		[self displayModalTV];
+	}
+}
+
+- (void) displayModalTV {
+	[self scrollEnd];
+	[self.modal_panel makeKeyAndOrderFront:nil];
+}
+
 - (IBAction)clearTV:(id)sender {
 	[self.modal_tv setString:@""];
 	lastColorRange = NSMakeRange(0, 0);
 }
 - (IBAction)stopTask:(id)sender {
-	[self.e.task terminate];
+	[self.e terminate];
 }
 - (IBAction)showRunBuffer:(id)sender {
-	if ([NSApp isActive]) {
-		[self modal_escape:nil];
-		[self displayModalTV];
-	}
+	[[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
+	[self displayModalTV];
 }
 - (void) scrollEnd {
 	NSRange range = { [[self.modal_tv string] length], 0 };
@@ -395,11 +373,34 @@
 	
 	lastColorRange = range;
 }
-- (BOOL)modal_escape:(id)sender {
-	BOOL ret = NO;
-	if ([self.modal_panel isVisible])
-		ret = YES;
-	[self sheetDidEnd:self.modal_panel returnCode:0 contextInfo:nil];
-	return ret;
+- (void) fixModalTextView {
+	[self.modal_tv setHidden:NO];
+	[self.modal_tv setFont:FONT];
+	[self.modal_tv setTextColor:TEXT_COLOR];
+	NSMutableDictionary *selected = [[self.modal_tv selectedTextAttributes] mutableCopy];
+	[selected setObject:BG_COLOR forKey:NSForegroundColorAttributeName];
+	[selected setObject:TEXT_COLOR forKey:NSBackgroundColorAttributeName];
+	[self.modal_tv setSelectedTextAttributes:selected];
+	[self.modal_tv setBackgroundColor:BG_COLOR];
+	[self.modal_tv setInsertionPointColor:CURSOR_COLOR];
+//	[self.modal_panel setLevel: NSNormalWindowLevel]; /* maybe its better to be always on top */
 }
+
+#pragma mark Timer
+- (void) handleTimer:(id) sender {
+	[self performSelectorOnMainThread:@selector(signal:) withObject:self waitUntilDone:YES];
+}
+
+- (void) signal:(id) sender {
+	if ([self.e.task isRunning]) {
+		[_status enable];
+	} else {
+		[_status disable];
+	}
+	[self walk_tabs:^(TextVC *t) {
+		[t signal];
+	}];
+}
+
+
 @end

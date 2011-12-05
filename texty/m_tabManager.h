@@ -31,11 +31,9 @@
 - (IBAction)clearTV:(id)sender;
 - (IBAction)stopTask:(id)sender;
 - (IBAction)showRunBuffer:(id)sender;
-- (BOOL) modal_escape:(id)sender;
 - (void) walk_tabs:(void (^)(TextVC *t)) callback;
 - (BOOL) open:(NSURL *) file;
 - (NSApplicationTerminateReply) gonna_terminate;
-- (void)sheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo;
 - (BOOL) openStoredURLs;
 - (void) storeOpenedURLs;
 - (NSInteger) getTabIndex:(int) direction;
@@ -45,12 +43,13 @@
 - (void) taskDidTerminate;
 - (BOOL) AlertIfTaskIsRunning;
 - (void) scrollEnd;
+- (void) fixModalTextView;
 @property (retain) NSTabView *tabView;
-@property (retain) NSWindow *goto_window;
 @property (retain) NSTimer *timer;
-@property (retain) NSWindow *modal_panel;
+@property (assign) NSWindow *goto_window;
+@property (assign) NSWindow *modal_panel;
 @property (assign) NSTextView *modal_tv;
-@property (retain) NSTextField *modal_field;
+@property (assign) NSTextField *modal_field;
 @property (retain) m_exec *e;
 @property (retain) m_status *_status;
 @end

@@ -160,7 +160,6 @@
 	[parser parse:range inTextView:text];
 }
 
-
 - (void) textStorageWillProcessEditing:(NSNotification *)notification {
 	NSTextStorage *ts = [notification object];
 	if ([ts editedMask] & NSTextStorageEditedCharacters) {
