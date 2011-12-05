@@ -326,7 +326,7 @@ next:
 	}
 	return NO;
 }
-- (void) initSyntax:(NSString *) ext {
+- (void) initSyntax:(NSString *) ext box:(NSBox *) box{
 #define SET_BLOCK(_b,_begin,_begin_prev,_end,_end_prev,_color,_flags) 		\
 do {																		\
 	_b = &_syntax_blocks.b[_begin];											\
@@ -345,10 +345,10 @@ do {																		\
 	}
 	_syntax_color_numbers = 0;
 	_syntax_color = 0;
-	autoindent = NO;
+	autoindent = YES;
 	bzero(&_syntax_blocks, sizeof(_syntax_blocks));
 	struct block *b;	
-//	[box setHidden:YES];
+	[box setHidden:YES];
 	if ([self ext:ext is:@"c h"]) {
 		autoindent = YES;
 		[self addKeywords:@"goto break return continue asm case default if else switch while for do" withColor:KEYWORD_COLOR_IDX];
@@ -360,7 +360,7 @@ do {																		\
 		SET_BLOCK(b,'#', 0, 0, 0, PREPROCESS_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_NO_KEYWORD))
 		SET_BLOCK(b,'"', 0, '"', 0, STRING2_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_SHOW_VAR))
 		SET_BLOCK(b,'\'', 0, '\'', 0, STRING1_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_NO_VAR))
-//		[box setHidden:NO];
+		[box setHidden:NO];
 	} else if ([self ext:ext is:@"php"]) {
 		autoindent = YES;
 		[self addKeywords:@"abstract and as break case catch clone const continue declare default do else elseif enddeclare endfor endforeach endif end switch while extends array final for foreach function global goto if implements interface instanceof namespace new or private protected public static switch throw try use var while xor class function" withColor:KEYWORD_COLOR_IDX];

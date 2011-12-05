@@ -147,7 +147,7 @@ NSDictionary *colorAttr[20];
 	struct _hash_table hash[HASH_SIZE];
 	BOOL autoindent;
 }
-- (void) initSyntax:(NSString *) ext;
+- (void) initSyntax:(NSString *) ext box:(NSBox *) box;
 - (void) parse:(m_range *) range inTextView:(NSTextView *) tv;
 - (NSArray *) hash_to_array:(NSString *) part;
 - (NSString *) get_line:(NSInteger) lineno inTextView:(NSTextView *) tv;

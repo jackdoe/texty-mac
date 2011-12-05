@@ -19,6 +19,7 @@
 	NSTabViewItem *tabItem;
 	BOOL something_changed, need_to_autosave;
 	long autosave_ts;
+	NSBox *box;
 }
 - (BOOL) open:(NSURL *)file;
 - (void) saveAs:(NSURL *) to;
@@ -33,4 +34,5 @@
 @property (retain) NSTabViewItem *tabItem;
 @property (retain) m_Storage *s;
 @property (retain) m_parse *parser;
+@property (retain) NSBox *box;
 @end

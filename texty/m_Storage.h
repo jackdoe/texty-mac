@@ -6,11 +6,13 @@
 	NSURL *fileURL;
 	NSArray *existing_backups;
 	BOOL temporary;
+	NSStringEncoding encoding;
 }
 @property (retain) NSURL *fileURL;
 @property (retain) NSString *data;
 @property (assign) BOOL temporary;
 @property (retain) NSArray *existing_backups;
+@property (assign) NSStringEncoding encoding;
 - (BOOL) open:(NSURL *) URL;
 - (BOOL) close:(BOOL) save;
 - (NSURL *) temporaryFileURL;

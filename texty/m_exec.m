@@ -31,7 +31,7 @@
 	} else {
 		[self readWhatIsLeft:fh];
 		/* this is not cool, but there are so many races with didterminate notification and read in background notification */
-		if ([fh isEqual:[[task standardOutput] fileHandleForReading]]) {
+		if ([fh isEqual:[[task standardError] fileHandleForReading]]) { /* XXX */
 			NSString *timedOut = @"";
 			if (_terminated) {
 				timedOut = @" [TOUT]";

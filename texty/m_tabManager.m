@@ -244,6 +244,7 @@
 		[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:[cmd stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]]];
 		return;
 	}
+
 	if (![cmd isEqualToString:self.e._command]) { /* if we are trying to run different command alert */
 		if ([self AlertIfTaskIsRunning] == NO)
 			return;

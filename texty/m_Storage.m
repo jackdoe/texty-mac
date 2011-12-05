@@ -1,6 +1,6 @@
 #import "m_Storage.h"
 @implementation m_Storage
-@synthesize fileURL, data,temporary,existing_backups;
+@synthesize fileURL, data,temporary,existing_backups,encoding;
 - (BOOL) open:(NSURL *) URL {
 	[self close:NO];
 	self.existing_backups = nil;
@@ -153,4 +153,5 @@ ret:
 	}
 	return YES;
 }
+
 @end

@@ -9,7 +9,7 @@
 #import "TextVC.h"
 
 @implementation TextVC
-@synthesize tabItem,s,parser;
+@synthesize tabItem,s,parser,box;
 - (void) signal {
 	if (need_to_autosave) {
 		if (time(NULL) - autosave_ts > AUTOSAVE_INTERVAL) {
@@ -69,21 +69,21 @@
 		[text setSelectedTextAttributes:selected];
 		[text setBackgroundColor:BG_COLOR];
 		[text setInsertionPointColor:CURSOR_COLOR];
-	//	NSRect boxRect = [text frame];
-	//	NSSize char_size = [[NSString stringWithString:@"a"] sizeWithAttributes: [NSDictionary dictionaryWithObject:FONT forKey: NSFontAttributeName]];
-	//	boxRect.size.width = 1;
-	//	boxRect.origin.y = 0;
-	//	boxRect.origin.x +=  char_size.width * 80;
-	//	self.box = [[NSBox alloc] initWithFrame:boxRect];
-	//	[box setBoxType:NSBoxCustom];
-	//	box.fillColor = [NSColor clearColor];
-	//	box.borderType =  NSLineBorder;
-	//	box.borderColor = LINE_80_COLOR;
-	//	[box setTitlePosition:NSNoTitle];
-	//	[box setAutoresizingMask:NSViewHeightSizable];
-	//	[box setTransparent:NO];
-	//	[box setHidden:YES];
-	//	[text addSubview:box];
+		NSRect boxRect = [text frame];
+		NSSize char_size = [[NSString stringWithString:@"a"] sizeWithAttributes: [NSDictionary dictionaryWithObject:FONT forKey: NSFontAttributeName]];
+		boxRect.size.width = 1;
+		boxRect.origin.y = 0;
+		boxRect.origin.x +=  char_size.width * 80;
+		self.box = [[NSBox alloc] initWithFrame:boxRect];
+		[box setBoxType:NSBoxCustom];
+		box.fillColor = [NSColor clearColor];
+		box.borderType =  NSLineBorder;
+		box.borderColor = LINE_80_COLOR;
+		[box setTitlePosition:NSNoTitle];
+		[box setAutoresizingMask:NSViewHeightSizable];
+		[box setTransparent:NO];
+		[box setHidden:YES];
+		[text addSubview:box];
 		tabItem.label = @"aaaaa :) should never happen";
     }
     return self;
@@ -97,7 +97,7 @@
 	m_range *r = [[m_range alloc] init];
 	r._range = NSMakeRange(0, [self strlen]);
 	r._change = [self strlen];
-	[parser initSyntax:[[s basename] pathExtension]];
+	[parser initSyntax:[[s basename] pathExtension] box:box];
 	[parser parse:r inTextView:text];
 }
 - (void) saveAs:(NSURL *) to {
