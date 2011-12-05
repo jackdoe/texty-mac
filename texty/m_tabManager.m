@@ -3,14 +3,22 @@
 #define EXECUTE_TYPE_WWW 2
 #define DIRECTION_LEFT 1
 #define DIRECTION_RIGHT 2
-@interface NSURLRequest (DummyInterface)
-+ (BOOL)allowsAnyHTTPSCertificateForHost:(NSString*)host;
-+ (void)setAllowsAnyHTTPSCertificate:(BOOL)allow forHost:(NSString*)host;
-@end
 @implementation m_tabManager
-@synthesize tabView,goto_window,timer,modal_panel,modal_tv,modal_www,modal_field;
+@synthesize tabView,goto_window,timer,modal_panel,modal_tv = _modal_tv,modal_field,e,_status;
 - (m_tabManager *) init {
 	return [self initWithFrame:[[NSApp mainWindow] frame]];
+}
+- (void) fixModalTextView {
+	[self.modal_tv setHidden:NO];
+	[self.modal_tv setFont:FONT];
+	[self.modal_tv setTextColor:TEXT_COLOR];
+	NSMutableDictionary *selected = [[self.modal_tv selectedTextAttributes] mutableCopy];
+	[selected setObject:BG_COLOR forKey:NSForegroundColorAttributeName];
+	[selected setObject:TEXT_COLOR forKey:NSBackgroundColorAttributeName];
+	[self.modal_tv setSelectedTextAttributes:selected];
+	[self.modal_tv setBackgroundColor:BG_COLOR];
+	[self.modal_tv setInsertionPointColor:CURSOR_COLOR];
+
 }
 - (m_tabManager *) initWithFrame:(NSRect) frame {
 	self = [super init];
@@ -18,12 +26,13 @@
 	self.tabView.delegate = self;
 	[self.tabView setFont:FONT];
 	[self.tabView setControlTint:NSClearControlTint];
-	[self.modal_www setResourceLoadDelegate:self];
 	self.timer = [NSTimer scheduledTimerWithTimeInterval: 1
 				target: self
 				selector: @selector(handleTimer:)
 				userInfo: nil
 				repeats: YES];
+	self.e = [[m_exec alloc] init];
+	self.e.delegate = self;
 
 	colorAttr[VARTYPE_COLOR_IDX] = [NSDictionary dictionaryWithObject:VARTYPE_COLOR forKey:NSForegroundColorAttributeName];
 	colorAttr[VALUE_COLOR_IDX] = [NSDictionary dictionaryWithObject:VALUE_COLOR forKey:NSForegroundColorAttributeName];
@@ -35,8 +44,9 @@
 	colorAttr[CONDITION_COLOR_IDX] = [NSDictionary dictionaryWithObject:CONDITION_COLOR forKey:NSForegroundColorAttributeName];
 	colorAttr[TEXT_COLOR_IDX] = [NSDictionary dictionaryWithObject:TEXT_COLOR forKey:NSForegroundColorAttributeName];
 	colorAttr[CONSTANT_COLOR_IDX] = [NSDictionary dictionaryWithObject:CONSTANT_COLOR forKey:NSForegroundColorAttributeName];
-
-
+	self._status = [[m_status alloc] initWithTabManager:self];
+	lastColorRange = NSMakeRange(0, 0);
+	[self performSelector:@selector(fixModalTextView) withObject:nil afterDelay:0];
 	if (![self openStoredURLs]) {
 		[self open:nil];
 	}
@@ -119,6 +129,11 @@
 	[self swapTab:selectedIndex With:leftIndex];
 }
 - (void) signal:(id) sender {
+	if ([self.e.task isRunning]) {
+		[_status enable];
+	} else {
+		[_status disable];
+	}
 	[self walk_tabs:^(TextVC *t) {
 		[t signal];
 	}];
@@ -195,7 +210,6 @@
 	TextVC *t = [self.tabView selectedTabViewItem].identifier;
 	[t goto_line:[value integerValue]];	
 	[self.goto_window orderOut:nil];
-	[NSApp endSheet:self.goto_window];
 }
 - (void)sheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo {
 	[sheet orderOut:self];
@@ -210,36 +224,36 @@
 }
 - (IBAction)run_button:(id)sender {
 	if ([self modal_escape:nil])
-		return;
+		return; 
 	TextVC *t = [self.tabView selectedTabViewItem].identifier;
 	NSString *cmd = [t get_execute_command];
-	cmd = [cmd stringByReplacingOccurrencesOfString:@"{MYSELF}" withString:[t.s.fileURL path]];
-	cmd = [cmd stringByReplacingOccurrencesOfString:@"{MYDIR}" withString:[[t.s.fileURL path] stringByDeletingLastPathComponent]];
-	if (cmd) {
-		int type = EXECUTE_TYPE_SHELL;
-		NSString *data;
-		BOOL output = ([cmd rangeOfString:@"{NOOUTPUT}"].location == NSNotFound);
+	if (!cmd) 
+		return;
+	[t save];
 
-		[t save];
-		[self.modal_field setStringValue:cmd];
-		if ([cmd rangeOfString:@"^\\s*?http(s)?://" options:NSRegularExpressionSearch].location != NSNotFound) {
-			type = EXECUTE_TYPE_WWW;
-			data = cmd;
-			data = [cmd stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-		} else {
-			int rc = 0;
-			int timeout = DEFAULT_EXECUTE_TIMEOUT;  
-			if ([cmd rangeOfString:@"{NOTIMEOUT}"].location != NSNotFound) {
-				timeout = 0;
-				cmd = [cmd stringByReplacingOccurrencesOfString:@"{NOTIMEOUT}" withString:@""];
-			}
-			if (output)
-				[self.modal_field setStringValue:[NSString stringWithFormat:@"executed(timeout: %@, RC: %d): %@",(timeout == 0 ? @"NOTIMEOUT" : [NSString stringWithFormat:@"%d",timeout]),rc,cmd]];
-			type = EXECUTE_TYPE_SHELL;
-			data = [m_exec execute:cmd withTimeout:timeout saveRC:&rc];
-		}
-		if (output)
-			[self runModalWithString:data andType:type];
+	cmd = [cmd stringByReplacingOccurrencesOfString:@"{MYSELF}" withString:[t.s.fileURL path]];
+	cmd = [cmd stringByReplacingOccurrencesOfString:@"{MYSELF_BASENAME}" withString:[t.s basename]];
+	cmd = [cmd stringByReplacingOccurrencesOfString:@"{MYSELF_BASENAME_NOEXT}" withString:[[t.s basename] stringByDeletingPathExtension]];
+	cmd = [cmd stringByReplacingOccurrencesOfString:@"{MYDIR}" withString:[[t.s.fileURL path] stringByDeletingLastPathComponent]];
+	BOOL output = ([cmd rangeOfString:@"{NOOUTPUT}"].location == NSNotFound);
+	int timeout = DEFAULT_EXECUTE_TIMEOUT;  
+	if ([cmd rangeOfString:@"{NOTIMEOUT}"].location != NSNotFound) {
+		timeout = 0;
+		cmd = [cmd stringByReplacingOccurrencesOfString:@"{NOTIMEOUT}" withString:@""];
+	}
+		
+	if ([cmd rangeOfString:@"^\\s*?http(s)?://" options:NSRegularExpressionSearch].location != NSNotFound) {
+		[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:[cmd stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]]];
+		return;
+	}
+	if (![cmd isEqualToString:self.e._command]) { /* if we are trying to run different command alert */
+		if ([self AlertIfTaskIsRunning] == NO)
+			return;
+	}
+	
+	[e execute:cmd withTimeout:timeout];
+	if (output) {
+		[self displayModalTV];
 	}
 }
 - (BOOL) open:(NSURL *) file {
@@ -297,43 +311,34 @@
 	}
 	return NSTerminateNow;
 }
+- (BOOL) AlertIfTaskIsRunning {
+	
+	if ([self.e.task isRunning]) {
+		NSString *running = [NSString stringWithFormat:@"CURRENT TASK:\n%@",self.e._command];
+		NSInteger ret = NSRunAlertPanel(@"There is a task running.", running , @"Close", @"Stop Task",nil);
+		if (ret != NSAlertDefaultReturn) {
+			[self stopTask:nil];
+			return YES;
+		}
+		return NO;
+	}
+	return YES;
+}
 - (void) diff_button:(id) sender {
+	if ([self AlertIfTaskIsRunning] == NO)
+		return;
 	[self modal_escape:nil];
 	NSMenuItem *item = sender;
-	m_diff *d = [[m_diff alloc] init];
 	TextVC *t = [self.tabView selectedTabViewItem].identifier;
-	d.a = t.s.fileURL;
-	d.b = [NSURL fileURLWithPath:[item title]];
-	[self runModalWithString:[d diff] andType:EXECUTE_TYPE_SHELL];
+	NSURL *a = t.s.fileURL;
+	NSURL *b = [NSURL fileURLWithPath:[item title]];
+	if ([e diff:a against:b]) {
+		[self displayModalTV];
+	}
 }
 
-- (void) runModalWithString:(NSString *) data andType:(int) type{
-	if (type == EXECUTE_TYPE_WWW) {
-		[self.modal_tv setHidden:YES];
-		[self.modal_www setHidden:NO];
-		[self.modal_www setShouldUpdateWhileOffscreen:NO];
-		[self.modal_www setShouldCloseWithWindow:NO];
-		WebFrame *mainFrame = [self.modal_www mainFrame];
-		[mainFrame stopLoading];
-		NSURL *url = [NSURL URLWithString:data];
-		NSURLRequest *request = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:1];
-		if (ACCEPT_ANY_SSL_CERT) {
-			[NSURLRequest setAllowsAnyHTTPSCertificate:YES forHost:[url host]];
-		}
-		[mainFrame loadRequest:request];
-	} else {
-		[self.modal_www setHidden:YES];
-		[self.modal_tv setHidden:NO];
-	}
-	[self.modal_tv setString:data];
-	[self.modal_tv setFont:FONT];
-	[self.modal_tv setTextColor:TEXT_COLOR];
-	NSMutableDictionary *selected = [[self.modal_tv selectedTextAttributes] mutableCopy];
-	[selected setObject:BG_COLOR forKey:NSForegroundColorAttributeName];
-	[selected setObject:TEXT_COLOR forKey:NSBackgroundColorAttributeName];
-	[self.modal_tv setSelectedTextAttributes:selected];
-	[self.modal_tv setBackgroundColor:BG_COLOR];
-	[self.modal_tv setInsertionPointColor:CURSOR_COLOR];
+- (void) displayModalTV {
+	[self scrollEnd];
 	[NSApp beginSheet:self.modal_panel modalForWindow:[NSApp mainWindow] modalDelegate:self didEndSelector:@selector(sheetDidEnd:returnCode:contextInfo:) contextInfo:nil];
 }
 - (void) menuWillOpen:(NSMenu *)menu {
@@ -347,6 +352,46 @@
 }
 - (void) menuDidClose:(NSMenu *)menu {
 }
+
+- (IBAction)clearTV:(id)sender {
+	[self.modal_tv setString:@""];
+	lastColorRange = NSMakeRange(0, 0);
+}
+- (IBAction)stopTask:(id)sender {
+	[self.e.task terminate];
+}
+- (IBAction)showRunBuffer:(id)sender {
+	[self modal_escape:nil];
+	[self displayModalTV];
+}
+- (void) scrollEnd {
+	NSRange range = { [[self.modal_tv string] length], 0 };
+	[self.modal_tv scrollRangeToVisible: range];
+}
+- (void) taskAddExecuteText:(NSString *)text {
+	NSRange range = { [[self.modal_tv string] length], 0 };
+	[self.modal_tv setSelectedRange: range];
+	[self.modal_tv replaceCharactersInRange: range withString:text];
+	[self scrollEnd];
+}
+- (void) taskAddExecuteTitle:(NSString *)title {
+	[self.modal_field setStringValue:[title copy]];
+}
+- (void) taskDidTerminate {
+	NSInteger max = NSMaxRange(lastColorRange);
+	NSInteger len = [[self.modal_tv string] length];
+	NSRange range = {0 ,max};
+	[[self.modal_tv textStorage] addAttribute:NSForegroundColorAttributeName
+                            value:COMMENT_COLOR
+							range:range];
+	range = NSMakeRange(max,len - max);
+	[[self.modal_tv textStorage] addAttribute:NSForegroundColorAttributeName
+                            value:PREPROCESS_COLOR
+							range:range];
+	
+	lastColorRange = range;
+}
+
 - (BOOL)modal_escape:(id)sender {
 	BOOL ret = NO;
 	if ([self.modal_panel isVisible])
