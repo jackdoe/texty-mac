@@ -272,8 +272,9 @@
 #pragma mark ExecutePanelWindow
 
 - (IBAction)run_button:(id)sender {
-	if ([self.modal_panel isVisible])
-		return; 
+	if (![self.modal_panel isKeyWindow]) {
+		[self displayModalTV];
+	}
 	TextVC *t = [self.tabView selectedTabViewItem].identifier;
 	NSString *cmd = [t get_execute_command];
 	if (!cmd) 
