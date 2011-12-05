@@ -173,9 +173,36 @@
 		[self performSelector:@selector(parse:) withObject:range afterDelay:0];		
 	}
 }
+
 - (NSArray *) textView:(NSTextView *)textView completions:(NSArray *)words forPartialWordRange:(NSRange)charRange indexOfSelectedItem:(NSInteger *)index {
 	NSString *part = [[textView string] substringWithRange:charRange];
 	return [parser hash_to_array:part];
+}
+- (BOOL) textView:(NSTextView *)textView doCommandBySelector:(SEL)commandSelector {
+	if (commandSelector ==  @selector(insertNewline:)) {
+		NSString *spaces = @"";
+		if (parser.autoindent) {
+			NSString *string = [textView string];
+			NSRange selected = [textView selectedRange];
+			NSRange paraRange = [string paragraphRangeForRange:selected];
+			if (paraRange.location != NSNotFound && paraRange.location != selected.location && paraRange.length > 0) {
+				NSInteger i,max;
+				max = NSMaxRange(paraRange);
+				paraRange =NSMakeRange(paraRange.location, 0);
+				for (i=paraRange.location;i<max;i++) {
+					unichar c = [string characterAtIndex:i];
+					if (c == ' ' || c == '\t') 
+						paraRange.length++;
+					else
+						break;
+				}
+				spaces = [string substringWithRange:paraRange];
+			}
+		}
+		[textView insertText:[NSString stringWithFormat:@"\n%@",spaces]];
+		return YES;
+	}
+	return NO;
 }
 
 - (NSString *) get_line:(NSInteger) lineno {

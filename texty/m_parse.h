@@ -145,11 +145,12 @@ NSDictionary *colorAttr[20];
 	char 	_syntax_color;
 	struct syntax_blocks _syntax_blocks;
 	struct _hash_table hash[HASH_SIZE];
+	BOOL autoindent;
 }
 - (void) initSyntax:(NSString *) ext;
 - (void) parse:(m_range *) range inTextView:(NSTextView *) tv;
 - (NSArray *) hash_to_array:(NSString *) part;
 - (NSString *) get_line:(NSInteger) lineno inTextView:(NSTextView *) tv;
 - (NSString *) get_execute_command:(NSTextView *) tv;
-
+@property (assign) BOOL autoindent;
 @end

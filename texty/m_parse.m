@@ -1,6 +1,7 @@
 #import "m_parse.h"
 
 @implementation m_parse
+@synthesize autoindent;
 static void hash_init(struct _hash_table *t) {
 	for (int i=0;i<HASH_SIZE;i++) {
 		if (!SLIST_EMPTY(&t[i].head)) {
@@ -344,10 +345,12 @@ do {																		\
 	}
 	_syntax_color_numbers = 0;
 	_syntax_color = 0;
+	autoindent = NO;
 	bzero(&_syntax_blocks, sizeof(_syntax_blocks));
 	struct block *b;	
 //	[box setHidden:YES];
 	if ([self ext:ext is:@"c h"]) {
+		autoindent = YES;
 		[self addKeywords:@"goto break return continue asm case default if else switch while for do" withColor:KEYWORD_COLOR_IDX];
 		[self addKeywords:@"int long short char void signed unsigned float double size_t ssize_t off_t wchar_t ptrdiff_t sig_atomic_t fpos_t clock_t time_t va_list jmp_buf FILE DIR div_t ldiv_t mbstate_t wctrans_t wint_t wctype_t bool complex int8_t int16_t int32_t int64_t uint8_t uint16_t uint32_t uint64_t int_least8_t int_least16_t int_least32_t int_least64_t  uint_least8_t uint_least16_t uint_least32_t uint_least64_t int_fast8_t int_fast16_t int_fast32_t int_fast64_t  uint_fast8_t uint_fast16_t uint_fast32_t uint_fast64_t intptr_t uintptr_t intmax_t uintmax_t __label__ __complex__ __volatile__ struct union enum typedef static register auto volatile extern const" withColor:VARTYPE_COLOR_IDX];
 		_syntax_color_numbers=1;
@@ -359,6 +362,7 @@ do {																		\
 		SET_BLOCK(b,'\'', 0, '\'', 0, STRING1_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_NO_VAR))
 //		[box setHidden:NO];
 	} else if ([self ext:ext is:@"php"]) {
+		autoindent = YES;
 		[self addKeywords:@"abstract and as break case catch clone const continue declare default do else elseif enddeclare endfor endforeach endif end switch while extends array final for foreach function global goto if implements interface instanceof namespace new or private protected public static switch throw try use var while xor class function" withColor:KEYWORD_COLOR_IDX];
 		[self addKeywords:@"echo print printf" withColor:CONSTANT_COLOR_IDX];
 		[self addKeywords:@"__CLASS__ __DIR__ __FILE__ __LINE__ __FUNCTION__ __METHOD__ __NAMESPACE__"  withColor:CONDITION_COLOR_IDX];
@@ -371,6 +375,7 @@ do {																		\
 		_syntax_color_numbers = 1;
 		_syntax_color = 1;
 	} else if ([self ext:ext is:@"rb erb rhtml"]) {
+		autoindent = YES;
 		int flags = 0;
 		if ([self ext:ext is:@"erb rhtml"]) {
 			flags = B_REQUIRE_SUPERBLOCK;
@@ -392,6 +397,7 @@ do {																		\
 		_syntax_color_numbers = 1;
 		_syntax_color = 1;
 	} else if ([self ext:ext is:@"sh pl"]) {
+		autoindent = YES;
 		[self addKeywords:@"esac break return continue case default if else switch while for do in for expr true false done" withColor:KEYWORD_COLOR_IDX];
 		[self addKeywords:@"echo print printf read exit"  withColor:CONDITION_COLOR_IDX];
 
