@@ -188,6 +188,7 @@
 		}
 	}
 	/* remove the empty file */
+	
 	if ([t strlen] < 1 && t.s.temporary) {
 		NSFileManager *f = [[NSFileManager alloc] init];
 		[f removeItemAtURL:t.s.fileURL error:nil];
@@ -249,7 +250,6 @@
 		if ([self AlertIfTaskIsRunning] == NO)
 			return;
 	}
-	
 	[e execute:cmd withTimeout:timeout];
 	if (output) {
 		[self displayModalTV];
@@ -299,16 +299,19 @@
 			have_unsaved++;;
 		}		
 	}];
+	NSInteger ret = NSTerminateNow;
 	if (have_unsaved) {
 		NSInteger alertReturn = NSRunAlertPanel(@"WARNING: unsaved data.", [NSString stringWithFormat:@"You have unsaved data for %u file%s",have_unsaved,(have_unsaved > 1 ? "s." : ".")] ,@"Cancel", @"Save & Close",@"Close w/o Save");
 		if (alertReturn == NSAlertAlternateReturn) {
 			[self save_all:nil];
-			return NSTerminateNow;
+			ret = NSTerminateNow;
 		} else if (alertReturn == NSAlertDefaultReturn) {
-			return NSTerminateCancel;
+			ret = NSTerminateCancel;
 		}
 	}
-	return NSTerminateNow;
+	if (ret == NSTerminateNow)
+		[e.task	terminate];
+	return ret;
 }
 - (BOOL) AlertIfTaskIsRunning {
 	
