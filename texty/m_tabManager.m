@@ -212,9 +212,7 @@
 	[self.goto_window orderOut:nil];
 }
 - (void)sheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo {
-	[sheet orderOut:self];
     [NSApp endSheet:sheet];
-	[sheet close];
 }
 - (IBAction)goto_button:(id)sender {
 	if ([self.goto_window isVisible])
@@ -361,8 +359,10 @@
 	[self.e.task terminate];
 }
 - (IBAction)showRunBuffer:(id)sender {
-	[self modal_escape:nil];
-	[self displayModalTV];
+	if ([NSApp isActive]) {
+		[self modal_escape:nil];
+		[self displayModalTV];
+	}
 }
 - (void) scrollEnd {
 	NSRange range = { [[self.modal_tv string] length], 0 };
@@ -391,7 +391,6 @@
 	
 	lastColorRange = range;
 }
-
 - (BOOL)modal_escape:(id)sender {
 	BOOL ret = NO;
 	if ([self.modal_panel isVisible])
