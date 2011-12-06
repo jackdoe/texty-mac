@@ -33,7 +33,7 @@ Overview
 	
 	everything is inside ~/TEXTY_DATA
 
-	+ /Users/jack/TEXTY_DATA/
+	+ /Users/jack/TEXTY_DAT‹A/
 	+ /Users/jack/TEXTY_DATA/TEMPORARY/yyyy-MM-dd/TEMP-time().rand().txt
 	+ /Users/jack/TEXTY_DATA/BACKUP/'fileURL.replace:/ with:_'/time().txt
 	+ /Users/jack/TEXTY_DATA/AUTOSAVE/'fileURL.replace:/ with:_/'filename
@@ -50,7 +50,7 @@ Overview
 
 	> TEXTY_RUN_SHELL command
 
-	if the command begins with http:// a modal window displaying the http page will be opened.
+	if the command begins with http:// your default brawser will be opened with the url
 
 	> example: TEXTY_RUN_SHELL http://localhost/~jack/index.php
 
@@ -89,7 +89,5 @@ Overview
 Bugs
 ====
 1. TEXTY_RUN_SHELL
-	+ http:// does not work with https
-	+ does not show popups and javascript alerts and etc
-	+ its just [[webview alloc] initWithRequest:], so its not very usefull, but this is gonna change
-
+	+ execute has a race when the reload button is spam clicked, it messess up the output - start/end etc
+	
