@@ -1,7 +1,14 @@
 #import "m_exec.h"
 #import "PseudoTTY.h"
 @implementation m_exec
-@synthesize delegate = _delegate,task,_rc,_command,_terminated,_startTime,_timeout,pty;
+@synthesize delegate = _delegate,task,_rc,_command,_terminated,_startTime,_timeout,pty,serial;
+- (m_exec *) init {
+	self = [super init];
+	if (self) {
+		self.serial = [[NSLock alloc] init];
+	}
+	return self;
+}
 - (void) sendTitle:(NSString *) s {
 	if ([self.delegate respondsToSelector:@selector(taskAddExecuteTitle:)]) 
 		[self.delegate taskAddExecuteTitle:s];
@@ -38,11 +45,9 @@
 }
 - (void) sendStart {
 	[self sendTitle:_command];
-	[self sendString:[NSString stringWithFormat:@"\n[%@] START TASK(timeout: %@): %@\n",_startTime,(_timeout == 0 ? @"NOTIMEOUT" : [NSString stringWithFormat:@"%d",_timeout]),_command]];
-
+	[self sendString:[NSString stringWithFormat:@"\nSTART: [%@] TASK(timeout: %@): %@\n",_startTime,(_timeout == 0 ? @"NOTIMEOUT" : [NSString stringWithFormat:@"%d",_timeout]),_command]];
 }
 - (void) sendTerminate {
-	[task waitUntilExit];
 	NSString *timedOut = @"";
 	if (_terminated) {
 		timedOut = @" [TOUT]";
@@ -50,7 +55,7 @@
 	NSDate *now = [NSDate date];
 	NSTimeInterval diff = [now timeIntervalSinceDate:self._startTime];
 
-	[self sendString:[NSString stringWithFormat:@"\n[%@ - took: %llfs] END TASK(RC: %d%@): %@\n",now,diff,[task terminationStatus],timedOut,_command]];
+	[self sendString:[NSString stringWithFormat:@"\nEND : [%@ - took: %llfs] TASK(RC: %d%@): %@\n",now,diff,[task terminationStatus],timedOut,_command]];
 	if ([self.delegate respondsToSelector:@selector(taskDidTerminate)])
 		[self.delegate taskDidTerminate];
 
@@ -75,35 +80,40 @@
 		});
 	}
 }
-- (BOOL) execute:(NSString *) command withTimeout:(int)timeout {
-	if ([task isRunning]) 
-		return NO;
 
-	self.pty = [[PseudoTTY alloc] init];
-	if (self.pty == nil)
+- (void) run {
+
+	[task setLaunchPath: @"/bin/sh"];
+	NSArray *arguments = [NSArray arrayWithObjects: @"-c", _command,nil];
+	[task setArguments: arguments];
+    [task setCurrentDirectoryPath:[@"~" stringByExpandingTildeInPath]];
+	[task setStandardInput: pty.slave];
+	[task setStandardOutput: pty.slave];
+	[task setStandardError: [task standardOutput]];
+    NSMutableDictionary *environment = [[NSMutableDictionary alloc] initWithDictionary:[[NSProcessInfo processInfo] environment]];
+	[environment setValue:@"xterm" forKey:@"TERM"];
+	[task setEnvironment:[NSDictionary dictionaryWithDictionary:environment]];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(readPipe:) name:NSFileHandleReadCompletionNotification object:pty.master];
+    [pty.master readInBackgroundAndNotify];
+	[task launch];	
+	[self timeoutWatcher];
+}
+
+- (BOOL) execute:(NSString *) command withTimeout:(int)timeout {
+	if ([self.task isRunning])
 		return NO;
+	self.pty = [[PseudoTTY alloc] init];
+	if (self.pty == nil) 
+		return NO;
+	
 	
 	self.task = [[NSTask alloc] init];
 	self._command = [command copy];
 	self._rc = 0;
 	self._timeout = timeout;
-	[task setLaunchPath: @"/bin/sh"];
-	NSArray *arguments = [NSArray arrayWithObjects: @"-c", command,nil];		
-	[task setArguments: arguments];
-    [task setCurrentDirectoryPath:[@"~" stringByExpandingTildeInPath]];
-	[task setStandardInput: pty.slave];
-	[task setStandardOutput: pty.slave];
-	[task setStandardError: pty.slave];
-    NSMutableDictionary *environment = [[NSMutableDictionary alloc] initWithDictionary:[[NSProcessInfo processInfo] environment]];
-	[environment setValue:@"xterm" forKey:@"TERM"];
-	[task setEnvironment:[NSDictionary dictionaryWithDictionary:environment]];
 	self._startTime = [NSDate date];
 	[self sendStart];
-	[task launch];
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(readPipe:) name:NSFileHandleReadCompletionNotification object:pty.master];
-    [pty.master readInBackgroundAndNotify];
-
-	[self timeoutWatcher];
+	[self run];
 	return YES;
 }
 - (void) dealloc {

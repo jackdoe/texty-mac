@@ -2,9 +2,10 @@
 #import "PseudoTTY.h"
 @protocol m_execDelegate <NSObject>
 @optional
-- (void) taskAddExecuteText:(NSString *)text;
+- (void) taskAddExecuteText:(NSString *) text;
 - (void) taskAddExecuteTitle:(NSString *) title;
 - (void) taskDidTerminate;
+- (void) taskDidStart;
 @end
 @interface m_exec : NSObject {
 	id <m_execDelegate> delegate;
@@ -15,6 +16,7 @@
 	BOOL _terminated;
 	int _timeout;
 	PseudoTTY *pty;
+	NSLock *serial;
 }
 @property (retain) PseudoTTY *pty;
 @property (assign) id <m_execDelegate> delegate;
@@ -24,6 +26,7 @@
 @property (retain) NSString * _command;
 @property (assign) BOOL _terminated;
 @property (assign) int _timeout;
+@property (retain) NSLock *serial;
 - (void) terminate;
 - (void) readPipe:(NSNotification *)notification;
 - (void) restart;
