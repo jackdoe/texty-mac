@@ -65,7 +65,6 @@ Overview
 	* {MYSELF_BASENAME_NOEXT} - basename without extention (for example: main)
 	* {MYDIR} - file's directory 
 	* {NOTIMEOUT} - if you want the command to run forever /* removed from the line at execute time */
-	* {NOOUTPUT} - just run the command without presenting the output in the modal window
 	For example when you hit RUN on README.mdown as you can see on line no:3
 
 	> TEXTY_RUN_SHELL cd {MYDIR} && git add {MYSELF} && git commit -m "fix readme" && git push {NOTIMEOUT}
@@ -75,12 +74,11 @@ Overview
 	> sh -c "cd /Users/jack/work/texty && git add /Users/jack/work/texty/README.mdown && git commit -m "fix readme" && git push"
 
 	and here is the output:
-
 	[![](http://farm8.staticflickr.com/7017/6429997929_31ef564d25.jpg)](http://www.flickr.com/photos/71088131@N07/6429997929/)
 
 
 	When you click run - a modal window with the output of the command will be displayed. 
-	note: maximum time out for a job is 1 second, after that the task will be terminated.
+	note: maximum time out for a job is 1 second, after that the task will be terminated (unless {NOTIMTOUT} is specified).
 
 4. Syntax highlighting
 
