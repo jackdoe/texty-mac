@@ -26,6 +26,7 @@
 		04DFC9E71488F451004D2802 /* m_parse.m in Sources */ = {isa = PBXBuildFile; fileRef = 04DFC9E61488F451004D2802 /* m_parse.m */; };
 		04E84663147E281500E1E027 /* m_range.m in Sources */ = {isa = PBXBuildFile; fileRef = 04E84662147E281500E1E027 /* m_range.m */; };
 		04EE1C4A147D0ACB0056D73F /* m_exec.m in Sources */ = {isa = PBXBuildFile; fileRef = 04EE1C49147D0ACB0056D73F /* m_exec.m */; };
+		04F14A2E148E098900936D73 /* PseudoTTY.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F14A2D148E098900936D73 /* PseudoTTY.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -63,6 +64,8 @@
 		04E84662147E281500E1E027 /* m_range.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = m_range.m; sourceTree = "<group>"; };
 		04EE1C48147D0ACB0056D73F /* m_exec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = m_exec.h; sourceTree = "<group>"; };
 		04EE1C49147D0ACB0056D73F /* m_exec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = m_exec.m; sourceTree = "<group>"; };
+		04F14A2C148E098900936D73 /* PseudoTTY.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PseudoTTY.h; sourceTree = "<group>"; };
+		04F14A2D148E098900936D73 /* PseudoTTY.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PseudoTTY.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -172,6 +175,8 @@
 		04DFC9EF14891AAF004D2802 /* Execute */ = {
 			isa = PBXGroup;
 			children = (
+				04F14A2C148E098900936D73 /* PseudoTTY.h */,
+				04F14A2D148E098900936D73 /* PseudoTTY.m */,
 				04EE1C48147D0ACB0056D73F /* m_exec.h */,
 				04EE1C49147D0ACB0056D73F /* m_exec.m */,
 			);
@@ -267,6 +272,7 @@
 				049294361488D6C6003642DF /* TextVC.m in Sources */,
 				04DFC9E71488F451004D2802 /* m_parse.m in Sources */,
 				044E2FB0148CCE640088316A /* m_status.m in Sources */,
+				04F14A2E148E098900936D73 /* PseudoTTY.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

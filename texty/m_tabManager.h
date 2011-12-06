@@ -8,6 +8,7 @@
 	NSWindow * IBOutlet modal_panel;
 	NSTextView * IBOutlet modal_tv;
 	NSTextField * IBOutlet modal_field;
+	NSTextField * IBOutlet modal_input;
 	NSTimer *timer;
 	m_exec *e;
 	m_status *_status;
@@ -46,10 +47,11 @@
 - (void) fixModalTextView;
 @property (retain) NSTabView *tabView;
 @property (retain) NSTimer *timer;
+
 @property (assign) NSWindow *goto_window;
 @property (assign) NSWindow *modal_panel;
 @property (assign) NSTextView *modal_tv;
-@property (assign) NSTextField *modal_field;
+@property (assign) NSTextField *modal_field,*modal_input;
 @property (retain) m_exec *e;
 @property (retain) m_status *_status;
 @end

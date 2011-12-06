@@ -1,4 +1,5 @@
 #import <Foundation/Foundation.h>
+#import "PseudoTTY.h"
 @protocol m_execDelegate <NSObject>
 @optional
 - (void) taskAddExecuteText:(NSString *)text;
@@ -13,7 +14,9 @@
 	NSDate *_startTime;
 	BOOL _terminated;
 	int _timeout;
+	PseudoTTY *pty;
 }
+@property (retain) PseudoTTY *pty;
 @property (assign) id <m_execDelegate> delegate;
 @property (retain) NSTask *task;
 @property (retain) NSDate *_startTime;

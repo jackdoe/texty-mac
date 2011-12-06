@@ -4,7 +4,7 @@
 #define DIRECTION_LEFT 1
 #define DIRECTION_RIGHT 2
 @implementation m_tabManager
-@synthesize tabView,goto_window = _goto_window,timer,modal_panel = _modal_panel,modal_tv = _modal_tv,modal_field = _modal_field,e,_status;
+@synthesize tabView,goto_window = _goto_window,timer,modal_panel = _modal_panel,modal_tv = _modal_tv,modal_field = _modal_field,e,_status,modal_input = _modal_input;
 - (m_tabManager *) init {
 	return [self initWithFrame:[[NSApp mainWindow] frame]];
 }
@@ -279,6 +279,7 @@
 	NSString *cmd = [t get_execute_command];
 	if (!cmd) 
 		return;
+	
 	[t save];
 
 	cmd = [cmd stringByReplacingOccurrencesOfString:@"{MYSELF}" withString:[t.s.fileURL path]];
@@ -334,8 +335,14 @@
 - (void) displayModalTV {
 	[self scrollEnd];
 	[self.modal_panel makeKeyAndOrderFront:nil];
+	[self.modal_input becomeFirstResponder];
 }
-
+- (IBAction)sendToTask:(id)sender {
+	if ([self.e.task isRunning]) {
+		NSString *str = [[sender stringValue] stringByAppendingString:@"\n"];
+		[self.e.pty.master writeData:[str dataUsingEncoding:NSUTF8StringEncoding]];
+	}
+}
 - (IBAction)clearTV:(id)sender {
 	[self.modal_tv setString:@""];
 	lastColorRange = NSMakeRange(0, 0);
@@ -358,6 +365,7 @@
 	[self scrollEnd];
 }
 - (void) taskAddExecuteTitle:(NSString *)title {
+	[self.modal_input setEnabled:YES];
 	[self.modal_field setStringValue:[title copy]];
 }
 - (void) taskDidTerminate {
@@ -373,6 +381,7 @@
 							range:range];
 	
 	lastColorRange = range;
+	[self.modal_input setEnabled:NO];
 }
 - (void) fixModalTextView {
 	[self.modal_tv setHidden:NO];
