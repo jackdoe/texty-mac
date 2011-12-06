@@ -74,7 +74,7 @@ Overview
 	> sh -c "cd /Users/jack/work/texty && git add /Users/jack/work/texty/README.mdown && git commit -m "fix readme" && git push"
 
 	and here is the output:
-	[![](http://farm8.staticflickr.com/7017/6429997929_31ef564d25.jpg)](http://www.flickr.com/photos/71088131@N07/6429997929/)
+	[![](http://farm8.staticflickr.com/7152/6465301513_47bf4c761c.jpg)](http://www.flickr.com/photos/71088131@N07/6465301513/)
 
 
 	When you click run - a modal window with the output of the command will be displayed. 
