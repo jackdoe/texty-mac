@@ -10,7 +10,7 @@ Texty
 The idea is very simple - single window-tab based text editor, which creates temporary files, auto saves them, backups everything on each save, and has diff between the current and each of the saved versions.
 
 and currently looks like this:
-[![](http://farm8.staticflickr.com/7015/6429917701_cb4fed23a4.jpg)](http://www.flickr.com/photos/71088131@N07/6429917701/)
+[![](http://farm8.staticflickr.com/7157/6465079069_98e4662149.jpg)](http://www.flickr.com/photos/71088131@N07/6465079069/)
 
 Requirements
 ============
@@ -20,7 +20,15 @@ Requirements
 
 Overview
 ========
-
+0. Features
+	+ autoindent
+	+ basic syntax highlighting
+	+ execute tasks in another window - no more alt+tab
+	+ backup[0] on each save
+	+ autosave[0]
+	
+	[0] read below for more detailed description
+	
 1. Directories
 	
 	everything is inside ~/TEXTY_DATA
@@ -52,11 +60,12 @@ Overview
 
 	> example: TEXTY_RUN_SHELL ~/script.sh arg1 {MYSELF} arg2 # or see this README.mdown at line 3
 
-	* {MYSELF} - is auto replaced with the full path of the file you are editting.
+	* {MYSELF} - is auto replaced with the full path of the file you are editting. (for example: /Users/jack/work/main.c)
+	* {MYSELF_BASENAME} - only basename (for example: main.c)
+	* {MYSELF_BASENAME_NOEXT} - basename without extention (for example: main)
 	* {MYDIR} - file's directory 
 	* {NOTIMEOUT} - if you want the command to run forever /* removed from the line at execute time */
 	* {NOOUTPUT} - just run the command without presenting the output in the modal window
-
 	For example when you hit RUN on README.mdown as you can see on line no:3
 
 	> TEXTY_RUN_SHELL cd {MYDIR} && git add {MYSELF} && git commit -m "fix readme" && git push {NOTIMEOUT}
