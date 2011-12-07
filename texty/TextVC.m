@@ -1,13 +1,8 @@
-//
-//  TextVC.m
-//  texty
-//
-//  Created by jack on 12/2/11.
-//  Copyright (c) 2011 __MyCompanyName__. All rights reserved.
-//
-
 #import "TextVC.h"
-
+#define L_LOCKED	0
+#define L_MODIFIED	1
+#define L_DEFAULT	2
+#define L_UNDEFINED 3
 @implementation TextVC
 @synthesize tabItem,s,parser,box;
 - (void) signal {
@@ -23,13 +18,48 @@
 	}
 	if (something_changed) {
 		if ([self is_modified]) {
-			tabItem.label = [NSString stringWithFormat:@"%@ *",[s basename]];
+			[self label:L_MODIFIED];
 			need_to_autosave = YES;
 		} else {
-			tabItem.label = [NSString stringWithFormat:@"%@",[s basename]];		
+			[self label:L_DEFAULT];
 		}
 		something_changed = NO;
 	}
+
+	if ([s same_as_disk] == NO) 
+		if (locked == NO)
+			[self lockText];
+		
+}
+- (void) label:(int) type {
+	switch(type) {
+	case L_MODIFIED:
+		tabItem.label = [NSString stringWithFormat:@"%@ *",[s basename]];
+		break;
+	case L_LOCKED:
+		tabItem.label = [NSString stringWithFormat:@"%@ *Locked*",[s basename]];
+		break;
+	case L_DEFAULT:
+		tabItem.label = [NSString stringWithFormat:@"%@",[s basename]];			
+		break;
+	case L_UNDEFINED:
+	default:
+		tabItem.label = @"aaaaa :) should never happen";
+	}
+}
+- (void) lockText {
+	NSInteger alert = [s fileAlert:s.fileURL withMessage:@"The File was modified by someone else\nReload or Overwrite it." def:@"Cancel" alternate:@"Reload" other:@"Overwrite"];
+	if (alert == NSAlertOtherReturn) {
+		if ([self open:self.s.fileURL])
+			return;
+	} else if (alert == NSAlertAlternateReturn) {
+		if ([self save])
+			return;
+	}
+	[self label:L_LOCKED];
+	locked = YES;
+	[text setBackgroundColor:[NSColor darkGrayColor]];
+	[text setEditable:NO];	
 }
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
@@ -84,7 +114,8 @@
 		[box setTransparent:NO];
 		[box setHidden:YES];
 		[text addSubview:box];
-		tabItem.label = @"aaaaa :) should never happen";
+		locked = NO;
+		[self label:L_UNDEFINED];
     }
     return self;
 }
@@ -100,20 +131,21 @@
 	[parser initSyntax:[[s basename] pathExtension] box:box];
 	[parser parse:r inTextView:text];
 }
-- (void) saveAs:(NSURL *) to {
-	[s migrate:to];
-	[self syntax_reload];
-	tabItem.label = [s basename];
+- (BOOL) saveAs:(NSURL *) to {
+	if ([s migrate:to withString:[text string]]) {
+		[self syntax_reload];
+		[self label:L_DEFAULT];
+		return YES;
+	}
+	return NO;
 }
-- (void) save {
-	if ([s overwrite:[text string]]) 
-		tabItem.label = [s basename];
+- (BOOL) save {
+	return [self saveAs:s.fileURL];
 }
 - (void) revertToSaved {
 	[text setString:s.data];
 }
 - (BOOL) is_modified {
-//	NSLog(@"%@ vs %@",[text string], s.data);
 	return ![[text string] isEqualToString:s.data];
 }
 - (void) goto_line:(NSInteger) want_line {
@@ -124,10 +156,11 @@
 	}
 }
 - (void) reload {
-		[text setString:s.data];
-		tabItem.label = [s basename];
-		[self performSelector:@selector(responder) withObject:self afterDelay:0];
-		[self syntax_reload];
+	[text setString:s.data];
+	[self label:L_DEFAULT];
+	[self performSelector:@selector(responder) withObject:self afterDelay:0];
+	[self syntax_reload];
+
 }
 - (BOOL) open:(NSURL *)file {
 	if ([s open:file]) {

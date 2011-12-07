@@ -16,9 +16,8 @@
 - (BOOL) open:(NSURL *) URL;
 - (BOOL) close:(BOOL) save;
 - (NSURL *) temporaryFileURL;
-- (BOOL) overwrite:(NSString *) withString;
-- (BOOL) overwrite;
-- (BOOL) migrate:(NSURL *) to;
+- (BOOL) real_overwrite:(NSString *) string;
+- (BOOL) migrate:(NSURL *) to withString:(NSString *) string;
 - (NSString *) basename;
 - (BOOL) write:(NSString *) string toURL:(NSURL *) file;
 - (BOOL) write:(NSString *) string toPath:(NSString *) file;
@@ -30,4 +29,7 @@
 - (BOOL) convertTo:(NSStringEncoding) enc;
 - (NSArray *) encodings;
 - (NSString *) currentEncoding;
+- (BOOL) same_as_disk;
+- (NSInteger) fileAlert:(NSURL *) url withMessage:(NSString *) message def:(NSString *) def alternate:(NSString *) alternate other:(NSString *) other;
+- (void) noChoiceAlert:(NSString *) message withURL:(NSURL *) url;
 @end

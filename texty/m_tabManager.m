@@ -158,7 +158,7 @@
 - (IBAction)closeButton:(id)sender {
 	TextVC *t = [self.tabView selectedTabViewItem].identifier;
 	if ([t is_modified]) {
-		NSInteger alertReturn = NSRunAlertPanel(@"WARNING: unsaved data.", @"You have unsaved data for 1 file." , @"Cancel",@"Save & Close", @"Close w/o Save");
+		NSInteger alertReturn = [t.s fileAlert:t.s.fileURL withMessage:@"WARNING: unsaved data." def:@"Cancel" alternate:@"Save & Close" other:@"Close w/o Save"];
 		if (alertReturn == NSAlertAlternateReturn) { 		/* Save */
 			[t save];
 		} else if (alertReturn == NSAlertDefaultReturn) { /* Cancel */
@@ -204,8 +204,9 @@
 		};
 	}];
 	if (o) {
-		NSInteger alertReturn = NSRunAlertPanel(@"file is already opened", [NSString stringWithFormat:@"File: %@ is already open, do you want to reload it from disk?",[file path]] ,@"Reload", @"Cancel",nil);
-		if (alertReturn == NSOKButton) {
+		NSInteger alertReturn = [o.s fileAlert:file withMessage:@"File is already open, do you want to reload it from disk?" def:@"Cancel" alternate:@"Reload" other:nil];
+
+		if (alertReturn == NSAlertAlternateReturn) {
 			[o open:file];
 			[self.tabView selectTabViewItem:o.tabItem];
 			return YES;
@@ -243,6 +244,7 @@
 	}];
 	NSInteger ret = NSTerminateNow;
 	if (have_unsaved) {
+		/* XXX */
 		NSInteger alertReturn = NSRunAlertPanel(@"WARNING: unsaved data.", [NSString stringWithFormat:@"You have unsaved data for %u file%s",have_unsaved,(have_unsaved > 1 ? "s." : ".")] ,@"Cancel", @"Save & Close",@"Close w/o Save");
 		if (alertReturn == NSAlertAlternateReturn) {
 			[self save_all:nil];

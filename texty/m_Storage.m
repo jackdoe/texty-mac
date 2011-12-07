@@ -1,6 +1,12 @@
 #import "m_Storage.h"
 @implementation m_Storage
 @synthesize fileURL, data,temporary,existing_backups,encoding;
+- (NSInteger) fileAlert:(NSURL *) url withMessage:(NSString *) message def:(NSString *) def alternate:(NSString *) alternate other:(NSString *) other {
+	return NSRunAlertPanel([url path], message, def, alternate, other);
+}
+- (void) noChoiceAlert:(NSString *) message withURL:(NSURL *) url{
+	[self fileAlert:url withMessage:message def:nil alternate:nil other:nil];
+}
 - (BOOL) open:(NSURL *) URL {
 	[self close:NO];
 	self.existing_backups = nil;
@@ -22,7 +28,7 @@
 	NSStringEncoding usedEncoding;
 	self.data = [NSString stringWithContentsOfURL:URL usedEncoding:&usedEncoding error:&err];
 	if (err) {
-		NSRunAlertPanel(@"failed to open file",[NSString stringWithFormat:@"error: %@",[err localizedDescription]] , nil,nil,nil);
+		[self noChoiceAlert:[err localizedDescription] withURL:self.fileURL];
 		return FALSE;	
 	}
 	self.encoding = usedEncoding;
@@ -55,7 +61,6 @@
 		return NSOrderedSame;
 	}];
 	return [NSArray arrayWithArray:e];
-
 }
 - (BOOL) convertTo:(NSStringEncoding) enc {
 	if ([self.data canBeConvertedToEncoding:enc]) {
@@ -66,40 +71,46 @@
 			return TRUE;
 		}
 	}
-	NSString *message = [NSString stringWithFormat:@"%@ can not be coverted from %@ to %@ without data loss.",[self basename],[self currentEncoding],[self encodingName:enc]];
-	NSRunAlertPanel(@"Failed to COMMIT the encoding convertion",message, nil,nil,nil);
-
+	NSString *message = [NSString stringWithFormat:@"ERROR: %@ can not be coverted from %@ to %@ without data loss.",[self basename],[self currentEncoding],[self encodingName:enc]];
+	[self noChoiceAlert:message withURL:self.fileURL];
 	return FALSE;
 }
 - (BOOL) close:(BOOL) save {
-	if (save) {
-		[self overwrite];
-	}
+	if (save) 
+		[self migrate:self.fileURL withString:self.data];
+	
 	self.data = nil;
 	self.fileURL = nil;
 	return TRUE;
 }
-- (BOOL) overwrite:(NSString *) withString {
-	if (![self.data isEqualToString:withString]) {
-		[self backup];
-		self.data = [NSString stringWithString:withString];
-		return [self overwrite];
-	}
-	return YES;
-}
-- (BOOL) migrate:(NSURL *) to {
+
+- (BOOL) migrate:(NSURL *) to withString:(NSString *) string {
+	if (!to || !string)
+		return NO;
+		
 	self.fileURL = to;
 	self.temporary = NO;
-	[[NSDocumentController sharedDocumentController] noteNewRecentDocumentURL:to];
-	return [self overwrite];
+	[self backup];
+	if ([self real_overwrite:string]) {
+		self.data = [NSString stringWithString:string];	
+		return YES;
+	}
+	return NO;
 }
-- (BOOL) overwrite {
+- (BOOL) same_as_disk {
+	NSString *temp = [NSString stringWithContentsOfURL:self.fileURL encoding:encoding error:nil];
+	if (temp && [temp isEqualToString:self.data]) 
+		return YES;
+	return NO;
+}
+- (BOOL) real_overwrite:(NSString *) string {
 	if (!self.fileURL)
 		return NO;
+		
 	self.existing_backups = [self backups];
 	if (!temporary)
 		[[NSDocumentController sharedDocumentController] noteNewRecentDocumentURL:self.fileURL];
-	return [self write:self.data toURL:self.fileURL];
+	return [self write:string toURL:self.fileURL];
 }
 - (NSString *) autosave:(BOOL) export_only {
 	NSString *nameDir = [[self.fileURL path] stringByReplacingOccurrencesOfString:@"/" withString:@"_"];
@@ -172,7 +183,7 @@ ret:
 	NSError *err;
 	[string writeToURL:file atomically:YES encoding:(encoding > 0 ? encoding : NSUTF8StringEncoding) error:&err];
 	if (err) {
-		NSRunAlertPanel(@"failed to overwrite file",[NSString stringWithFormat:@"error: %@",[err localizedDescription]] , nil,nil,@"Close");
+		[self noChoiceAlert:[err localizedDescription] withURL:self.fileURL];
 		return NO;
 	}
 	return YES;
@@ -190,7 +201,7 @@ ret:
 	}
 	[f createDirectoryAtURL:dir withIntermediateDirectories:YES attributes:nil error:&err];
 	if (err) {
-		NSRunAlertPanel(@"failed to create directory",[NSString stringWithFormat:@"error: %@",[err localizedDescription]] , nil,nil,@"Close");
+		[self noChoiceAlert:[err localizedDescription] withURL:dir];
 		return NO;
 	}
 	return YES;
