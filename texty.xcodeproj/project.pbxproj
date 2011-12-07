@@ -80,7 +80,7 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		046944C5147B96EA00256B61 = {
+		042D766F148F6D1A00C8550D /* Icons */ = {
 			isa = PBXGroup;
 			children = (
 				044E2FB5148CD5A00088316A /* texty_red_small.png */,
@@ -88,6 +88,14 @@
 				04842D54148557A6007782F6 /* texty_red.icns */,
 				045C348B147FEB9800162AA1 /* texty_green.icns */,
 				045C3489147FEB6A00162AA1 /* texty.icns */,
+			);
+			name = Icons;
+			sourceTree = "<group>";
+		};
+		046944C5147B96EA00256B61 = {
+			isa = PBXGroup;
+			children = (
+				042D766F148F6D1A00C8550D /* Icons */,
 				046944DA147B96EA00256B61 /* texty */,
 				046944D3147B96EA00256B61 /* Frameworks */,
 				046944D1147B96EA00256B61 /* Products */,
@@ -128,11 +136,11 @@
 				046944E6147B96EA00256B61 /* textyAppDelegate.h */,
 				046944E7147B96EA00256B61 /* textyAppDelegate.m */,
 				046944E9147B96EB00256B61 /* MainMenu.xib */,
+				04DFC9ED14891A2B004D2802 /* Text */,
 				04DFC9EE14891A8D004D2802 /* Storage */,
 				04DFC9F014891ABC004D2802 /* Tabs */,
 				04DFC9EF14891AAF004D2802 /* Execute */,
 				046944DB147B96EA00256B61 /* Supporting Files */,
-				04DFC9ED14891A2B004D2802 /* Text */,
 			);
 			path = texty;
 			sourceTree = "<group>";
