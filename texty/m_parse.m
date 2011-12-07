@@ -413,7 +413,6 @@ do {																		\
 #undef SET_BLOCK
 }
 
-
 - (NSString *) get_line:(NSInteger) lineno inTextView:(NSTextView *) tv {
 	NSRange area = [m_range rangeOfLine:lineno inString:[tv string]];
 	if (area.location != NSNotFound) {

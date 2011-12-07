@@ -13,6 +13,7 @@
 	m_exec *e;
 	m_status *_status;
 	NSRange lastColorRange;
+	NSArray *snipplet;
 }
 - (m_tabManager *) initWithFrame:(NSRect) frame;
 - (IBAction)openButton:(id)sender;
@@ -47,7 +48,7 @@
 - (void) fixModalTextView;
 @property (retain) NSTabView *tabView;
 @property (retain) NSTimer *timer;
-
+@property (retain) NSArray *snipplet;
 @property (assign) NSWindow *goto_window;
 @property (assign) NSWindow *modal_panel;
 @property (assign) NSTextView *modal_tv;

@@ -24,6 +24,7 @@
 - (NSInteger) strlen;
 - (NSString *) get_line:(NSInteger) lineno;
 - (NSString *) get_execute_command;
+- (void) insert:(NSString *) value atLine:(NSInteger) line;
 - (void) reload;
 - (void) lockText;
 - (void) label:(int) type;

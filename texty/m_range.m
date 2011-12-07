@@ -17,23 +17,29 @@
 		return YES;
 	return NO;
 }
-+ (NSRange) rangeOfLine:(NSInteger) requested_line inString:(NSString *) s {
-	NSUInteger total_len = [s length];
-	__block NSUInteger total_lines = 0, pos = 0;
++ (NSInteger) numberOfLines:(NSString *) s {
+	__block NSUInteger total_lines = 1;
 	[s enumerateLinesUsingBlock:^(NSString *line, BOOL *stop) {
 		total_lines++;
-		if (total_lines < requested_line) {
-			pos += [line length];
-			if (pos < total_len)
-				pos++; /* new line */;
-		} else {
-			*stop = YES;
-		}
 	}];
+	return total_lines;
+}
++ (NSRange) rangeOfLine:(NSInteger) requested_line inString:(NSString *) s {
+	NSUInteger total_len = [s length];
+	NSUInteger total_lines = 0, i;
+	unichar c;
+	for (i=0;i<total_len;i++) {
+		c = [s characterAtIndex:i];
+		if (c == '\n' || c == '\r') {
+			if (++total_lines >= requested_line)
+				break;
+			
+		}
+	}
 	if (total_lines != requested_line) {
 		return NSMakeRange(NSNotFound, 0);
 	}
-	NSRange area = [s paragraphRangeForRange:NSMakeRange(pos, 0)];
+	NSRange area = [s paragraphRangeForRange:NSMakeRange(i, 0)];
 	return area;
 }
 - (NSRange) paragraph:(NSTextView *) tv {

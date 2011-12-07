@@ -246,5 +246,23 @@
 - (NSString *) get_execute_command {
 	return [parser get_execute_command:text];
 }
-
+- (void) insert:(NSString *)value atLine:(NSInteger) line {
+	NSInteger lineCount = [m_range numberOfLines:[text string]];
+	NSInteger required = lineCount < line ? line - lineCount : 0;
+	if (required > 0) {
+		NSMutableString *enter = [NSMutableString string];
+		for (int i=0;i<=required;i++) {
+			[enter appendFormat:@"\n"];
+		}
+		[text replaceCharactersInRange:NSMakeRange(0, [[text string] length]) withString:[NSString stringWithFormat:@"%@%@",[text string],enter]];
+			
+	}
+	NSRange area = [m_range rangeOfLine:line inString:[text string]];
+	if (area.location == NSNotFound) {
+		[text insertText:value];
+	} else {
+		NSString *update = [NSString stringWithFormat:@"%@\n%@",value,[[text string] substringWithRange:area]];
+		[text replaceCharactersInRange:area withString:update];
+	}
+}
 @end

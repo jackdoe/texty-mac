@@ -4,39 +4,51 @@
 #define DIRECTION_LEFT 1
 #define DIRECTION_RIGHT 2
 @implementation m_tabManager
-@synthesize tabView,goto_window = _goto_window,timer,modal_panel = _modal_panel,modal_tv = _modal_tv,modal_field = _modal_field,e,_status,modal_input = _modal_input;
+@synthesize tabView,goto_window = _goto_window,timer,modal_panel = _modal_panel,modal_tv = _modal_tv,modal_field = _modal_field,e,_status,modal_input = _modal_input,snipplet;
 - (m_tabManager *) init {
 	return [self initWithFrame:[[NSApp mainWindow] frame]];
 }
+- (void) createCodeSnipplets {
+	NSMutableArray *a = [NSMutableArray array];
+	[a addObject:[NSArray arrayWithObjects:@"GCC compile", @"//TEXTY_EXECUTE gcc -Wall -o {MYDIR}/{MYSELF_BASENAME_NOEXT} {MYSELF}" ,nil]];
+	[a addObject:[NSArray arrayWithObjects:@"GCC compile and run", @"//TEXTY_EXECUTE gcc -Wall -o {MYDIR}/{MYSELF_BASENAME_NOEXT} {MYSELF} && {MYDIR}/{MYSELF_BASENAME_NOEXT} {NOTIMEOUT}",nil]];
+	[a addObject:[NSArray arrayWithObjects:@"{MYSELF}", @"//TEXTY_EXECUTE {MYSELF} {NOTIMEOUT}",nil]];
+	[a addObject:[NSArray arrayWithObjects:@"perl {MYSELF}", @"#TEXTY_EXECUTE perl {MYSELF} {NOTIMEOUT}",nil]];	
+	[a addObject:[NSArray arrayWithObjects:@"ruby {MYSELF}", @"#TEXTY_EXECUTE ruby {MYSELF} {NOTIMEOUT}",nil]];	
+	[a addObject:[NSArray arrayWithObjects:@"sh {MYSELF}", @"#TEXTY_EXECUTE sh {MYSELF} {NOTIMEOUT}",nil]];	
+	self.snipplet = [NSArray arrayWithArray:a];
+}
 - (m_tabManager *) initWithFrame:(NSRect) frame {
 	self = [super init];
-	self.tabView = [[NSTabView alloc] initWithFrame:frame];
-	self.tabView.delegate = self;
-	[self.tabView setFont:FONT];
-	[self.tabView setControlTint:NSClearControlTint];
-	self.timer = [NSTimer scheduledTimerWithTimeInterval: 1
-				target: self
-				selector: @selector(handleTimer:)
-				userInfo: nil
-				repeats: YES];
-	self.e = [[m_exec alloc] init];
-	self.e.delegate = self;
-
-	colorAttr[VARTYPE_COLOR_IDX] = [NSDictionary dictionaryWithObject:VARTYPE_COLOR forKey:NSForegroundColorAttributeName];
-	colorAttr[VALUE_COLOR_IDX] = [NSDictionary dictionaryWithObject:VALUE_COLOR forKey:NSForegroundColorAttributeName];
-	colorAttr[KEYWORD_COLOR_IDX] = [NSDictionary dictionaryWithObject:KEYWORD_COLOR forKey:NSForegroundColorAttributeName];
-	colorAttr[COMMENT_COLOR_IDX] = [NSDictionary dictionaryWithObject:COMMENT_COLOR forKey:NSForegroundColorAttributeName];
-	colorAttr[STRING1_COLOR_IDX] = [NSDictionary dictionaryWithObject:STRING1_COLOR forKey:NSForegroundColorAttributeName];
-	colorAttr[STRING2_COLOR_IDX] = [NSDictionary dictionaryWithObject:STRING2_COLOR forKey:NSForegroundColorAttributeName];
-	colorAttr[PREPROCESS_COLOR_IDX] = [NSDictionary dictionaryWithObject:PREPROCESS_COLOR forKey:NSForegroundColorAttributeName];
-	colorAttr[CONDITION_COLOR_IDX] = [NSDictionary dictionaryWithObject:CONDITION_COLOR forKey:NSForegroundColorAttributeName];
-	colorAttr[TEXT_COLOR_IDX] = [NSDictionary dictionaryWithObject:TEXT_COLOR forKey:NSForegroundColorAttributeName];
-	colorAttr[CONSTANT_COLOR_IDX] = [NSDictionary dictionaryWithObject:CONSTANT_COLOR forKey:NSForegroundColorAttributeName];
-	self._status = [[m_status alloc] initWithTabManager:self];
-	lastColorRange = NSMakeRange(0, 0);
-	[self performSelector:@selector(fixModalTextView) withObject:nil afterDelay:0];
-	if (![self openStoredURLs]) {
-		[self open:nil];
+	if (self) {
+		self.tabView = [[NSTabView alloc] initWithFrame:frame];
+		self.tabView.delegate = self;
+		[self.tabView setFont:FONT];
+		[self.tabView setControlTint:NSClearControlTint];
+		self.timer = [NSTimer scheduledTimerWithTimeInterval: 1
+					target: self
+					selector: @selector(handleTimer:)
+					userInfo: nil
+					repeats: YES];
+		self.e = [[m_exec alloc] init];
+		self.e.delegate = self;
+		[self createCodeSnipplets];
+		colorAttr[VARTYPE_COLOR_IDX] = [NSDictionary dictionaryWithObject:VARTYPE_COLOR forKey:NSForegroundColorAttributeName];
+		colorAttr[VALUE_COLOR_IDX] = [NSDictionary dictionaryWithObject:VALUE_COLOR forKey:NSForegroundColorAttributeName];
+		colorAttr[KEYWORD_COLOR_IDX] = [NSDictionary dictionaryWithObject:KEYWORD_COLOR forKey:NSForegroundColorAttributeName];
+		colorAttr[COMMENT_COLOR_IDX] = [NSDictionary dictionaryWithObject:COMMENT_COLOR forKey:NSForegroundColorAttributeName];
+		colorAttr[STRING1_COLOR_IDX] = [NSDictionary dictionaryWithObject:STRING1_COLOR forKey:NSForegroundColorAttributeName];
+		colorAttr[STRING2_COLOR_IDX] = [NSDictionary dictionaryWithObject:STRING2_COLOR forKey:NSForegroundColorAttributeName];
+		colorAttr[PREPROCESS_COLOR_IDX] = [NSDictionary dictionaryWithObject:PREPROCESS_COLOR forKey:NSForegroundColorAttributeName];
+		colorAttr[CONDITION_COLOR_IDX] = [NSDictionary dictionaryWithObject:CONDITION_COLOR forKey:NSForegroundColorAttributeName];
+		colorAttr[TEXT_COLOR_IDX] = [NSDictionary dictionaryWithObject:TEXT_COLOR forKey:NSForegroundColorAttributeName];
+		colorAttr[CONSTANT_COLOR_IDX] = [NSDictionary dictionaryWithObject:CONSTANT_COLOR forKey:NSForegroundColorAttributeName];
+		self._status = [[m_status alloc] initWithTabManager:self];
+		lastColorRange = NSMakeRange(0, 0);
+		[self performSelector:@selector(fixModalTextView) withObject:nil afterDelay:0];
+		if (![self openStoredURLs]) {
+			[self open:nil];
+		}
 	}
 	return self;
 }
@@ -267,6 +279,13 @@
 		[t save];
 	}
 }
+- (void) snipplet_button:(id) sender {
+	NSMenuItem *m = sender;
+	NSInteger idx = m.tag;
+	TextVC *t = [self.tabView selectedTabViewItem].identifier;
+	NSString *value = [[snipplet objectAtIndex:idx] objectAtIndex:1];	
+	[t insert:value atLine:EXECUTE_LINE];
+}
 - (void) menuWillOpen:(NSMenu *)menu {
 	TextVC *t = [self.tabView selectedTabViewItem].identifier;
 	if ([[menu title] isEqualToString:@"diff"]) {
@@ -291,6 +310,16 @@
 			[menu addItem:m];
 			[m setEnabled:YES];	
 		}
+	} else if ([[menu title] isEqualToString:@"Snipplet"]) {
+		[menu removeAllItems];
+		for (NSArray *a in snipplet) {
+			NSString *title = [a objectAtIndex:0];
+			NSMenuItem *m = [[NSMenuItem alloc] initWithTitle:title action:@selector(snipplet_button:) keyEquivalent:@""];
+			[m setTag:[snipplet indexOfObject:a]];
+			[m setTarget:self];
+			[menu addItem:m];
+			[m setEnabled:YES];	
+		}	
 	}
 }
 - (void) menuDidClose:(NSMenu *)menu {
