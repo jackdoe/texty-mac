@@ -1,6 +1,6 @@
 WARNING
 =======
-> TEXTY_RUN_SHELL cd {MYDIR} && git add {MYSELF} && git commit -m "fix readme" && git push {NOTIMEOUT}
+> TEXTY_EXECUTE cd {MYDIR} && git add {MYSELF} && git commit -m "fix readme" && git push {NOTIMEOUT}
 
 __WARNING: this is still work in porgress__
 
@@ -33,7 +33,7 @@ Overview
 	
 	everything is inside ~/TEXTY_DATA
 
-	+ /Users/jack/TEXTY_DAT‹A/
+	+ /Users/jack/TEXTY_DATA/
 	+ /Users/jack/TEXTY_DATA/TEMPORARY/yyyy-MM-dd/TEMP-time().rand().txt
 	+ /Users/jack/TEXTY_DATA/BACKUP/'fileURL.replace:/ with:_'/time().txt
 	+ /Users/jack/TEXTY_DATA/AUTOSAVE/'fileURL.replace:/ with:_/'filename
@@ -48,17 +48,17 @@ Overview
 
 	on line number 3 (counting from 1 - ugh.) you can have:
 
-	> TEXTY_RUN_SHELL command
+	> TEXTY_EXECUTE command
 
 	if the command begins with http:// your default brawser will be opened with the url
 
-	> example: TEXTY_RUN_SHELL http://localhost/~jack/index.php
+	> example: TEXTY_EXECUTE http://localhost/~jack/index.php
 
 	else a command is ran using /bin/sh -c "command"
 
-	> example: TEXTY_RUN_SHELL {MYSELF} arg1 arg2
+	> example: TEXTY_EXECUTE {MYSELF} arg1 arg2
 
-	> example: TEXTY_RUN_SHELL ~/script.sh arg1 {MYSELF} arg2 # or see this README.mdown at line 3
+	> example: TEXTY_EXECUTE ~/script.sh arg1 {MYSELF} arg2 # or see this README.mdown at line 3
 
 	* {MYSELF} - is auto replaced with the full path of the file you are editting. (for example: /Users/jack/work/main.c)
 	* {MYSELF_BASENAME} - only basename (for example: main.c)
@@ -68,7 +68,7 @@ Overview
 	
 	For example when you hit RUN on README.mdown as you can see on line no:3
 
-	> TEXTY_RUN_SHELL cd {MYDIR} && git add {MYSELF} && git commit -m "fix readme" && git push {NOTIMEOUT}
+	> TEXTY_EXECUTE cd {MYDIR} && git add {MYSELF} && git commit -m "fix readme" && git push {NOTIMEOUT}
 	
 	becomes:
 
@@ -87,6 +87,6 @@ Overview
 
 Bugs
 ====
-1. TEXTY_RUN_SHELL
+1. TEXTY_EXECUTE
 	+ execute has a race when the reload button is spam clicked, it messess up the output - start/end etc
 	
