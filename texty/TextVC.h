@@ -31,6 +31,7 @@
 - (NSInteger) strlen;
 - (NSString *) get_line:(NSInteger) lineno;
 - (NSString *) get_execute_command;
+- (void) reload;
 @property (retain) NSTabViewItem *tabItem;
 @property (retain) m_Storage *s;
 @property (retain) m_parse *parser;

@@ -123,12 +123,15 @@
 		[text scrollRangeToVisible: area];
 	}
 }
-- (BOOL) open:(NSURL *)file {
-	if ([s open:file]) {
+- (void) reload {
 		[text setString:s.data];
 		tabItem.label = [s basename];
 		[self performSelector:@selector(responder) withObject:self afterDelay:0];
 		[self syntax_reload];
+}
+- (BOOL) open:(NSURL *)file {
+	if ([s open:file]) {
+		[self reload];
 		return YES;
 	}
 	return NO;

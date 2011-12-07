@@ -27,4 +27,7 @@
 - (void) backup;
 - (NSArray *) backups;
 - (NSString *) autosave:(BOOL) export_only;
+- (BOOL) convertTo:(NSStringEncoding) enc;
+- (NSArray *) encodings;
+- (NSString *) currentEncoding;
 @end

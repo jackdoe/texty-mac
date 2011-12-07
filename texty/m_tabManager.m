@@ -256,13 +256,39 @@
 	}
 	return ret;
 }
-- (void) menuWillOpen:(NSMenu *)menu {
-	[menu removeAllItems];
+- (void) encoding_button:(id) sender {
+	NSMenuItem *m = sender;
+	NSStringEncoding enc = m.tag;
 	TextVC *t = [self.tabView selectedTabViewItem].identifier;
-	for (NSString *b in t.s.backups) {
-		NSMenuItem *m = [[NSMenuItem alloc] initWithTitle:b action:@selector(diff_button:) keyEquivalent:@""];
+	if ([t.s convertTo:enc]) {
+		[t reload];
+		[t save];
+	}
+}
+- (void) menuWillOpen:(NSMenu *)menu {
+	TextVC *t = [self.tabView selectedTabViewItem].identifier;
+	if ([[menu title] isEqualToString:@"diff"]) {
+		[menu removeAllItems];
+		for (NSString *b in t.s.backups) {
+			NSMenuItem *m = [[NSMenuItem alloc] initWithTitle:b action:@selector(diff_button:) keyEquivalent:@""];
+			[m setTarget:self];
+			[menu addItem:m];		
+		}
+	} else if ([[menu title] isEqualToString:@"Encoding"]) {
+		[menu removeAllItems];
+		[menu addItemWithTitle:@"Current Encoding:" action:nil keyEquivalent:@""];
+		NSMenuItem *m = [[NSMenuItem alloc] initWithTitle:[t.s currentEncoding] action:@selector(encoding_button:) keyEquivalent:@""];
 		[m setTarget:self];
-		[menu addItem:m];		
+		[menu addItem:m];
+		[menu addItem:[NSMenuItem separatorItem]];
+		for (NSArray *a in t.s.encodings) {
+			NSString *title = [a objectAtIndex:0];
+			m = [[NSMenuItem alloc] initWithTitle:title action:@selector(encoding_button:) keyEquivalent:@""];
+			[m setTag:[[a objectAtIndex:1] intValue]];
+			[m setTarget:self];
+			[menu addItem:m];
+			[m setEnabled:YES];	
+		}
 	}
 }
 - (void) menuDidClose:(NSMenu *)menu {

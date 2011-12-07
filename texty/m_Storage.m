@@ -19,15 +19,57 @@
 	
 	self.fileURL = [URL copy];
 	NSError *err;
-	self.data = [NSString stringWithContentsOfURL:URL encoding:NSUTF8StringEncoding error:&err];
+	NSStringEncoding usedEncoding;
+	self.data = [NSString stringWithContentsOfURL:URL usedEncoding:&usedEncoding error:&err];
 	if (err) {
-		NSRunAlertPanel(@"failed to open file",[NSString stringWithFormat:@"error: %@",[err localizedDescription]] , nil,nil,@"Close");
-		return FALSE;
+		NSRunAlertPanel(@"failed to open file",[NSString stringWithFormat:@"error: %@",[err localizedDescription]] , nil,nil,nil);
+		return FALSE;	
 	}
+	self.encoding = usedEncoding;
 	if (!temporary)
 		[[NSDocumentController sharedDocumentController] noteNewRecentDocumentURL:self.fileURL];
 	self.existing_backups = [self backups];
 	return TRUE;
+}
+- (NSString *) encodingName:(NSStringEncoding) enc{
+	return [NSString localizedNameOfStringEncoding:enc];
+}
+- (NSString *) currentEncoding {
+	return [self encodingName:self.encoding];
+}
+- (NSArray *) encodings {
+	NSMutableArray *e = [NSMutableArray array];
+	const NSStringEncoding * encodings = [NSString availableStringEncodings];
+	while (*encodings) {
+		[e addObject:[NSArray arrayWithObjects:[NSString localizedNameOfStringEncoding:*encodings],[NSNumber numberWithLong:*encodings],nil]];
+		encodings++;
+	}
+	[e sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+		NSString *a, *b;
+		a = [obj1 objectAtIndex:0];
+		b = [obj2 objectAtIndex:0];
+		if ([a isGreaterThan:b])
+			return NSOrderedDescending;
+		if ([a isLessThan:b])
+			return NSOrderedAscending;
+		return NSOrderedSame;
+	}];
+	return [NSArray arrayWithArray:e];
+
+}
+- (BOOL) convertTo:(NSStringEncoding) enc {
+	if ([self.data canBeConvertedToEncoding:enc]) {
+		NSData *temp = [self.data dataUsingEncoding:enc];
+		if (temp) {
+			encoding = enc;
+			self.data = [[NSString alloc] initWithData:temp encoding:enc];
+			return TRUE;
+		}
+	}
+	NSString *message = [NSString stringWithFormat:@"%@ can not be coverted from %@ to %@ without data loss.",[self basename],[self currentEncoding],[self encodingName:enc]];
+	NSRunAlertPanel(@"Failed to COMMIT the encoding convertion",message, nil,nil,nil);
+
+	return FALSE;
 }
 - (BOOL) close:(BOOL) save {
 	if (save) {
@@ -128,7 +170,7 @@ ret:
 }
 - (BOOL) write:(NSString *) string toURL:(NSURL *) file {
 	NSError *err;
-	[string writeToURL:file atomically:YES encoding:NSUTF8StringEncoding error:&err];
+	[string writeToURL:file atomically:YES encoding:(encoding > 0 ? encoding : NSUTF8StringEncoding) error:&err];
 	if (err) {
 		NSRunAlertPanel(@"failed to overwrite file",[NSString stringWithFormat:@"error: %@",[err localizedDescription]] , nil,nil,@"Close");
 		return NO;
