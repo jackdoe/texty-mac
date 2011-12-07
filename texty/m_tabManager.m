@@ -305,9 +305,6 @@
 	[e execute:cmd withTimeout:timeout];
 	[self displayModalTV];
 }
-- (IBAction)restartTask:(id)sender {
-	[e restart];
-}
 - (BOOL) AlertIfTaskIsRunning {
 	if ([self.e.task isRunning]) {
 		NSString *running = [NSString stringWithFormat:@"CURRENT TASK:\n%@",self.e._command];
@@ -344,12 +341,18 @@
 		[self.e.pty.master writeData:[str dataUsingEncoding:NSUTF8StringEncoding]];
 	}
 }
+- (IBAction)restartTask:(id)sender {
+	[e restart];
+	[self.modal_input becomeFirstResponder];
+}
 - (IBAction)clearTV:(id)sender {
 	[self.modal_tv setString:@""];
 	lastColorRange = NSMakeRange(0, 0);
+	[self.modal_input becomeFirstResponder];
 }
 - (IBAction)stopTask:(id)sender {
 	[self.e terminate];
+	[self.modal_input becomeFirstResponder];
 }
 - (IBAction)showRunBuffer:(id)sender {
 	[[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
