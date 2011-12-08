@@ -40,19 +40,18 @@
 - (void) storeOpenedURLs;
 - (NSInteger) getTabIndex:(int) direction;
 - (void) displayModalTV;
-- (void) taskAddExecuteTitle:(NSString *)title;
 - (void) taskAddExecuteText:(NSString *)text;
 - (void) taskDidTerminate;
 - (BOOL) AlertIfTaskIsRunning;
-- (void) scrollEnd;
 - (void) fixModalTextView;
 @property (retain) NSTabView *tabView;
 @property (retain) NSTimer *timer;
 @property (retain) NSArray *snipplet;
+@property (retain) m_exec *e;
+@property (retain) m_status *_status;
+
 @property (assign) NSWindow *goto_window;
 @property (assign) NSWindow *modal_panel;
 @property (assign) NSTextView *modal_tv;
 @property (assign) NSTextField *modal_field,*modal_input;
-@property (retain) m_exec *e;
-@property (retain) m_status *_status;
 @end

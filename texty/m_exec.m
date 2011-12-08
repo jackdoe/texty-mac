@@ -9,10 +9,6 @@
 	}
 	return self;
 }
-- (void) sendTitle:(NSString *) s {
-	if ([self.delegate respondsToSelector:@selector(taskAddExecuteTitle:)]) 
-		[self.delegate taskAddExecuteTitle:s];
-}
 - (void) sendString:(NSString *) s {
 	if ([self.delegate respondsToSelector:@selector(taskAddExecuteText:)]) 
 		[self.delegate taskAddExecuteText:s];
@@ -44,18 +40,10 @@
 	return [self execute:[NSString stringWithFormat:@"diff -rupN %@ %@",[a path],[b path]] withTimeout:0];
 }
 - (void) sendStart {
-	[self sendTitle:_command];
-	[self sendString:[NSString stringWithFormat:@"\nSTART: [%@] TASK(timeout: %@): %@\n",_startTime,(_timeout == 0 ? @"NOTIMEOUT" : [NSString stringWithFormat:@"%d",_timeout]),_command]];
+	if ([self.delegate respondsToSelector:@selector(taskDidStart)])
+		[self.delegate taskDidStart];
 }
 - (void) sendTerminate {
-	NSString *timedOut = @"";
-	if (_terminated) {
-		timedOut = @" [TOUT]";
-	} 
-	NSDate *now = [NSDate date];
-	NSTimeInterval diff = [now timeIntervalSinceDate:self._startTime];
-
-	[self sendString:[NSString stringWithFormat:@"\nEND : [%@ - took: %llfs] TASK(RC: %d%@): %@\n",now,diff,[task terminationStatus],timedOut,_command]];
 	if ([self.delegate respondsToSelector:@selector(taskDidTerminate)])
 		[self.delegate taskDidTerminate];
 
@@ -63,6 +51,8 @@
 - (void) terminate {
 	[task terminate];
 	[task waitUntilExit];
+	if (![task isRunning])
+		_rc = [task terminationStatus];
 }
 - (void) restart {
 	[self terminate];
@@ -82,7 +72,6 @@
 }
 
 - (void) run {
-
 	[task setLaunchPath: @"/bin/sh"];
 	NSArray *arguments = [NSArray arrayWithObjects: @"-c", _command,nil];
 	[task setArguments: arguments];
@@ -99,13 +88,13 @@
 	[self timeoutWatcher];
 }
 
+
 - (BOOL) execute:(NSString *) command withTimeout:(int)timeout {
 	if ([self.task isRunning])
 		return NO;
 	self.pty = [[PseudoTTY alloc] init];
 	if (self.pty == nil) 
 		return NO;
-	
 	
 	self.task = [[NSTask alloc] init];
 	self._command = [command copy];
@@ -118,5 +107,10 @@
 }
 - (void) dealloc {
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+- (void) write:(NSString *)value {	
+	if ([task isRunning]) 
+		[pty.master writeData:[value dataUsingEncoding:NSUTF8StringEncoding]];
+	
 }
 @end

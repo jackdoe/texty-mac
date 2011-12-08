@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-//TEXTY_EXECUTE gcc -o {MYDIR}/{MYSELF_BASENAME_NOEXT} {MYSELF} && {MYDIR}/{MYSELF_BASENAME_NOEXT} {NOTIMEOUT} 
+//TEXTY_EXECUTE gcc -g3 -o {MYDIR}/{MYSELF_BASENAME_NOEXT} {MYSELF} && gdb {MYDIR}/{MYSELF_BASENAME_NOEXT} {NOTIMEOUT} 
 int main(int ac, char **av) {
 	int t;
 	printf("texty rocks - %s\n",av[0]);

@@ -28,6 +28,7 @@
 - (void) reload;
 - (void) lockText;
 - (void) label:(int) type;
++ (void) scrollEnd:(NSTextView *) tv;
 @property (retain) NSTabViewItem *tabItem;
 @property (retain) m_Storage *s;
 @property (retain) m_parse *parser;

@@ -16,6 +16,9 @@
 	[a addObject:[NSArray arrayWithObjects:@"perl {MYSELF}", @"#TEXTY_EXECUTE perl {MYSELF} {NOTIMEOUT}",nil]];	
 	[a addObject:[NSArray arrayWithObjects:@"ruby {MYSELF}", @"#TEXTY_EXECUTE ruby {MYSELF} {NOTIMEOUT}",nil]];	
 	[a addObject:[NSArray arrayWithObjects:@"sh {MYSELF}", @"#TEXTY_EXECUTE sh {MYSELF} {NOTIMEOUT}",nil]];	
+	[a addObject:[NSArray arrayWithObjects:@"rails", @"#TEXTY_EXECUTE http://localhost:3000",nil]];	
+	[a addObject:[NSArray arrayWithObjects:@"http://localhost/~", @"#TEXTY_EXECUTE http://localhost:3000",nil]];	
+
 	self.snipplet = [NSArray arrayWithArray:a];
 }
 - (m_tabManager *) initWithFrame:(NSRect) frame {
@@ -310,7 +313,7 @@
 			[menu addItem:m];
 			[m setEnabled:YES];	
 		}
-	} else if ([[menu title] isEqualToString:@"Snipplet"]) {
+	} else if ([[menu title] isEqualToString:@"Snipplets: TEXTY_EXECUTE"]) {
 		[menu removeAllItems];
 		for (NSArray *a in snipplet) {
 			NSString *title = [a objectAtIndex:0];
@@ -362,6 +365,7 @@
 	[e execute:cmd withTimeout:timeout];
 	[self displayModalTV];
 }
+
 - (BOOL) AlertIfTaskIsRunning {
 	if ([self.e.task isRunning]) {
 		NSString *running = [NSString stringWithFormat:@"CURRENT TASK:\n%@",self.e._command];
@@ -388,15 +392,12 @@
 }
 
 - (void) displayModalTV {
-	[self scrollEnd];
+	[TextVC scrollEnd:self.modal_tv];
 	[self.modal_panel makeKeyAndOrderFront:nil];
 	[self.modal_input becomeFirstResponder];
 }
 - (IBAction)sendToTask:(id)sender {
-	if ([self.e.task isRunning]) {
-		NSString *str = [[sender stringValue] stringByAppendingString:@"\n"];
-		[self.e.pty.master writeData:[str dataUsingEncoding:NSUTF8StringEncoding]];
-	}
+	[e write:[[sender stringValue] stringByAppendingString:@"\n"]];
 }
 - (IBAction)restartTask:(id)sender {
 	[e restart];
@@ -415,21 +416,29 @@
 	[[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
 	[self displayModalTV];
 }
-- (void) scrollEnd {
-	NSRange range = { [[self.modal_tv string] length], 0 };
-	[self.modal_tv scrollRangeToVisible: range];
-}
 - (void) taskAddExecuteText:(NSString *)text {
 	NSRange range = { [[self.modal_tv string] length], 0 };
 	[self.modal_tv setSelectedRange: range];
 	[self.modal_tv replaceCharactersInRange: range withString:text];
-	[self scrollEnd];
+	[TextVC scrollEnd:self.modal_tv];
 }
-- (void) taskAddExecuteTitle:(NSString *)title {
+- (void) taskDidStart {
+	[self taskAddExecuteText:[NSString stringWithFormat:@"\nSTART: [%@] TASK(timeout: %@): %@\n",e._startTime,(e._timeout == 0 ? @"NOTIMEOUT" : [NSString stringWithFormat:@"%d",e._timeout]),e._command]];
 	[self.modal_input setEnabled:YES];
-	[self.modal_field setStringValue:[title copy]];
+	[self.modal_field setStringValue:[NSString stringWithString:e._command]];
 }
 - (void) taskDidTerminate {
+	NSString *timedOut = @"";
+	if (e._terminated) {
+		timedOut = @" [TOUT]";
+	} 
+	NSDate *now = [NSDate date];
+	NSTimeInterval diff = [now timeIntervalSinceDate:e._startTime];
+
+	[self taskAddExecuteText:[NSString stringWithFormat:@"\nEND : [%@ - took: %llfs] TASK(RC: %d%@): %@\n",now,diff,e._rc,timedOut,e._command]];
+	[self.modal_input setEnabled:NO];
+
+
 	NSInteger max = NSMaxRange(lastColorRange);
 	NSInteger len = [[self.modal_tv string] length];
 	NSRange range = {0 ,max};

@@ -3,7 +3,6 @@
 @protocol m_execDelegate <NSObject>
 @optional
 - (void) taskAddExecuteText:(NSString *) text;
-- (void) taskAddExecuteTitle:(NSString *) title;
 - (void) taskDidTerminate;
 - (void) taskDidStart;
 @end
@@ -33,4 +32,5 @@
 - (void) sendTerminate;
 - (BOOL) diff:(NSURL *) a against:(NSURL *) b;
 - (BOOL) execute:(NSString *) command withTimeout:(int) timeout;
+- (void) write:(NSString *) value;
 @end

@@ -5,6 +5,12 @@
 #define L_UNDEFINED 3
 @implementation TextVC
 @synthesize tabItem,s,parser,box;
+
++ (void) scrollEnd:(NSTextView *) tv {
+	NSRange range = { [[tv string] length], 0 };
+	[tv scrollRangeToVisible: range];
+}
+
 - (void) signal {
 	if (need_to_autosave) {
 		if (time(NULL) - autosave_ts > AUTOSAVE_INTERVAL) {
