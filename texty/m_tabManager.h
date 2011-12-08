@@ -35,7 +35,8 @@
 - (IBAction)stopTask:(id)sender;
 - (IBAction)showRunBuffer:(id)sender;
 - (IBAction)taskSendSignal:(id) sender;
-
+- (IBAction)tabSelection:(id) sender;
+- (IBAction)commentSelection:(id)sender;
 - (void) walk_tabs:(void (^)(TextVC *t)) callback;
 - (BOOL) open:(NSURL *) file;
 - (NSApplicationTerminateReply) gonna_terminate;

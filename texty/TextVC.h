@@ -29,6 +29,8 @@
 - (void) lockText;
 - (void) label:(int) type;
 + (void) scrollEnd:(NSTextView *) tv;
+- (void) insert:(NSString *) value atEachLineOfSelectionWithDirection:(NSInteger) direction;
+- (BOOL) extIs:(NSArray *) ext;
 @property (retain) NSTabViewItem *tabItem;
 @property (retain) m_Storage *s;
 @property (retain) m_parse *parser;

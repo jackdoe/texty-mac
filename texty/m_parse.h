@@ -4,6 +4,8 @@
 
 #ifndef _M_PARSE_H
 #define _M_PARSE_H
+#define DIRECTION_LEFT 1
+#define DIRECTION_RIGHT 2
 #define ACCEPT_ANY_SSL_CERT 			NO
 #define DEFAULT_OPEN_DIR @"Code"
 #define DEFAULT_EXECUTE_TIMEOUT 1

@@ -330,7 +330,6 @@ do {																		\
 		}
 		_syntax_color = 1;
 		_syntax_color_numbers = ([item objectForKey:@"color_numbers"] ? YES : NO);
-		autoindent = ([item objectForKey:@"autoindent"] ? YES : NO);
 		[box setHidden:([item objectForKey:@"display_box"] ? NO : YES)];		
 		if ((keywords = [item objectForKey:@"keywords"])) {
 			for (NSString *k in [keywords allKeys]) {

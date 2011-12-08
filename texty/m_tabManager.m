@@ -1,8 +1,6 @@
 #import "m_tabManager.h"
 #define EXECUTE_TYPE_SHELL 1
 #define EXECUTE_TYPE_WWW 2
-#define DIRECTION_LEFT 1
-#define DIRECTION_RIGHT 2
 @implementation m_tabManager
 @synthesize tabView,goto_window = _goto_window,timer,modal_panel = _modal_panel,modal_tv = _modal_tv,modal_field = _modal_field,e,_status,modal_input = _modal_input,snipplet,signal_popup = _signal_popup;
 - (m_tabManager *) init {
@@ -208,6 +206,19 @@
 	[t goto_line:[value integerValue]];	
 	[self.goto_window orderOut:nil];
 }
+
+- (IBAction)commentSelection:(id)sender {
+	TextVC *t = [self.tabView selectedTabViewItem].identifier;
+	if ([t extIs:[NSArray arrayWithObjects:@"c", @"h",@"m",@"cpp",@"java",nil]]) {
+		[t insert:@"//" atEachLineOfSelectionWithDirection:[sender tag]];	
+	} else {
+		[t insert:@"#" atEachLineOfSelectionWithDirection:[sender tag]];		
+	}
+}
+- (IBAction)tabSelection:(id)sender {
+	TextVC *t = [self.tabView selectedTabViewItem].identifier;
+	[t insert:@"\t" atEachLineOfSelectionWithDirection:[sender tag]];	
+}
 - (IBAction)goto_button:(id)sender {
 	if ([self.goto_window isVisible])
 		[self.goto_window orderOut:nil];
@@ -289,7 +300,7 @@
 	NSMenuItem *m = sender;
 	NSInteger idx = m.tag;
 	TextVC *t = [self.tabView selectedTabViewItem].identifier;
-	NSString *value = [[snipplet objectAtIndex:idx] objectAtIndex:1];	
+	NSString *value = [NSString stringWithFormat:@"%@\n",[[snipplet objectAtIndex:idx] objectAtIndex:1]];	
 	[t insert:value atLine:EXECUTE_LINE];
 }
 - (void) menuWillOpen:(NSMenu *)menu {
@@ -485,6 +496,5 @@
 		}];
 	}
 }
-
 
 @end
