@@ -32,4 +32,7 @@
 - (BOOL) same_as_disk;
 - (NSInteger) fileAlert:(NSURL *) url withMessage:(NSString *) message def:(NSString *) def alternate:(NSString *) alternate other:(NSString *) other;
 - (void) noChoiceAlert:(NSString *) message withURL:(NSURL *) url;
+- (BOOL) unlink:(NSURL *) url;
+- (BOOL) unlinkIfTemporary;
+- (void) close;
 @end

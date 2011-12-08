@@ -182,11 +182,7 @@
 		}
 	}
 	/* remove the empty file */
-	
-	if ([t strlen] < 1 && t.s.temporary) {
-		NSFileManager *f = [[NSFileManager alloc] init];
-		[f removeItemAtURL:t.s.fileURL error:nil];
-	}
+	[t close];
 	[self.tabView removeTabViewItem:[self.tabView selectedTabViewItem]];
 	if ([[self.tabView tabViewItems] count] == 0) {
 		[NSApp terminate: self];

@@ -26,6 +26,7 @@
 - (NSString *) get_execute_command;
 - (void) insert:(NSString *) value atLine:(NSInteger) line;
 - (void) reload;
+- (void) close;
 - (void) lockText;
 - (void) label:(int) type;
 + (void) scrollEnd:(NSTextView *) tv;

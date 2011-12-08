@@ -87,11 +87,14 @@
 - (BOOL) migrate:(NSURL *) to withString:(NSString *) string {
 	if (!to || !string)
 		return NO;
-		
-	self.fileURL = to;
-	self.temporary = NO;
 	[self backup];
-	if ([self real_overwrite:string]) {
+	self.existing_backups = [self backups];
+
+	self.temporary = NO;
+	if ([self write:string toURL:to]) {
+		if (!temporary)
+			[[NSDocumentController sharedDocumentController] noteNewRecentDocumentURL:to];
+		self.fileURL = to;
 		self.data = [NSString stringWithString:string];	
 		return YES;
 	}
@@ -102,15 +105,6 @@
 	if (temp && [temp isEqualToString:self.data]) 
 		return YES;
 	return NO;
-}
-- (BOOL) real_overwrite:(NSString *) string {
-	if (!self.fileURL)
-		return NO;
-		
-	self.existing_backups = [self backups];
-	if (!temporary)
-		[[NSDocumentController sharedDocumentController] noteNewRecentDocumentURL:self.fileURL];
-	return [self write:string toURL:self.fileURL];
 }
 - (NSString *) autosave:(BOOL) export_only {
 	NSString *nameDir = [[self.fileURL path] stringByReplacingOccurrencesOfString:@"/" withString:@"_"];
@@ -160,7 +154,7 @@
 	NSString *dir = [NSHomeDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"%@/TEMPORARY/%@",TEXTY_DIR,[formatter stringFromDate:[NSDate date]]]];
 ret:
 	
-	name = [dir stringByAppendingPathComponent: [NSString stringWithFormat: @"TEMP-%lu.%ld.txt",time(NULL),rand()]];
+	name = [dir stringByAppendingPathComponent: [NSString stringWithFormat: @"TEMP-%lu.%ld.txt",time(NULL),random()]];
 	NSFileManager *f = [[NSFileManager alloc] init];
 	if ([f fileExistsAtPath:name]) {
 		retry--;
@@ -206,5 +200,21 @@ ret:
 	}
 	return YES;
 }
-
+- (BOOL) unlinkIfTemporary {
+	if (temporary) {
+		return [self unlink:self.fileURL];
+	}
+	return NO;
+}
+- (BOOL) unlink:(NSURL *) url {
+	NSFileManager *f = [[NSFileManager alloc] init];
+	NSError *err;
+	[f removeItemAtURL:url error:&err];
+	return (err ? NO : YES);
+}
+- (void) close {
+	if ([self.data length] < 1) {
+		[self unlinkIfTemporary];
+	}
+}
 @end

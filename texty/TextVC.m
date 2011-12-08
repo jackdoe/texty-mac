@@ -261,7 +261,7 @@
 		for (int i=0;i<=required;i++) {
 			[enter appendFormat:@"\n"];
 		}
-		[text replaceCharactersInRange:NSMakeRange(0, [[text string] length]) withString:[NSString stringWithFormat:@"%@%@",[text string],enter]];
+		[text replaceCharactersInRange:NSMakeRange(0, [self strlen]) withString:[NSString stringWithFormat:@"%@%@",[text string],enter]];
 			
 	}
 	NSRange area = [m_range rangeOfLine:line inString:[text string]];
@@ -300,5 +300,8 @@
 		selection = [string paragraphRangeForRange:updatedRange];
 		[text setSelectedRange:selection];
 	}
+}
+- (void) close {
+	[s close];	
 }
 @end
