@@ -12,12 +12,15 @@
 	NSMutableArray *a = [NSMutableArray array];
 	[a addObject:[NSArray arrayWithObjects:@"GCC compile", @"//TEXTY_EXECUTE gcc -Wall -o {MYDIR}/{MYSELF_BASENAME_NOEXT} {MYSELF}" ,nil]];
 	[a addObject:[NSArray arrayWithObjects:@"GCC compile and run", @"//TEXTY_EXECUTE gcc -Wall -o {MYDIR}/{MYSELF_BASENAME_NOEXT} {MYSELF} && {MYDIR}/{MYSELF_BASENAME_NOEXT} {NOTIMEOUT}",nil]];
+	[a addObject:[NSArray arrayWithObjects:@"GCC compile and GDB", @"//TEXTY_EXECUTE gcc -g3 -Wall -o {MYDIR}/{MYSELF_BASENAME_NOEXT} {MYSELF} && gdb -f -q {MYDIR}/{MYSELF_BASENAME_NOEXT} {NOTIMEOUT}",nil]];
+
 	[a addObject:[NSArray arrayWithObjects:@"{MYSELF}", @"//TEXTY_EXECUTE {MYSELF} {NOTIMEOUT}",nil]];
 	[a addObject:[NSArray arrayWithObjects:@"perl {MYSELF}", @"#TEXTY_EXECUTE perl {MYSELF} {NOTIMEOUT}",nil]];	
 	[a addObject:[NSArray arrayWithObjects:@"ruby {MYSELF}", @"#TEXTY_EXECUTE ruby {MYSELF} {NOTIMEOUT}",nil]];	
 	[a addObject:[NSArray arrayWithObjects:@"sh {MYSELF}", @"#TEXTY_EXECUTE sh {MYSELF} {NOTIMEOUT}",nil]];	
 	[a addObject:[NSArray arrayWithObjects:@"rails", @"#TEXTY_EXECUTE http://localhost:3000",nil]];	
-	[a addObject:[NSArray arrayWithObjects:@"http://localhost/~", @"#TEXTY_EXECUTE http://localhost:3000",nil]];	
+	NSString *url = [NSString stringWithFormat:@"http://localhost/~%@/",NSUserName()];
+	[a addObject:[NSArray arrayWithObjects:url, [NSString stringWithFormat:@"#TEXTY_EXECUTE %@",url],nil]];	
 
 	self.snipplet = [NSArray arrayWithArray:a];
 }
@@ -434,24 +437,21 @@
 	} 
 	NSDate *now = [NSDate date];
 	NSTimeInterval diff = [now timeIntervalSinceDate:e._startTime];
-
 	[self taskAddExecuteText:[NSString stringWithFormat:@"\nEND : [%@ - took: %llfs] TASK(RC: %d%@): %@\n",now,diff,e._rc,timedOut,e._command]];
 	[self.modal_input setEnabled:NO];
-
 
 	NSInteger max = NSMaxRange(lastColorRange);
 	NSInteger len = [[self.modal_tv string] length];
 	NSRange range = {0 ,max};
-	[[self.modal_tv textStorage] addAttribute:NSForegroundColorAttributeName
-                            value:COMMENT_COLOR
-							range:range];
+	[[self.modal_tv textStorage] addAttribute:NSForegroundColorAttributeName value:COMMENT_COLOR range:range];
 	range = NSMakeRange(max,len - max);
-	[[self.modal_tv textStorage] addAttribute:NSForegroundColorAttributeName
-                            value:PREPROCESS_COLOR
-							range:range];
+	[[self.modal_tv textStorage] addAttribute:NSForegroundColorAttributeName value:PREPROCESS_COLOR range:range];
 	
 	lastColorRange = range;
 	[self.modal_input setEnabled:NO];
+}
+- (IBAction)taskSendSignal:(id) sender {
+	[e sendSignal:(int) [sender tag]];
 }
 - (void) fixModalTextView {
 	[self.modal_tv setHidden:NO];

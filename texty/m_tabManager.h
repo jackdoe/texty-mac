@@ -33,6 +33,8 @@
 - (IBAction)clearTV:(id)sender;
 - (IBAction)stopTask:(id)sender;
 - (IBAction)showRunBuffer:(id)sender;
+- (IBAction)taskSendSignal:(id) sender;
+
 - (void) walk_tabs:(void (^)(TextVC *t)) callback;
 - (BOOL) open:(NSURL *) file;
 - (NSApplicationTerminateReply) gonna_terminate;
@@ -42,6 +44,8 @@
 - (void) displayModalTV;
 - (void) taskAddExecuteText:(NSString *)text;
 - (void) taskDidTerminate;
+- (void) taskDidStart;
+- (void) taskSendSignal:(id)sender;
 - (BOOL) AlertIfTaskIsRunning;
 - (void) fixModalTextView;
 @property (retain) NSTabView *tabView;

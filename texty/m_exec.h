@@ -26,10 +26,10 @@
 @property (assign) BOOL _terminated;
 @property (assign) int _timeout;
 @property (retain) NSLock *serial;
+- (void) sendSignal:(int) signal;
 - (void) terminate;
 - (void) readPipe:(NSNotification *)notification;
 - (void) restart;
-- (void) sendTerminate;
 - (BOOL) diff:(NSURL *) a against:(NSURL *) b;
 - (BOOL) execute:(NSString *) command withTimeout:(int) timeout;
 - (void) write:(NSString *) value;

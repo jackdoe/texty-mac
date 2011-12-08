@@ -1,5 +1,6 @@
 #import "m_exec.h"
 #import "PseudoTTY.h"
+#include <signal.h>
 @implementation m_exec
 @synthesize delegate = _delegate,task,_rc,_command,_terminated,_startTime,_timeout,pty,serial;
 - (m_exec *) init {
@@ -9,20 +10,17 @@
 	}
 	return self;
 }
-- (void) sendString:(NSString *) s {
-	if ([self.delegate respondsToSelector:@selector(taskAddExecuteText:)]) 
-		[self.delegate taskAddExecuteText:s];
-	
-}
+
 - (void) send:(NSData *) data {
 	NSString *dataValue = [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding];
-	[self sendString:dataValue];
+	[self.delegate taskAddExecuteText:dataValue];
 }
-- (void) readWhatIsLeft:(NSFileHandle *)fh {
-	NSData *data;
-	while ((data = [fh availableData]) && [data length]) {
-		[self send:data];	
+- (void) sendSignal:(int)signal {
+	[serial lock];
+	if ([task isRunning]) {
+		kill([task processIdentifier], signal);
 	}
+	[serial unlock];
 }
 - (void)readPipe:(NSNotification *)notification {
 	NSFileHandle *fh = [notification object];
@@ -32,27 +30,22 @@
 		[self send:data];
 		[fh readInBackgroundAndNotify];
 	} else {
-		[self sendTerminate];
+		[self.delegate taskDidTerminate];
 	}
 }
 
 - (BOOL) diff:(NSURL *) a against:(NSURL *) b {
 	return [self execute:[NSString stringWithFormat:@"diff -rupN %@ %@",[a path],[b path]] withTimeout:0];
 }
-- (void) sendStart {
-	if ([self.delegate respondsToSelector:@selector(taskDidStart)])
-		[self.delegate taskDidStart];
-}
-- (void) sendTerminate {
-	if ([self.delegate respondsToSelector:@selector(taskDidTerminate)])
-		[self.delegate taskDidTerminate];
-
-}
 - (void) terminate {
-	[task terminate];
-	[task waitUntilExit];
+	[serial lock];
+	if ([task isRunning]) {
+		[task terminate];
+		[task waitUntilExit];
+	}
 	if (![task isRunning])
 		_rc = [task terminationStatus];
+	[serial unlock];
 }
 - (void) restart {
 	[self terminate];
@@ -63,10 +56,12 @@
 		dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
 		dispatch_async(queue, ^{
 			sleep(_timeout);
+			[self.serial lock];
 			if (self.task && [self.task isRunning]) {
 				self._terminated = YES;
 				[self.task terminate];
 			}
+			[self.serial unlock];
 		});
 	}
 }
@@ -84,25 +79,25 @@
 	[task setEnvironment:[NSDictionary dictionaryWithDictionary:environment]];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(readPipe:) name:NSFileHandleReadCompletionNotification object:pty.master];
     [pty.master readInBackgroundAndNotify];
-	[task launch];	
+	[task launch];
 	[self timeoutWatcher];
 }
 
 
 - (BOOL) execute:(NSString *) command withTimeout:(int)timeout {
-	if ([self.task isRunning])
+	[serial lock];
+	if ([self.task isRunning] || (self.pty = [[PseudoTTY alloc] init]) == nil) {
+		[serial unlock];
 		return NO;
-	self.pty = [[PseudoTTY alloc] init];
-	if (self.pty == nil) 
-		return NO;
-	
+	}	
 	self.task = [[NSTask alloc] init];
 	self._command = [command copy];
 	self._rc = 0;
 	self._timeout = timeout;
 	self._startTime = [NSDate date];
-	[self sendStart];
+	[self.delegate taskDidStart];
 	[self run];
+	[serial unlock];
 	return YES;
 }
 - (void) dealloc {
