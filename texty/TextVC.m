@@ -76,6 +76,7 @@
 		tabItem.view = self.view;
 		text.delegate = self;
 		text.textStorage.delegate = self;		
+
 		[text setVerticallyResizable:YES];
 		[text setHorizontallyResizable:YES];
 		[text setAutoresizingMask:NSViewWidthSizable];
@@ -278,23 +279,22 @@
 	NSString *string = [text string];
 	NSInteger valueLen = [value length];		
 	selection = [string paragraphRangeForRange:selected];
-		
 	NSMutableString *update = [NSMutableString string];
 	__block NSRange updatedRange = selection;
 	if (selection.location != NSNotFound) {
 		[string enumerateSubstringsInRange:selection options:NSStringEnumerationByLines usingBlock:^(NSString *substring, NSRange substringRange, NSRange enclosingRange, BOOL *stop) {
-				if (direction == DIRECTION_RIGHT) {
-					updatedRange.length += valueLen;
-					[update appendFormat:@"%@%@\n",value,substring];
+			if (direction == DIRECTION_RIGHT) {
+				updatedRange.length += valueLen;
+				[update appendFormat:@"%@%@\n",value,substring];
+			} else {
+				NSRange f = [substring rangeOfString:[NSString stringWithFormat:@"^%@",value] options:NSRegularExpressionSearch];
+				if (f.location != NSNotFound) {
+					updatedRange.length -= valueLen;
+					[update appendFormat:@"%@\n",[substring stringByReplacingCharactersInRange:f withString:@""]];
 				} else {
-					NSRange f = [substring rangeOfString:[NSString stringWithFormat:@"^%@",value] options:NSRegularExpressionSearch];
-					if (f.location != NSNotFound) {
-						updatedRange.length -= valueLen;
-						[update appendFormat:@"%@\n",[substring stringByReplacingCharactersInRange:f withString:@""]];
-					} else {
-						[update appendFormat:@"%@\n",substring];
-					}
+					[update appendFormat:@"%@\n",substring];
 				}
+			}
 		}];
 		[text replaceCharactersInRange:selection withString:update];
 		selection = [string paragraphRangeForRange:updatedRange];
