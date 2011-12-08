@@ -4,7 +4,7 @@
 #define DIRECTION_LEFT 1
 #define DIRECTION_RIGHT 2
 @implementation m_tabManager
-@synthesize tabView,goto_window = _goto_window,timer,modal_panel = _modal_panel,modal_tv = _modal_tv,modal_field = _modal_field,e,_status,modal_input = _modal_input,snipplet;
+@synthesize tabView,goto_window = _goto_window,timer,modal_panel = _modal_panel,modal_tv = _modal_tv,modal_field = _modal_field,e,_status,modal_input = _modal_input,snipplet,signal_popup = _signal_popup;
 - (m_tabManager *) init {
 	return [self initWithFrame:[[NSApp mainWindow] frame]];
 }
@@ -428,6 +428,7 @@
 - (void) taskDidStart {
 	[self taskAddExecuteText:[NSString stringWithFormat:@"\nSTART: [%@] TASK(timeout: %@): %@\n",e._startTime,(e._timeout == 0 ? @"NOTIMEOUT" : [NSString stringWithFormat:@"%d",e._timeout]),e._command]];
 	[self.modal_input setEnabled:YES];
+	[self.signal_popup setEnabled:YES];
 	[self.modal_field setStringValue:[NSString stringWithString:e._command]];
 }
 - (void) taskDidTerminate {
@@ -448,6 +449,7 @@
 	[[self.modal_tv textStorage] addAttribute:NSForegroundColorAttributeName value:PREPROCESS_COLOR range:range];
 	
 	lastColorRange = range;
+	[self.signal_popup setEnabled:NO];
 	[self.modal_input setEnabled:NO];
 }
 - (IBAction)taskSendSignal:(id) sender {

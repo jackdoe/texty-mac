@@ -9,6 +9,7 @@
 	NSTextView * IBOutlet modal_tv;
 	NSTextField * IBOutlet modal_field;
 	NSTextField * IBOutlet modal_input;
+	NSPopUpButton * IBOutlet signal_popup;
 	NSTimer *timer;
 	m_exec *e;
 	m_status *_status;
@@ -53,7 +54,7 @@
 @property (retain) NSArray *snipplet;
 @property (retain) m_exec *e;
 @property (retain) m_status *_status;
-
+@property (assign) NSPopUpButton * signal_popup;
 @property (assign) NSWindow *goto_window;
 @property (assign) NSWindow *modal_panel;
 @property (assign) NSTextView *modal_tv;
