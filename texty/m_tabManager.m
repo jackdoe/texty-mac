@@ -479,9 +479,11 @@
 	} else {
 		[_status disable];
 	}
-	[self walk_tabs:^(TextVC *t) {
-		[t signal];
-	}];
+	if ([NSApp isActive]) {
+		[self walk_tabs:^(TextVC *t) {
+			[t signal];
+		}];
+	}
 }
 
 
