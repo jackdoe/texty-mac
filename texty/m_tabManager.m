@@ -204,11 +204,19 @@
 }
 
 - (IBAction)commentSelection:(id)sender {
+	NSString *commentSymbol;		
 	TextVC *t = [self.tabView selectedTabViewItem].identifier;
+
 	if ([t extIs:[NSArray arrayWithObjects:@"c", @"h",@"m",@"cpp",@"java",nil]]) {
-		[t insert:@"//" atEachLineOfSelectionWithDirection:[sender tag]];	
+		commentSymbol = @"//";
 	} else {
-		[t insert:@"#" atEachLineOfSelectionWithDirection:[sender tag]];		
+		commentSymbol = @"#";
+	}
+	
+	if ([t eachLineOfSelectionBeginsWith:commentSymbol]) {
+		[t insert:commentSymbol atEachLineOfSelectionWithDirection:DIRECTION_LEFT];
+	} else {
+		[t insert:commentSymbol atEachLineOfSelectionWithDirection:DIRECTION_RIGHT];	
 	}
 }
 - (IBAction)tabSelection:(id)sender {

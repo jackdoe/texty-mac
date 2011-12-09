@@ -32,6 +32,8 @@
 + (void) scrollEnd:(NSTextView *) tv;
 - (void) insert:(NSString *) value atEachLineOfSelectionWithDirection:(NSInteger) direction;
 - (BOOL) extIs:(NSArray *) ext;
+- (BOOL) eachLineOfSelectionBeginsWith:(NSString *) symbol;
+- (BOOL) eachLineInRange:(NSRange) range beginsWith:(NSString *) symbol;
 @property (retain) NSTabViewItem *tabItem;
 @property (retain) m_Storage *s;
 @property (retain) m_parse *parser;

@@ -272,10 +272,32 @@
 		[text replaceCharactersInRange:area withString:update];
 	}
 }
+
+- (BOOL) eachLineInRange:(NSRange) range beginsWith:(NSString *) symbol {
+	if (range.location == NSNotFound)
+		return NO;
+		
+	NSString *string = [text string];
+	__block BOOL ret = YES;
+	[string enumerateSubstringsInRange:range options:NSStringEnumerationByLines usingBlock:^(NSString *substring, NSRange substringRange, NSRange enclosingRange, BOOL *stop) {
+		NSRange f = [substring rangeOfString:[NSString stringWithFormat:@"^%@",symbol] options:NSRegularExpressionSearch];
+		if (f.location == NSNotFound) {
+			*stop = YES;
+			ret = NO;
+		}
+	}];
+	return ret;
+}
+
 - (void) insert:(NSString *) value atEachLineOfSelectionWithDirection:(NSInteger) direction {
 	NSRange selection,selected = [text selectedRange];
 	if (selected.length < 2)
 		return;
+		
+	if (direction == DIRECTION_LEFT && ![self eachLineOfSelectionBeginsWith:value]) 
+		return;
+	
+		
 	NSString *string = [text string];
 	NSInteger valueLen = [value length];		
 	selection = [string paragraphRangeForRange:selected];
@@ -300,6 +322,11 @@
 		selection = [string paragraphRangeForRange:updatedRange];
 		[text setSelectedRange:selection];
 	}
+}
+
+- (BOOL) eachLineOfSelectionBeginsWith:(NSString *)symbol {
+	NSRange selection = [[text string] paragraphRangeForRange:[text selectedRange]];
+	return [self eachLineInRange:selection beginsWith:symbol];
 }
 - (void) close {
 	[s close];	
