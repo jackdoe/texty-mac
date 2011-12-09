@@ -34,6 +34,8 @@
 #define CONSTANT_COLOR_IDX 9
 #define CONDITION_COLOR RGB(0xFF,0x8B,0xFF)
 #define CONDITION_COLOR_IDX 10
+#define BRACKET_COLOR_IDX 11
+#define NOBRACKET_COLOR_IDX 12
 
 #define EXECUTE_LINE	3
 #define EXECUTE_COMMAND @"TEXTY_EXECUTE"
@@ -154,5 +156,7 @@ NSDictionary *colorAttr[20];
 - (NSArray *) hash_to_array:(NSString *) part;
 - (NSString *) get_line:(NSInteger) lineno inTextView:(NSTextView *) tv;
 - (NSString *) get_execute_command:(NSTextView *) tv;
+- (void) clearColors:(NSRange) area inTextView:(NSTextView *) tv;
+- (void) color:(NSRange) range withColor:(unsigned char) color inTextView:(NSTextView *) tv;
 @property (assign) BOOL autoindent;
 @end

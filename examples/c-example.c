@@ -1,4 +1,4 @@
-#include <stdio.h>
+asdasdasdads#include <stdio.h>
 
 //TEXTY_EXECUTE gcc -o {MYDIR}/{MYSELF_BASENAME_NOEXT} {MYSELF} && gdb {MYDIR}/{MYSELF_BASENAME_NOEXT} {NOTIMEOUT} 
 int main(int ac, char **av) {
@@ -11,3 +11,4 @@ int main(int ac, char **av) {
 		sleep(1);
 	}
 }
+{{}}}}}}}}}}}}}}}}}}}}}

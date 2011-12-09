@@ -176,12 +176,12 @@ static struct word * word_new(struct word_head *wh) {
 
 - (void) clearColors:(NSRange) area inTextView:(NSTextView *) tv{	
 	NSLayoutManager *lm = [[tv.textStorage layoutManagers] objectAtIndex: 0];
-	[lm setTemporaryAttributes:colorAttr[TEXT_COLOR_IDX] forCharacterRange:area];
+	[lm addTemporaryAttributes:colorAttr[TEXT_COLOR_IDX] forCharacterRange:area];
 }
 
 - (void) color:(NSRange) range withColor:(unsigned char) color inTextView:(NSTextView *) tv{
 	NSLayoutManager *lm = [[tv.textStorage layoutManagers] objectAtIndex: 0];
-	[lm setTemporaryAttributes:colorAttr[color] forCharacterRange:range];
+	[lm addTemporaryAttributes:colorAttr[color] forCharacterRange:range];
 }
 
 
@@ -266,7 +266,11 @@ static struct word * word_new(struct word_head *wh) {
 next:
 		free(w);
 	}
+	
+	
+	
 }
+
 - (void) string:(NSString *) source toWordStruct:(struct word *) w {
 	NSInteger i;
 	for (i=0;i<[source length]; i++) {

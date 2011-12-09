@@ -5,6 +5,10 @@
 #define L_UNDEFINED 3
 @implementation TextVC
 @synthesize tabItem,s,parser,box;
+- (NSRange) fullRange {
+	NSRange range = {0,[[text string] length]};
+	return range;
+}
 
 + (void) scrollEnd:(NSTextView *) tv {
 	NSRange range = { [[tv string] length], 0 };
@@ -55,10 +59,10 @@
 }
 - (void) lockText {
 	NSInteger alert = [s fileAlert:s.fileURL withMessage:@"The File was modified by someone else\nReload or Overwrite it." def:@"Cancel" alternate:@"Reload" other:@"Overwrite"];
-	if (alert == NSAlertOtherReturn) {
+	if (alert == NSAlertAlternateReturn) {
 		if ([self open:self.s.fileURL])
 			return;
-	} else if (alert == NSAlertAlternateReturn) {
+	} else if (alert == NSAlertOtherReturn) {
 		if ([self save])
 			return;
 	}
@@ -181,16 +185,6 @@
 	return [[text string] length];
 }
 
-- (void) clearColors:(NSRange) area {	
-	NSLayoutManager *lm = [[text.textStorage layoutManagers] objectAtIndex: 0];
-	[lm setTemporaryAttributes:colorAttr[TEXT_COLOR_IDX] forCharacterRange:area];
-}
-
-- (void) color:(NSRange) range withColor:(unsigned char) color {
-	NSLayoutManager *lm = [[text.textStorage layoutManagers] objectAtIndex: 0];
-	[lm setTemporaryAttributes:colorAttr[color] forCharacterRange:range];
-}
-
 - (BOOL) extIs:(NSArray *) ext {
 	NSString *fileExt = [s.fileURL pathExtension];
 	for (NSString *str in ext)
@@ -215,7 +209,12 @@
 		[self performSelector:@selector(parse:) withObject:range afterDelay:0];		
 	}
 }
-
+- (void) textViewDidChangeSelection:(NSNotification *)notification {
+	if (bracketColored)
+		[parser color:[self fullRange] withColor:NOBRACKET_COLOR_IDX inTextView:text];		
+	bracketColored = [self colorBracket];
+	
+}
 - (NSArray *) textView:(NSTextView *)textView completions:(NSArray *)words forPartialWordRange:(NSRange)charRange indexOfSelectedItem:(NSInteger *)index {
 	NSString *part = [[textView string] substringWithRange:charRange];
 	return [parser hash_to_array:part];
@@ -328,6 +327,49 @@
 	NSRange selection = [[text string] paragraphRangeForRange:[text selectedRange]];
 	return [self eachLineInRange:selection beginsWith:symbol];
 }
+- (BOOL) colorPrev:(unichar) opens ends:(unichar) ends inRange:(NSRange) range{
+	NSInteger open,pos,foundone;
+	open = foundone = 0;
+	NSString *string = [text string];
+	for (pos = range.location-1; pos >= 0 ; pos--) {
+		unichar c = [string characterAtIndex:pos];
+		if (c == ends) {
+			open++;
+			foundone++;
+		}
+		if (c == opens)
+			open--;
+		if (open == 0) {
+			if (foundone) {
+				[parser color:NSMakeRange(pos,1)  withColor:BRACKET_COLOR_IDX inTextView:text];		
+				[parser color:NSMakeRange(range.location-1, 1)  withColor:BRACKET_COLOR_IDX inTextView:text];		
+				return YES;
+			}
+			break;
+		}
+	}
+	return NO;
+}
+
+- (BOOL) colorBracket {
+	NSString *string = [text string];
+	NSRange selected = [text selectedRange];
+	if (selected.length > 0 || selected.location < 1)
+		return NO;
+		
+	unichar cursor = (selected.location != NSNotFound && selected.location > 0) ? [string characterAtIndex:selected.location-1] : 0;
+	switch (cursor) {
+	case '}':
+		return [self colorPrev:'{' ends:'}' inRange:selected];
+	case ')':
+		return [self colorPrev:'(' ends:')' inRange:selected];
+	case ']':
+		return [self colorPrev:'[' ends:']' inRange:selected];
+	break;
+	}
+	return NO;
+}
+
 - (void) close {
 	[s close];	
 }

@@ -13,6 +13,7 @@
 	long autosave_ts;
 	NSBox *box;
 	BOOL locked;
+	BOOL bracketColored;
 }
 - (BOOL) open:(NSURL *)file;
 - (BOOL) saveAs:(NSURL *) to;
@@ -34,6 +35,7 @@
 - (BOOL) extIs:(NSArray *) ext;
 - (BOOL) eachLineOfSelectionBeginsWith:(NSString *) symbol;
 - (BOOL) eachLineInRange:(NSRange) range beginsWith:(NSString *) symbol;
+- (BOOL) colorBracket;
 @property (retain) NSTabViewItem *tabItem;
 @property (retain) m_Storage *s;
 @property (retain) m_parse *parser;

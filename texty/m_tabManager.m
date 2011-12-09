@@ -47,6 +47,9 @@
 		colorAttr[CONDITION_COLOR_IDX] = [NSDictionary dictionaryWithObject:CONDITION_COLOR forKey:NSForegroundColorAttributeName];
 		colorAttr[TEXT_COLOR_IDX] = [NSDictionary dictionaryWithObject:TEXT_COLOR forKey:NSForegroundColorAttributeName];
 		colorAttr[CONSTANT_COLOR_IDX] = [NSDictionary dictionaryWithObject:CONSTANT_COLOR forKey:NSForegroundColorAttributeName];
+		colorAttr[BRACKET_COLOR_IDX] = [NSDictionary dictionaryWithObject:VARTYPE_COLOR forKey:NSBackgroundColorAttributeName];
+		colorAttr[NOBRACKET_COLOR_IDX] = [NSDictionary dictionaryWithObject:BG_COLOR forKey:NSBackgroundColorAttributeName];
+		
 		self._status = [[m_status alloc] initWithTabManager:self];
 		lastColorRange = NSMakeRange(0, 0);
 		[self performSelector:@selector(fixModalTextView) withObject:nil afterDelay:0];
