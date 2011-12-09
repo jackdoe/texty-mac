@@ -328,10 +328,15 @@
 	return [self eachLineInRange:selection beginsWith:symbol];
 }
 - (BOOL) colorPrev:(unichar) opens ends:(unichar) ends inRange:(NSRange) range{
+	if (range.location < 1 || range.location == NSNotFound) 
+		return NO;
+	
 	NSInteger open,pos,foundone;
 	open = foundone = 0;
 	NSString *string = [text string];
-	for (pos = range.location-1; pos >= 0 ; pos--) {
+	range.location--;
+	range.length=1;
+	for (pos = range.location; pos >= 0 ; pos--) {
 		unichar c = [string characterAtIndex:pos];
 		if (c == ends) {
 			open++;
@@ -342,7 +347,7 @@
 		if (open == 0) {
 			if (foundone) {
 				[parser color:NSMakeRange(pos,1)  withColor:BRACKET_COLOR_IDX inTextView:text];		
-				[parser color:NSMakeRange(range.location-1, 1)  withColor:BRACKET_COLOR_IDX inTextView:text];		
+				[parser color:range  withColor:BRACKET_COLOR_IDX inTextView:text];		
 				return YES;
 			}
 			break;
