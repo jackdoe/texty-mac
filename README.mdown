@@ -21,7 +21,7 @@ Requirements
 Overview
 ========
 0. Features
-	+ autoindent
+	+ autoindent, color brackets, indent/comment selected block
 	+ basic syntax highlighting
 	+ execute tasks in another window - no more alt+tab
 	+ backup[0] on each save
