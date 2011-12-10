@@ -1,6 +1,4 @@
 #import "m_tabManager.h"
-#define EXECUTE_TYPE_SHELL 1
-#define EXECUTE_TYPE_WWW 2
 @implementation m_tabManager
 @synthesize tabView,goto_window = _goto_window,timer,modal_panel = _modal_panel,modal_tv = _modal_tv,modal_field = _modal_field,e,_status,modal_input = _modal_input,snipplet,signal_popup = _signal_popup;
 - (m_tabManager *) init {
@@ -8,17 +6,19 @@
 }
 - (void) createCodeSnipplets {
 	NSMutableArray *a = [NSMutableArray array];
-	[a addObject:[NSArray arrayWithObjects:@"GCC compile", @"//TEXTY_EXECUTE gcc -Wall -o {MYDIR}/{MYSELF_BASENAME_NOEXT} {MYSELF}" ,nil]];
-	[a addObject:[NSArray arrayWithObjects:@"GCC compile and run", @"//TEXTY_EXECUTE gcc -Wall -o {MYDIR}/{MYSELF_BASENAME_NOEXT} {MYSELF} && {MYDIR}/{MYSELF_BASENAME_NOEXT} {NOTIMEOUT}",nil]];
-	[a addObject:[NSArray arrayWithObjects:@"GCC compile and GDB", @"//TEXTY_EXECUTE gcc -g3 -Wall -o {MYDIR}/{MYSELF_BASENAME_NOEXT} {MYSELF} && gdb -f -q {MYDIR}/{MYSELF_BASENAME_NOEXT} {NOTIMEOUT}",nil]];
+	[a addObject:[NSArray arrayWithObjects:@"c template", @"#include <stdio.h>\n\n//TEXTY_EXECUTE gcc -Wall -o {MYDIR}/{MYSELF_BASENAME_NOEXT} {MYSELF}\nint main(int ac, char *av[]) {\n\n\n\treturn 0;\n}" ,[NSNumber numberWithInt:0],nil]];
 
-	[a addObject:[NSArray arrayWithObjects:@"{MYSELF}", @"//TEXTY_EXECUTE {MYSELF} {NOTIMEOUT}",nil]];
-	[a addObject:[NSArray arrayWithObjects:@"perl {MYSELF}", @"#TEXTY_EXECUTE perl {MYSELF} {NOTIMEOUT}",nil]];	
-	[a addObject:[NSArray arrayWithObjects:@"ruby {MYSELF}", @"#TEXTY_EXECUTE ruby {MYSELF} {NOTIMEOUT}",nil]];	
-	[a addObject:[NSArray arrayWithObjects:@"sh {MYSELF}", @"#TEXTY_EXECUTE sh {MYSELF} {NOTIMEOUT}",nil]];	
-	[a addObject:[NSArray arrayWithObjects:@"rails", @"#TEXTY_EXECUTE http://localhost:3000",nil]];	
+	[a addObject:[NSArray arrayWithObjects:@"GCC compile", @"//TEXTY_EXECUTE gcc -Wall -o {MYDIR}/{MYSELF_BASENAME_NOEXT} {MYSELF}" ,[NSNumber numberWithInt:EXECUTE_LINE],nil]];
+	[a addObject:[NSArray arrayWithObjects:@"GCC compile and run", @"//TEXTY_EXECUTE gcc -Wall -o {MYDIR}/{MYSELF_BASENAME_NOEXT} {MYSELF} && {MYDIR}/{MYSELF_BASENAME_NOEXT} {NOTIMEOUT}",[NSNumber numberWithInt:EXECUTE_LINE],nil]];
+	[a addObject:[NSArray arrayWithObjects:@"GCC compile and GDB", @"//TEXTY_EXECUTE gcc -g3 -Wall -o {MYDIR}/{MYSELF_BASENAME_NOEXT} {MYSELF} && gdb -f -q {MYDIR}/{MYSELF_BASENAME_NOEXT} {NOTIMEOUT}",[NSNumber numberWithInt:EXECUTE_LINE],nil]];
+
+	[a addObject:[NSArray arrayWithObjects:@"{MYSELF}", @"//TEXTY_EXECUTE {MYSELF} {NOTIMEOUT}",[NSNumber numberWithInt:EXECUTE_LINE],nil]];
+	[a addObject:[NSArray arrayWithObjects:@"perl {MYSELF}", @"#TEXTY_EXECUTE perl {MYSELF} {NOTIMEOUT}",[NSNumber numberWithInt:EXECUTE_LINE],nil]];	
+	[a addObject:[NSArray arrayWithObjects:@"ruby {MYSELF}", @"#TEXTY_EXECUTE ruby {MYSELF} {NOTIMEOUT}",[NSNumber numberWithInt:EXECUTE_LINE],nil]];	
+	[a addObject:[NSArray arrayWithObjects:@"sh {MYSELF}", @"#TEXTY_EXECUTE sh {MYSELF} {NOTIMEOUT}",[NSNumber numberWithInt:EXECUTE_LINE],nil]];	
+	[a addObject:[NSArray arrayWithObjects:@"rails", @"#TEXTY_EXECUTE http://localhost:3000",[NSNumber numberWithInt:EXECUTE_LINE],nil]];	
 	NSString *url = [NSString stringWithFormat:@"http://localhost/~%@/",NSUserName()];
-	[a addObject:[NSArray arrayWithObjects:url, [NSString stringWithFormat:@"#TEXTY_EXECUTE %@",url],nil]];	
+	[a addObject:[NSArray arrayWithObjects:url, [NSString stringWithFormat:@"#TEXTY_EXECUTE %@",url],[NSNumber numberWithInt:EXECUTE_LINE],nil]];	
 
 	self.snipplet = [NSArray arrayWithArray:a];
 }
@@ -177,10 +177,10 @@
 - (IBAction)closeButton:(id)sender {
 	TextVC *t = [self.tabView selectedTabViewItem].identifier;
 	if ([t is_modified]) {
-		NSInteger alertReturn = [t.s fileAlert:t.s.fileURL withMessage:@"WARNING: unsaved data." def:@"Cancel" alternate:@"Save & Close" other:@"Close w/o Save"];
-		if (alertReturn == NSAlertAlternateReturn) { 		/* Save */
+		NSInteger alertReturn = [t.s fileAlert:t.s.fileURL withMessage:@"WARNING: unsaved data." def:@"Cancel" alternate:@"Close w/o Save" other:@"Save & Close"];
+		if (alertReturn == NSAlertOtherReturn) { 		/* Save */
 			[t save];
-		} else if (alertReturn == NSAlertDefaultReturn) { /* Cancel */
+		} else if (alertReturn == NSAlertDefaultReturn) { 	/* Cancel */
 			return; 
 		}
 	}
@@ -281,8 +281,8 @@
 	NSInteger ret = NSTerminateNow;
 	if (have_unsaved) {
 		/* XXX */
-		NSInteger alertReturn = NSRunAlertPanel(@"WARNING: unsaved data.", [NSString stringWithFormat:@"You have unsaved data for %u file%s",have_unsaved,(have_unsaved > 1 ? "s." : ".")] ,@"Cancel", @"Save & Close",@"Close w/o Save");
-		if (alertReturn == NSAlertAlternateReturn) {
+		NSInteger alertReturn = NSRunAlertPanel(@"WARNING: unsaved data.", [NSString stringWithFormat:@"You have unsaved data for %u file%s",have_unsaved,(have_unsaved > 1 ? "s." : ".")] ,@"Cancel", @"Close w/o Save",@"Save & Close");
+		if (alertReturn == NSAlertOtherReturn) {
 			[self save_all:nil];
 			ret = NSTerminateNow;
 		} else if (alertReturn == NSAlertDefaultReturn) {
@@ -307,8 +307,9 @@
 	NSMenuItem *m = sender;
 	NSInteger idx = m.tag;
 	TextVC *t = [self.tabView selectedTabViewItem].identifier;
-	NSString *value = [NSString stringWithFormat:@"%@\n",[[snipplet objectAtIndex:idx] objectAtIndex:1]];	
-	[t insert:value atLine:EXECUTE_LINE];
+	NSArray *snip = [snipplet objectAtIndex:idx];
+	NSString *value = [NSString stringWithFormat:@"%@\n",[snip objectAtIndex:1]];	
+	[t insert:value atLine:[[snip objectAtIndex:2] intValue]];
 }
 - (void) menuWillOpen:(NSMenu *)menu {
 	TextVC *t = [self.tabView selectedTabViewItem].identifier;

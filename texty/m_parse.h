@@ -6,7 +6,6 @@
 #define _M_PARSE_H
 #define DIRECTION_LEFT 1
 #define DIRECTION_RIGHT 2
-#define ACCEPT_ANY_SSL_CERT 			NO
 #define DEFAULT_OPEN_DIR @"Code"
 #define DEFAULT_EXECUTE_TIMEOUT 1
 #define FONT [NSFont fontWithName:@"Monaco" size:12]
@@ -42,7 +41,7 @@
 #define RGB(r, g, b) [NSColor colorWithSRGBRed:r/255.0 green:g/255.0 blue:b/255.0 alpha:1]
 #define AUTOSAVE_INTERVAL 60 /* in seconds */
 
-#define HASH_SIZE 4096
+#define HASH_SIZE 8192 
 #define HASH_MASK HASH_SIZE - 1
 #define WORD_SIZE 64
 #define WORD_MASK WORD_SIZE - 1

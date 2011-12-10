@@ -240,6 +240,7 @@
 				spaces = [string substringWithRange:paraRange];
 			}
 		}
+		something_changed = YES;
 		[textView insertText:[NSString stringWithFormat:@"\n%@",spaces]];
 		return YES;
 	}
@@ -270,6 +271,7 @@
 		NSString *update = [NSString stringWithFormat:@"%@%@",value,[[text string] substringWithRange:area]];
 		[text replaceCharactersInRange:area withString:update];
 	}
+	something_changed = YES;
 }
 
 - (BOOL) eachLineInRange:(NSRange) range beginsWith:(NSString *) symbol {
@@ -320,6 +322,7 @@
 		[text replaceCharactersInRange:selection withString:update];
 		selection = [string paragraphRangeForRange:updatedRange];
 		[text setSelectedRange:selection];
+		something_changed = YES;
 	}
 }
 
