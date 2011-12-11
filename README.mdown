@@ -35,14 +35,15 @@ Overview
 
 	+ /Users/jack/TEXTY_DATA/
 	+ /Users/jack/TEXTY_DATA/TEMPORARY/yyyy-MM-dd/TEMP-time().rand().txt
-	+ /Users/jack/TEXTY_DATA/BACKUP/'fileURL.replace:/ with:_'/time().txt
-	+ /Users/jack/TEXTY_DATA/AUTOSAVE/'fileURL.replace:/ with:_/'filename
+	+ /Users/jack/TEXTY_DATA/BACKUP/fileURL.replace:/ with:_/time().txt
+	+ /Users/jack/TEXTY_DATA/AUTOSAVE/fileURL.replace:/ with:_/filename
+
 
 2. Autosave/backup
 
 	+ Every 60 seconds the temporary files are auto saved at their actual location (texty_data/temporaty/yyyy-MM-dd/..).
-	+ Non temporary files are saved in texty_data/autosave../
-	+ Every time you hit save, a backup is made inside BACKUP/.
+	+ Non temporary files are saved in TEXTY_DATA/AUTOSAVE/../
+	+ Every time you hit save, a backup is made inside TEXTY_DATA/BACKUP/.
 
 3. Execute
 

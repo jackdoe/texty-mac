@@ -6,7 +6,7 @@
 }
 - (void) createCodeSnipplets {
 	NSMutableArray *a = [NSMutableArray array];
-	[a addObject:[NSArray arrayWithObjects:@"c template", @"#include <stdio.h>\n\n//TEXTY_EXECUTE gcc -Wall -o {MYDIR}/{MYSELF_BASENAME_NOEXT} {MYSELF}\nint main(int ac, char *av[]) {\n\n\n\treturn 0;\n}" ,[NSNumber numberWithInt:0],nil]];
+	[a addObject:[NSArray arrayWithObjects:@"c template", @"#include <stdio.h>\n\n//TEXTY_EXECUTE gcc -Wall -o {MYDIR}/{MYSELF_BASENAME_NOEXT} {MYSELF} && {MYDIR}/{MYSELF_BASENAME_NOEXT} {MYSELF}\nint main(int ac, char *av[]) {\n\n\n\treturn 0;\n}" ,[NSNumber numberWithInt:0],nil]];
 
 	[a addObject:[NSArray arrayWithObjects:@"GCC compile", @"//TEXTY_EXECUTE gcc -Wall -o {MYDIR}/{MYSELF_BASENAME_NOEXT} {MYSELF}" ,[NSNumber numberWithInt:EXECUTE_LINE],nil]];
 	[a addObject:[NSArray arrayWithObjects:@"GCC compile and run", @"//TEXTY_EXECUTE gcc -Wall -o {MYDIR}/{MYSELF_BASENAME_NOEXT} {MYSELF} && {MYDIR}/{MYSELF_BASENAME_NOEXT} {NOTIMEOUT}",[NSNumber numberWithInt:EXECUTE_LINE],nil]];
