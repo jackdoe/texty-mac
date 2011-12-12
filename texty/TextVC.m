@@ -19,7 +19,7 @@
 	if (need_to_autosave) {
 		if (time(NULL) - autosave_ts > AUTOSAVE_INTERVAL) {
 			if (s.temporary)
-				[self save];
+				[s migrate:s.fileURL withString:[text string] autosaving:YES];
 			else 
 				[s autosave:NO];
 			autosave_ts = time(NULL);
@@ -143,7 +143,7 @@
 	[parser parse:r inTextView:text];
 }
 - (BOOL) saveAs:(NSURL *) to {
-	if ([s migrate:to withString:[text string]]) {
+	if ([s migrate:to withString:[text string] autosaving:NO]) {
 		[self syntax_reload];
 		[self label:L_DEFAULT];
 		return YES;

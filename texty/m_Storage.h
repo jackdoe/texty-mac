@@ -16,7 +16,7 @@
 - (BOOL) open:(NSURL *) URL;
 - (BOOL) close:(BOOL) save;
 - (NSURL *) temporaryFileURL;
-- (BOOL) migrate:(NSURL *) to withString:(NSString *) string;
+- (BOOL) migrate:(NSURL *) to withString:(NSString *) string autosaving:(BOOL) autosaving;
 - (NSString *) basename;
 - (BOOL) write:(NSString *) string toURL:(NSURL *) file;
 - (BOOL) write:(NSString *) string toPath:(NSString *) file;

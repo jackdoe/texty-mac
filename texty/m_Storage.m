@@ -77,20 +77,21 @@
 }
 - (BOOL) close:(BOOL) save {
 	if (save) 
-		[self migrate:self.fileURL withString:self.data];
+		[self migrate:self.fileURL withString:self.data autosaving:NO];
 	
 	self.data = nil;
 	self.fileURL = nil;
 	return TRUE;
 }
 
-- (BOOL) migrate:(NSURL *) to withString:(NSString *) string {
+- (BOOL) migrate:(NSURL *) to withString:(NSString *) string autosaving:(BOOL) autosaving{
 	if (!to || !string)
 		return NO;
 	[self backup];
 	self.existing_backups = [self backups];
 
-	self.temporary = NO;
+	if (!autosaving)
+		self.temporary = NO;
 	if ([self write:string toURL:to]) {
 		if (!temporary)
 			[[NSDocumentController sharedDocumentController] noteNewRecentDocumentURL:to];
