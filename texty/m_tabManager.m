@@ -156,7 +156,11 @@
 }
 - (IBAction)saveButton:(id)sender {
 	TextVC *t = [self.tabView selectedTabViewItem].identifier;
-	[t save];
+	if (t.s.temporary) {
+		[self saveAsButton:nil];
+	} else {
+		[t save];
+	}
 }
 - (IBAction)saveAsButton:(id)sender {
 	TextVC *t = [self.tabView selectedTabViewItem].identifier;
