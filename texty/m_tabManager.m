@@ -488,7 +488,7 @@
 	[self.modal_tv setSelectedTextAttributes:selected];
 	[self.modal_tv setBackgroundColor:BG_COLOR];
 	[self.modal_tv setInsertionPointColor:CURSOR_COLOR];
-//	[self.modal_panel setLevel: NSNormalWindowLevel]; /* maybe its better to be always on top */
+	[self.modal_panel setLevel: NSFloatingWindowLevel]; 
 }
 
 #pragma mark Timer
@@ -508,5 +508,10 @@
 		}];
 	}
 }
+#pragma mark aways on top action
 
+- (IBAction)alwaysOnTop:(id)sender {
+	NSUserDefaults *preferences = [NSUserDefaults standardUserDefaults];
+	[preferences setObject:[NSNumber numberWithBool:([preferences boolForKey:@"DefaultAlwaysOnTop"] == YES) ? NO : YES] forKey:@"DefaultAlwaysOnTop"];
+}
 @end

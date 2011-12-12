@@ -37,6 +37,8 @@
 - (IBAction)taskSendSignal:(id) sender;
 - (IBAction)tabSelection:(id) sender;
 - (IBAction)commentSelection:(id)sender;
+- (IBAction)alwaysOnTop:(id)sender;
+
 - (void) walk_tabs:(void (^)(TextVC *t)) callback;
 - (BOOL) open:(NSURL *) file;
 - (NSApplicationTerminateReply) gonna_terminate;

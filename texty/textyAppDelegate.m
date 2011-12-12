@@ -30,4 +30,14 @@
 - (NSApplicationTerminateReply) applicationShouldTerminate:(NSApplication *)sender {
 	return [self.tab gonna_terminate];
 }
+- (void)windowDidResignMain:(NSNotification *)notification {
+  if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DefaultAlwaysOnTop"] == YES) {
+  	[self.window setLevel:NSFloatingWindowLevel];
+  } else {
+	[self.window setLevel:NSNormalWindowLevel];
+  }
+}
+- (void)windowDidBecomeMain:(NSNotification *)notification {
+  [self.window setLevel:NSNormalWindowLevel];
+}
 @end
