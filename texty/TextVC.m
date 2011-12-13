@@ -281,10 +281,12 @@
 	NSString *string = [text string];
 	__block BOOL ret = YES;
 	[string enumerateSubstringsInRange:range options:NSStringEnumerationByLines usingBlock:^(NSString *substring, NSRange substringRange, NSRange enclosingRange, BOOL *stop) {
-		NSRange f = [substring rangeOfString:[NSString stringWithFormat:@"^%@",symbol] options:NSRegularExpressionSearch];
-		if (f.location == NSNotFound) {
-			*stop = YES;
-			ret = NO;
+		if ([substring length] > 0) {
+			NSRange f = [substring rangeOfString:[NSString stringWithFormat:@"^%@",symbol] options:NSRegularExpressionSearch];
+			if (f.location == NSNotFound) {
+				*stop = YES;
+				ret = NO;
+			}
 		}
 	}];
 	return ret;
@@ -294,8 +296,12 @@
 	NSRange selection,selected = [text selectedRange];
 	if (selected.length < 2)
 		return;
+	NSString *remove = value;
+	if ([value isEqualToString:@"\t"]) {
+		remove = @"\\s";
+	}
 		
-	if (direction == DIRECTION_LEFT && ![self eachLineOfSelectionBeginsWith:value]) 
+	if (direction == DIRECTION_LEFT && ![self eachLineOfSelectionBeginsWith:remove]) 
 		return;
 	
 		
@@ -310,9 +316,9 @@
 				updatedRange.length += valueLen;
 				[update appendFormat:@"%@%@\n",value,substring];
 			} else {
-				NSRange f = [substring rangeOfString:[NSString stringWithFormat:@"^%@",value] options:NSRegularExpressionSearch];
+				NSRange f = [substring rangeOfString:[NSString stringWithFormat:@"^%@",remove] options:NSRegularExpressionSearch];
 				if (f.location != NSNotFound) {
-					updatedRange.length -= valueLen;
+					updatedRange.length -= f.length;
 					[update appendFormat:@"%@\n",[substring stringByReplacingCharactersInRange:f withString:@""]];
 				} else {
 					[update appendFormat:@"%@\n",substring];
