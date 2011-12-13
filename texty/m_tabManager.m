@@ -95,6 +95,13 @@
 }
 
 #pragma mark tabManagement
+- (IBAction) selectTabAtIndex:(id) sender {
+	NSInteger index = [sender tag];
+	NSInteger max = [self.tabView.tabViewItems count];
+	if (index >= 0 && max > 0 && index <= (max - 1)) {
+		[self.tabView selectTabViewItemAtIndex:index];
+	}
+}
 - (void) goLeft:(id) sender {
 	[self.tabView selectTabViewItemAtIndex:[self getTabIndex:DIRECTION_LEFT]];
 }

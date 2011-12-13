@@ -38,6 +38,7 @@
 - (IBAction)tabSelection:(id) sender;
 - (IBAction)commentSelection:(id)sender;
 - (IBAction)alwaysOnTop:(id)sender;
+- (IBAction)selectTabAtIndex:(id) sender;
 
 - (void) walk_tabs:(void (^)(TextVC *t)) callback;
 - (BOOL) open:(NSURL *) file;
