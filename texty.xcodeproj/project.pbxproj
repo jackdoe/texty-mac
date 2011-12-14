@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		0417C7E514900D0400CDFE14 /* SyntaxDef.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0417C7E414900D0400CDFE14 /* SyntaxDef.plist */; };
-		044E2FB0148CCE640088316A /* m_status.m in Sources */ = {isa = PBXBuildFile; fileRef = 044E2FAF148CCE640088316A /* m_status.m */; };
 		044E2FB4148CD1890088316A /* texty_small.png in Resources */ = {isa = PBXBuildFile; fileRef = 044E2FB3148CD1890088316A /* texty_small.png */; };
 		044E2FB6148CD5A00088316A /* texty_red_small.png in Resources */ = {isa = PBXBuildFile; fileRef = 044E2FB5148CD5A00088316A /* texty_red_small.png */; };
 		045C348A147FEB6A00162AA1 /* texty.icns in Resources */ = {isa = PBXBuildFile; fileRef = 045C3489147FEB6A00162AA1 /* texty.icns */; };
@@ -21,6 +20,10 @@
 		046944EB147B96EB00256B61 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 046944E9147B96EB00256B61 /* MainMenu.xib */; };
 		0469450A147B97CB00256B61 /* m_tabManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 04694509147B97CB00256B61 /* m_tabManager.m */; };
 		04694517147BB06300256B61 /* m_Storage.m in Sources */ = {isa = PBXBuildFile; fileRef = 04694516147BB06300256B61 /* m_Storage.m */; };
+		0481A16F1498992E00F53BEC /* PreferencesWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0481A16E1498992E00F53BEC /* PreferencesWindow.xib */; };
+		0481A17514989A4C00F53BEC /* PrefWC.m in Sources */ = {isa = PBXBuildFile; fileRef = 0481A17414989A4C00F53BEC /* PrefWC.m */; };
+		0481A17914989FD300F53BEC /* ExecuteWC.m in Sources */ = {isa = PBXBuildFile; fileRef = 0481A17814989FD300F53BEC /* ExecuteWC.m */; };
+		0481A17D1498BAC700F53BEC /* ExecuteWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0481A17C1498BAC600F53BEC /* ExecuteWindow.xib */; };
 		04842D55148557A6007782F6 /* texty_red.icns in Resources */ = {isa = PBXBuildFile; fileRef = 04842D54148557A6007782F6 /* texty_red.icns */; };
 		049294361488D6C6003642DF /* TextVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 049294341488D6C6003642DF /* TextVC.m */; };
 		04DFC9E71488F451004D2802 /* m_parse.m in Sources */ = {isa = PBXBuildFile; fileRef = 04DFC9E61488F451004D2802 /* m_parse.m */; };
@@ -31,8 +34,6 @@
 
 /* Begin PBXFileReference section */
 		0417C7E414900D0400CDFE14 /* SyntaxDef.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = SyntaxDef.plist; sourceTree = "<group>"; };
-		044E2FAE148CCE640088316A /* m_status.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = m_status.h; sourceTree = "<group>"; };
-		044E2FAF148CCE640088316A /* m_status.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = m_status.m; sourceTree = "<group>"; };
 		044E2FB3148CD1890088316A /* texty_small.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = texty_small.png; sourceTree = "<group>"; };
 		044E2FB5148CD5A00088316A /* texty_red_small.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = texty_red_small.png; sourceTree = "<group>"; };
 		045C3489147FEB6A00162AA1 /* texty.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = texty.icns; sourceTree = "<group>"; };
@@ -55,6 +56,12 @@
 		04694509147B97CB00256B61 /* m_tabManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = m_tabManager.m; sourceTree = "<group>"; };
 		04694515147BB06300256B61 /* m_Storage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = m_Storage.h; sourceTree = "<group>"; };
 		04694516147BB06300256B61 /* m_Storage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = m_Storage.m; sourceTree = "<group>"; };
+		0481A16E1498992E00F53BEC /* PreferencesWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PreferencesWindow.xib; sourceTree = "<group>"; };
+		0481A17314989A4C00F53BEC /* PrefWC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefWC.h; sourceTree = "<group>"; };
+		0481A17414989A4C00F53BEC /* PrefWC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PrefWC.m; sourceTree = "<group>"; };
+		0481A17714989FD300F53BEC /* ExecuteWC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExecuteWC.h; sourceTree = "<group>"; };
+		0481A17814989FD300F53BEC /* ExecuteWC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ExecuteWC.m; sourceTree = "<group>"; };
+		0481A17C1498BAC600F53BEC /* ExecuteWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ExecuteWindow.xib; sourceTree = "<group>"; };
 		04842D54148557A6007782F6 /* texty_red.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = texty_red.icns; sourceTree = "<group>"; };
 		049294331488D6C6003642DF /* TextVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextVC.h; sourceTree = "<group>"; };
 		049294341488D6C6003642DF /* TextVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextVC.m; sourceTree = "<group>"; };
@@ -145,6 +152,7 @@
 			children = (
 				046944E6147B96EA00256B61 /* textyAppDelegate.h */,
 				046944E7147B96EA00256B61 /* textyAppDelegate.m */,
+				0481A17614989FBC00F53BEC /* Preferences */,
 				046944E9147B96EB00256B61 /* MainMenu.xib */,
 				04DFC9ED14891A2B004D2802 /* Text */,
 				04DFC9EE14891A8D004D2802 /* Storage */,
@@ -165,6 +173,16 @@
 				046944E3147B96EA00256B61 /* Credits.rtf */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		0481A17614989FBC00F53BEC /* Preferences */ = {
+			isa = PBXGroup;
+			children = (
+				0481A17314989A4C00F53BEC /* PrefWC.h */,
+				0481A17414989A4C00F53BEC /* PrefWC.m */,
+				0481A16E1498992E00F53BEC /* PreferencesWindow.xib */,
+			);
+			name = Preferences;
 			sourceTree = "<group>";
 		};
 		04DFC9ED14891A2B004D2802 /* Text */ = {
@@ -195,6 +213,9 @@
 				04F14A2D148E098900936D73 /* PseudoTTY.m */,
 				04EE1C48147D0ACB0056D73F /* m_exec.h */,
 				04EE1C49147D0ACB0056D73F /* m_exec.m */,
+				0481A17714989FD300F53BEC /* ExecuteWC.h */,
+				0481A17814989FD300F53BEC /* ExecuteWC.m */,
+				0481A17C1498BAC600F53BEC /* ExecuteWindow.xib */,
 			);
 			name = Execute;
 			sourceTree = "<group>";
@@ -204,8 +225,6 @@
 			children = (
 				04694508147B97CB00256B61 /* m_tabManager.h */,
 				04694509147B97CB00256B61 /* m_tabManager.m */,
-				044E2FAE148CCE640088316A /* m_status.h */,
-				044E2FAF148CCE640088316A /* m_status.m */,
 			);
 			name = Tabs;
 			sourceTree = "<group>";
@@ -269,6 +288,8 @@
 				044E2FB4148CD1890088316A /* texty_small.png in Resources */,
 				044E2FB6148CD5A00088316A /* texty_red_small.png in Resources */,
 				0417C7E514900D0400CDFE14 /* SyntaxDef.plist in Resources */,
+				0481A16F1498992E00F53BEC /* PreferencesWindow.xib in Resources */,
+				0481A17D1498BAC700F53BEC /* ExecuteWindow.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -287,8 +308,9 @@
 				04E84663147E281500E1E027 /* m_range.m in Sources */,
 				049294361488D6C6003642DF /* TextVC.m in Sources */,
 				04DFC9E71488F451004D2802 /* m_parse.m in Sources */,
-				044E2FB0148CCE640088316A /* m_status.m in Sources */,
 				04F14A2E148E098900936D73 /* PseudoTTY.m in Sources */,
+				0481A17514989A4C00F53BEC /* PrefWC.m in Sources */,
+				0481A17914989FD300F53BEC /* ExecuteWC.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1,6 +1,6 @@
 #import "m_tabManager.h"
 @implementation m_tabManager
-@synthesize tabView,goto_window = _goto_window,timer,modal_panel = _modal_panel,modal_tv = _modal_tv,modal_field = _modal_field,e,_status,modal_input = _modal_input,snipplet,signal_popup = _signal_popup;
+@synthesize tabView,goto_window = _goto_window,timer,snipplet,pwc;
 - (m_tabManager *) init {
 	return [self initWithFrame:[[NSApp mainWindow] frame]];
 }
@@ -22,6 +22,7 @@
 
 	self.snipplet = [NSArray arrayWithArray:a];
 }
+
 - (m_tabManager *) initWithFrame:(NSRect) frame {
 	self = [super init];
 	if (self) {
@@ -34,8 +35,8 @@
 					selector: @selector(handleTimer:)
 					userInfo: nil
 					repeats: YES];
-		self.e = [[m_exec alloc] init];
-		self.e.delegate = self;
+
+		self.pwc = [[PrefWC alloc] init];
 		[self createCodeSnipplets];
 		colorAttr[VARTYPE_COLOR_IDX] = [NSDictionary dictionaryWithObject:VARTYPE_COLOR forKey:NSForegroundColorAttributeName];
 		colorAttr[VALUE_COLOR_IDX] = [NSDictionary dictionaryWithObject:VALUE_COLOR forKey:NSForegroundColorAttributeName];
@@ -50,9 +51,6 @@
 		colorAttr[BRACKET_COLOR_IDX] = [NSDictionary dictionaryWithObject:VARTYPE_COLOR forKey:NSBackgroundColorAttributeName];
 		colorAttr[NOBRACKET_COLOR_IDX] = [NSDictionary dictionaryWithObject:BG_COLOR forKey:NSBackgroundColorAttributeName];
 		
-		self._status = [[m_status alloc] initWithTabManager:self];
-		lastColorRange = NSMakeRange(0, 0);
-		[self performSelector:@selector(fixModalTextView) withObject:nil afterDelay:0];
 		if (![self openStoredURLs]) {
 			[self open:nil];
 		}
@@ -102,10 +100,10 @@
 		[self.tabView selectTabViewItemAtIndex:index];
 	}
 }
-- (void) goLeft:(id) sender {
+- (IBAction) goLeft:(id) sender {
 	[self.tabView selectTabViewItemAtIndex:[self getTabIndex:DIRECTION_LEFT]];
 }
-- (void) goRight:(id) sender {
+- (IBAction) goRight:(id) sender {
 	[self.tabView selectTabViewItemAtIndex:[self getTabIndex:DIRECTION_RIGHT]];
 }
 - (NSInteger) getTabIndex:(int) direction {
@@ -187,6 +185,16 @@
 
 - (IBAction)closeButton:(id)sender {
 	TextVC *t = [self.tabView selectedTabViewItem].identifier;
+	if ([pwc.window isVisible]) {
+		[pwc.window orderOut:nil];
+		return;
+	}
+
+	if ([t.ewc.window isVisible]) {
+		[t.ewc.window orderOut:nil];
+		return;
+	}
+
 	if ([t is_modified]) {
 		NSInteger alertReturn = [t.s fileAlert:t.s.fileURL withMessage:@"WARNING: unsaved data." def:@"Cancel" alternate:@"Close w/o Save" other:@"Save & Close"];
 		if (alertReturn == NSAlertOtherReturn) { 		/* Save */
@@ -301,7 +309,7 @@
 		}
 	}
 	if (ret == NSTerminateNow) {
-		[self stopTask:nil];
+		[self stopAllTasks:nil];
 	}
 	return ret;
 }
@@ -363,152 +371,21 @@
 
 
 #pragma mark ExecutePanelWindow
-
+- (void) stopAllTasks:(id) sender {
+	[self walk_tabs:^(TextVC *t) {
+		[t.ewc.e terminate];
+	}];
+}
 - (IBAction)run_button:(id)sender {
 	TextVC *t = [self.tabView selectedTabViewItem].identifier;
-	NSString *cmd = [t get_execute_command];
-	if (!cmd) {
-		if (![self.modal_panel isKeyWindow]) {
-			[self displayModalTV];
-		}
-		return;
-	}
-	
-	[t save];
-
-	cmd = [cmd stringByReplacingOccurrencesOfString:@"{MYSELF}" withString:[t.s.fileURL path]];
-	cmd = [cmd stringByReplacingOccurrencesOfString:@"{MYSELF_BASENAME}" withString:[t.s basename]];
-	cmd = [cmd stringByReplacingOccurrencesOfString:@"{MYSELF_BASENAME_NOEXT}" withString:[[t.s basename] stringByDeletingPathExtension]];
-	cmd = [cmd stringByReplacingOccurrencesOfString:@"{MYDIR}" withString:[[t.s.fileURL path] stringByDeletingLastPathComponent]];
-	int timeout = DEFAULT_EXECUTE_TIMEOUT;  
-	if ([cmd rangeOfString:@"{NOTIMEOUT}"].location != NSNotFound) {
-		timeout = 0;
-		cmd = [cmd stringByReplacingOccurrencesOfString:@"{NOTIMEOUT}" withString:@""];
-	}
-		
-	if ([cmd rangeOfString:@"^\\s*?http(s)?://" options:NSRegularExpressionSearch].location != NSNotFound) {
-		[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:[cmd stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]]];
-		return;
-	}
-
-	if (![cmd isEqualToString:self.e._command]) { /* if we are trying to run different command alert */
-		if ([self AlertIfTaskIsRunning] == NO)
-			return;
-	}
-	[e execute:cmd withTimeout:timeout];
-	[self displayModalTV];
+	[t run_self];
 }
-
-- (BOOL) AlertIfTaskIsRunning {
-	if ([self.e.task isRunning]) {
-		NSString *running = [NSString stringWithFormat:@"CURRENT TASK:\n%@",self.e._command];
-		NSInteger ret = NSRunAlertPanel(@"There is a task running.", running , @"Close", @"Stop Task",nil);
-		if (ret != NSAlertDefaultReturn) {
-			[self stopTask:nil];
-			sleep(1); /* wait for terminate */
-			return YES;
-		}
-		return NO;
-	}
-	return YES;
-}
-- (void) diff_button:(id) sender {
-	if ([self AlertIfTaskIsRunning] == NO)
-		return;
-	NSMenuItem *item = sender;
-	TextVC *t = [self.tabView selectedTabViewItem].identifier;
-	NSURL *a = t.s.fileURL;
-	NSURL *b = [NSURL fileURLWithPath:[item title]];
-	if ([e diff:a against:b]) {
-		[self displayModalTV];
-	}
-}
-
-- (void) displayModalTV {
-	[TextVC scrollEnd:self.modal_tv];
-	[self.modal_panel makeKeyAndOrderFront:nil];
-	[self.modal_input becomeFirstResponder];
-}
-- (IBAction)sendToTask:(id)sender {
-	[e write:[[sender stringValue] stringByAppendingString:@"\n"]];
-}
-- (IBAction)restartTask:(id)sender {
-	[e restart];
-	[self.modal_input becomeFirstResponder];
-}
-- (IBAction)clearTV:(id)sender {
-	[self.modal_tv setString:@""];
-	lastColorRange = NSMakeRange(0, 0);
-	[self.modal_input becomeFirstResponder];
-}
-- (IBAction)stopTask:(id)sender {
-	[self.e terminate];
-	[self.modal_input becomeFirstResponder];
-}
-- (IBAction)showRunBuffer:(id)sender {
-	[[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
-	[self displayModalTV];
-}
-- (void) taskAddExecuteText:(NSString *)text {
-	NSRange range = { [[self.modal_tv string] length], 0 };
-	[self.modal_tv setSelectedRange: range];
-	[self.modal_tv replaceCharactersInRange: range withString:text];
-	[TextVC scrollEnd:self.modal_tv];
-}
-- (void) taskDidStart {
-	[self taskAddExecuteText:[NSString stringWithFormat:@"\nSTART: [%@] TASK(timeout: %@): %@\n",e._startTime,(e._timeout == 0 ? @"NOTIMEOUT" : [NSString stringWithFormat:@"%d",e._timeout]),e._command]];
-	[self.modal_input setEnabled:YES];
-	[self.signal_popup setEnabled:YES];
-	[self.modal_field setStringValue:[NSString stringWithString:e._command]];
-}
-- (void) taskDidTerminate {
-	NSString *timedOut = @"";
-	if (e._terminated) {
-		timedOut = @" [TOUT]";
-	} 
-	NSDate *now = [NSDate date];
-	NSTimeInterval diff = [now timeIntervalSinceDate:e._startTime];
-	[self taskAddExecuteText:[NSString stringWithFormat:@"\nEND : [%@ - took: %llfs] TASK(RC: %d%@): %@\n",now,diff,e._rc,timedOut,e._command]];
-	[self.modal_input setEnabled:NO];
-
-	NSInteger max = NSMaxRange(lastColorRange);
-	NSInteger len = [[self.modal_tv string] length];
-	NSRange range = {0 ,max};
-	[[self.modal_tv textStorage] addAttribute:NSForegroundColorAttributeName value:COMMENT_COLOR range:range];
-	range = NSMakeRange(max,len - max);
-	[[self.modal_tv textStorage] addAttribute:NSForegroundColorAttributeName value:PREPROCESS_COLOR range:range];
-	
-	lastColorRange = range;
-	[self.signal_popup setEnabled:NO];
-	[self.modal_input setEnabled:NO];
-}
-- (IBAction)taskSendSignal:(id) sender {
-	[e sendSignal:(int) [sender tag]];
-}
-- (void) fixModalTextView {
-	[self.modal_tv setHidden:NO];
-	[self.modal_tv setFont:FONT];
-	[self.modal_tv setTextColor:TEXT_COLOR];
-	NSMutableDictionary *selected = [[self.modal_tv selectedTextAttributes] mutableCopy];
-	[selected setObject:BG_COLOR forKey:NSForegroundColorAttributeName];
-	[selected setObject:TEXT_COLOR forKey:NSBackgroundColorAttributeName];
-	[self.modal_tv setSelectedTextAttributes:selected];
-	[self.modal_tv setBackgroundColor:BG_COLOR];
-	[self.modal_tv setInsertionPointColor:CURSOR_COLOR];
-	[self.modal_panel setLevel: NSFloatingWindowLevel]; 
-}
-
 #pragma mark Timer
 - (void) handleTimer:(id) sender {
 	[self performSelectorOnMainThread:@selector(signal:) withObject:self waitUntilDone:YES];
 }
 
 - (void) signal:(id) sender {
-	if ([self.e.task isRunning]) {
-		[_status enable];
-	} else {
-		[_status disable];
-	}
 	if ([NSApp isActive]) {
 		[self walk_tabs:^(TextVC *t) {
 			[t signal];
@@ -520,5 +397,10 @@
 - (IBAction)alwaysOnTop:(id)sender {
 	NSUserDefaults *preferences = [NSUserDefaults standardUserDefaults];
 	[preferences setObject:[NSNumber numberWithBool:([preferences boolForKey:@"DefaultAlwaysOnTop"] == YES) ? NO : YES] forKey:@"DefaultAlwaysOnTop"];
+}
+
+#pragma mark preferences
+- (IBAction)preferences:(id)sender {
+	[pwc.window makeKeyAndOrderFront:nil];
 }
 @end

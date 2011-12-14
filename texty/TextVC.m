@@ -4,7 +4,7 @@
 #define L_DEFAULT	2
 #define L_UNDEFINED 3
 @implementation TextVC
-@synthesize tabItem,s,parser,box,text,scroll;
+@synthesize tabItem,s,parser,box,text,scroll,ewc;
 - (NSRange) fullRange {
 	NSRange range = {0,[[text string] length]};
 	return range;
@@ -392,7 +392,43 @@
 	return NO;
 }
 
+- (void) run_diff_against:(NSURL *) b {
+	NSURL *a = s.fileURL;
+	[self run:[m_exec diff:a against:b] withTimeout:0];
+}
+- (void) run_self {
+	NSString *cmd = [self get_execute_command];
+	if (!cmd) {
+		cmd = [PrefWC getDefaultCommand];
+	}
+	[self save];
+	cmd = [cmd stringByReplacingOccurrencesOfString:@"{MYSELF}" withString:[s.fileURL path]];
+	cmd = [cmd stringByReplacingOccurrencesOfString:@"{MYSELF_BASENAME}" withString:[s basename]];
+	cmd = [cmd stringByReplacingOccurrencesOfString:@"{MYSELF_BASENAME_NOEXT}" withString:[[s basename] stringByDeletingPathExtension]];
+	cmd = [cmd stringByReplacingOccurrencesOfString:@"{MYDIR}" withString:[[s.fileURL path] stringByDeletingLastPathComponent]];
+	int timeout = DEFAULT_EXECUTE_TIMEOUT;  
+	if ([cmd rangeOfString:@"{NOTIMEOUT}"].location != NSNotFound) {
+		timeout = 0;
+		cmd = [cmd stringByReplacingOccurrencesOfString:@"{NOTIMEOUT}" withString:@""];
+	}
+	
+	if ([cmd rangeOfString:@"^\\s*?http(s)?://" options:NSRegularExpressionSearch].location != NSNotFound) {
+		[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:[cmd stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]]];
+		return;
+	}
+	[self run:cmd withTimeout:timeout];
+}
+
+- (void) run: (NSString *) cmd withTimeout:(int) timeout {
+	if (!ewc)
+		self.ewc = [[ExecuteWC alloc] init];
+	[ewc execute:cmd withTimeout:timeout];
+	[ewc.window makeKeyAndOrderFront:nil];
+}
+
 - (void) close {
-	[s close];	
+	[s close];
+	[ewc.e terminate];
+	self.ewc = nil;
 }
 @end

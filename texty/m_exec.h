@@ -30,7 +30,7 @@
 - (void) terminate;
 - (void) readPipe:(NSNotification *)notification;
 - (void) restart;
-- (BOOL) diff:(NSURL *) a against:(NSURL *) b;
++ (NSString *) diff:(NSURL *) a against:(NSURL *) b;
 - (BOOL) execute:(NSString *) command withTimeout:(int) timeout;
 - (void) write:(NSString *) value;
 @end

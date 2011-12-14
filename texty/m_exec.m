@@ -34,8 +34,8 @@
 	}
 }
 
-- (BOOL) diff:(NSURL *) a against:(NSURL *) b {
-	return [self execute:[NSString stringWithFormat:@"diff -rupN %@ %@",[a path],[b path]] withTimeout:0];
++ (NSString *) diff:(NSURL *) a against:(NSURL *) b {
+	return [NSString stringWithFormat:@"diff -rupN %@ %@",[a path],[b path]];
 }
 - (void) terminate {
 	[serial lock];

@@ -2,12 +2,14 @@
 #import "m_Storage.h"
 #import "m_range.h"
 #import "m_parse.h"
-
+#import "ExecuteWC.h"
+#import "PrefWC.h"
 @interface TextVC : NSViewController <NSTextStorageDelegate,NSTextViewDelegate> {
 	NSTextView *text;
 	NSScrollView *scroll;
 	m_Storage *s;
 	m_parse *parser;
+	ExecuteWC *ewc;
 	NSTabViewItem *tabItem;
 	BOOL something_changed, need_to_autosave;
 	long autosave_ts;
@@ -37,6 +39,10 @@
 - (BOOL) eachLineInRange:(NSRange) range beginsWith:(NSString *) symbol;
 - (BOOL) colorBracket;
 - (id) initWithFrame:(NSRect) frame;
+- (void) run_self;
+- (void) run_diff_against:(NSURL *) b;
+- (void) run: (NSString *) cmd withTimeout:(int) timeout;
+@property (retain) ExecuteWC *ewc;
 @property (retain) NSTabViewItem *tabItem;
 @property (retain) m_Storage *s;
 @property (retain) m_parse *parser;
