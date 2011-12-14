@@ -4,7 +4,7 @@
 #define L_DEFAULT	2
 #define L_UNDEFINED 3
 @implementation TextVC
-@synthesize tabItem,s,parser,box;
+@synthesize tabItem,s,parser,box,text,scroll;
 - (NSRange) fullRange {
 	NSRange range = {0,[[text string] length]};
 	return range;
@@ -71,16 +71,24 @@
 	[text setBackgroundColor:[NSColor darkGrayColor]];
 	[text setEditable:NO];	
 }
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+- (id) initWithFrame:(NSRect) frame {
+    self = [super init];
     if (self) {
 		self.s = [[m_Storage alloc] init];
 		self.parser = [[m_parse alloc] init];
 		self.tabItem  = [[NSTabViewItem alloc] initWithIdentifier:self];
-		tabItem.view = self.view;
+		self.scroll = [[NSScrollView alloc] initWithFrame:frame];
+		NSSize contentSize = [self.scroll contentSize];
+		[scroll setBorderType:NSNoBorder];
+		[scroll setHasVerticalScroller:YES];
+		[scroll setHasHorizontalScroller:NO];
+		[scroll setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
+		tabItem.view = scroll;
+		self.text = [[NSTextView alloc] initWithFrame:NSMakeRect(0, 0, contentSize.width, contentSize.height)];
+		[text setMinSize:NSMakeSize(0.0, contentSize.height)];
+		[text setMaxSize:NSMakeSize(FLT_MAX, FLT_MAX)];
 		text.delegate = self;
 		text.textStorage.delegate = self;		
-
 		[text setVerticallyResizable:YES];
 		[text setHorizontallyResizable:YES];
 		[text setAutoresizingMask:NSViewWidthSizable];
@@ -127,10 +135,10 @@
 		[text addSubview:box];
 		locked = NO;
 		[self label:L_UNDEFINED];
+		[self.scroll setDocumentView:self.text];
     }
     return self;
 }
-
 - (void) responder {
 	[text setSelectedRange:NSMakeRange(0, 0)];
 	[scroll becomeFirstResponder];

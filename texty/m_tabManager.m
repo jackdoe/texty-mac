@@ -260,7 +260,7 @@
 		}
 		return NO;
 	}
-	o = [[TextVC alloc] initWithNibName:@"TextVC" bundle:nil];
+	o = [[TextVC alloc] initWithFrame:[self.tabView frame]];
 	if ([o open:file]) {
 		[self.tabView addTabViewItem:o.tabItem];
 		[self.tabView selectTabViewItem:o.tabItem];

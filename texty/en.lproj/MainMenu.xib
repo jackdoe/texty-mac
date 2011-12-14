@@ -1652,7 +1652,6 @@
 					<string key="NSFrameSize">{640, 480}</string>
 					<reference key="NSSuperview"/>
 					<reference key="NSWindow"/>
-					<reference key="NSNextKeyView"/>
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1680, 1028}}</string>
 				<string key="NSMaxSize">{10000000000000, 10000000000000}</string>
@@ -1688,7 +1687,6 @@
 							<string key="NSFrame">{{20, 18}, {96, 22}}</string>
 							<reference key="NSSuperview" ref="1053201374"/>
 							<reference key="NSWindow"/>
-							<reference key="NSNextKeyView"/>
 							<string key="NSReuseIdentifierKey">_NS:903</string>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSTextFieldCell" key="NSCell" id="485702925">
@@ -1762,7 +1760,7 @@
 											<string key="NSFrame">{{0, -14}, {10, 14}}</string>
 											<reference key="NSSuperview" ref="804064587"/>
 											<reference key="NSWindow"/>
-											<reference key="NSNextKeyView" ref="929777224"/>
+											<reference key="NSNextKeyView" ref="371734592"/>
 											<string key="NSReuseIdentifierKey">_NS:1480</string>
 											<object class="NSTextContainer" key="NSTextContainer" id="100975306">
 												<object class="NSLayoutManager" key="NSLayoutManager">
@@ -1904,7 +1902,7 @@ AAEAAQAAAT0AAwAAAAEAAgAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 							<string key="NSFrame">{{15, 53}, {783, 473}}</string>
 							<reference key="NSSuperview" ref="919599217"/>
 							<reference key="NSWindow"/>
-							<reference key="NSNextKeyView" ref="371734592"/>
+							<reference key="NSNextKeyView" ref="804064587"/>
 							<string key="NSReuseIdentifierKey">_NS:940</string>
 							<int key="NSsFlags">133136</int>
 							<reference key="NSVScroller" ref="929777224"/>
@@ -2057,7 +2055,6 @@ AAEAAQAAAT0AAwAAAAEAAgAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 							<string key="NSFrame">{{671, 15}, {129, 26}}</string>
 							<reference key="NSSuperview" ref="919599217"/>
 							<reference key="NSWindow"/>
-							<reference key="NSNextKeyView"/>
 							<string key="NSReuseIdentifierKey">_NS:868</string>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSPopUpButtonCell" key="NSCell" id="434688164">
@@ -3728,14 +3725,6 @@ AAEAAQAAAT0AAwAAAAEAAgAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 						<reference key="destination" ref="34169372"/>
 					</object>
 					<int key="connectionID">684</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
-						<string key="label">delegate</string>
-						<reference key="source" ref="204008280"/>
-						<reference key="destination" ref="1021"/>
-					</object>
-					<int key="connectionID">810</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
@@ -5651,7 +5640,7 @@ AAEAAQAAAT0AAwAAAAEAAgAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">845</int>
+			<int key="maxID">846</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">

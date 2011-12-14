@@ -23,7 +23,6 @@
 		04694517147BB06300256B61 /* m_Storage.m in Sources */ = {isa = PBXBuildFile; fileRef = 04694516147BB06300256B61 /* m_Storage.m */; };
 		04842D55148557A6007782F6 /* texty_red.icns in Resources */ = {isa = PBXBuildFile; fileRef = 04842D54148557A6007782F6 /* texty_red.icns */; };
 		049294361488D6C6003642DF /* TextVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 049294341488D6C6003642DF /* TextVC.m */; };
-		049294371488D6C6003642DF /* TextVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 049294351488D6C6003642DF /* TextVC.xib */; };
 		04DFC9E71488F451004D2802 /* m_parse.m in Sources */ = {isa = PBXBuildFile; fileRef = 04DFC9E61488F451004D2802 /* m_parse.m */; };
 		04E84663147E281500E1E027 /* m_range.m in Sources */ = {isa = PBXBuildFile; fileRef = 04E84662147E281500E1E027 /* m_range.m */; };
 		04EE1C4A147D0ACB0056D73F /* m_exec.m in Sources */ = {isa = PBXBuildFile; fileRef = 04EE1C49147D0ACB0056D73F /* m_exec.m */; };
@@ -59,7 +58,6 @@
 		04842D54148557A6007782F6 /* texty_red.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = texty_red.icns; sourceTree = "<group>"; };
 		049294331488D6C6003642DF /* TextVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextVC.h; sourceTree = "<group>"; };
 		049294341488D6C6003642DF /* TextVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextVC.m; sourceTree = "<group>"; };
-		049294351488D6C6003642DF /* TextVC.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TextVC.xib; sourceTree = "<group>"; };
 		04DFC9E51488F451004D2802 /* m_parse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = m_parse.h; sourceTree = "<group>"; };
 		04DFC9E61488F451004D2802 /* m_parse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = m_parse.m; sourceTree = "<group>"; };
 		04E84661147E281500E1E027 /* m_range.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = m_range.h; sourceTree = "<group>"; };
@@ -177,7 +175,6 @@
 				04E84662147E281500E1E027 /* m_range.m */,
 				049294331488D6C6003642DF /* TextVC.h */,
 				049294341488D6C6003642DF /* TextVC.m */,
-				049294351488D6C6003642DF /* TextVC.xib */,
 			);
 			name = Text;
 			sourceTree = "<group>";
@@ -269,7 +266,6 @@
 				045C348A147FEB6A00162AA1 /* texty.icns in Resources */,
 				045C348C147FEB9800162AA1 /* texty_green.icns in Resources */,
 				04842D55148557A6007782F6 /* texty_red.icns in Resources */,
-				049294371488D6C6003642DF /* TextVC.xib in Resources */,
 				044E2FB4148CD1890088316A /* texty_small.png in Resources */,
 				044E2FB6148CD5A00088316A /* texty_red_small.png in Resources */,
 				0417C7E514900D0400CDFE14 /* SyntaxDef.plist in Resources */,

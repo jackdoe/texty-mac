@@ -4,8 +4,8 @@
 #import "m_parse.h"
 
 @interface TextVC : NSViewController <NSTextStorageDelegate,NSTextViewDelegate> {
-	IBOutlet NSTextView *text;
-	IBOutlet NSScrollView *scroll;
+	NSTextView *text;
+	NSScrollView *scroll;
 	m_Storage *s;
 	m_parse *parser;
 	NSTabViewItem *tabItem;
@@ -36,8 +36,11 @@
 - (BOOL) eachLineOfSelectionBeginsWith:(NSString *) symbol;
 - (BOOL) eachLineInRange:(NSRange) range beginsWith:(NSString *) symbol;
 - (BOOL) colorBracket;
+- (id) initWithFrame:(NSRect) frame;
 @property (retain) NSTabViewItem *tabItem;
 @property (retain) m_Storage *s;
 @property (retain) m_parse *parser;
 @property (retain) NSBox *box;
+@property (retain) NSTextView *text;
+@property (retain) NSScrollView *scroll;
 @end
