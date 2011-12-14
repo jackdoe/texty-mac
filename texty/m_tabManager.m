@@ -191,6 +191,7 @@
 	}
 
 	if ([t.ewc.window isVisible]) {
+		[t.ewc.e terminate];
 		[t.ewc.window orderOut:nil];
 		return;
 	}
