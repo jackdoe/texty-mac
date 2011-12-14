@@ -64,8 +64,10 @@
 	NSUserDefaults *preferences = [NSUserDefaults standardUserDefaults];
 	NSArray *d = [preferences objectForKey:@"openedTabs"];
 	for (NSString *f in d) {
-		if ([self open:[NSURL fileURLWithPath:f]])
-			ret = YES;
+		if ([m_Storage fileExists:f]) {
+			if ([self open:[NSURL fileURLWithPath:f]])
+				ret = YES;
+		}
 	}
 	NSString *selected = [preferences objectForKey:@"selectedTab"];
 	__block TextVC *exists = nil;

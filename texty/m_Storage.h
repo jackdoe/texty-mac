@@ -34,4 +34,5 @@
 - (BOOL) unlink:(NSURL *) url;
 - (BOOL) unlinkIfTemporary;
 - (void) close;
++ (BOOL) fileExists:(NSString *) path;
 @end

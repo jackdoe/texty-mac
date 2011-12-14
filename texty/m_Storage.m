@@ -1,6 +1,10 @@
 #import "m_Storage.h"
 @implementation m_Storage
 @synthesize fileURL, data,temporary,existing_backups,encoding;
++ (BOOL) fileExists:(NSString *) path {
+	NSFileManager *f = [[NSFileManager alloc] init];
+	return [f fileExistsAtPath:path];
+}
 - (NSInteger) fileAlert:(NSURL *) url withMessage:(NSString *) message def:(NSString *) def alternate:(NSString *) alternate other:(NSString *) other {
 	return NSRunAlertPanel([url path], message, def, alternate, other);
 }
