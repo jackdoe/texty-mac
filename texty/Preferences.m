@@ -19,7 +19,7 @@
 	NSString *d = [p objectForKey:@"PDefaultCommand"];
 	if (!d || [d rangeOfString:@"^http(s)?://" options:NSRegularExpressionSearch].location == NSNotFound) {
 		[p setValue:DEFAULT_COMMAND forKey:@"PDefaultCommand"];
-		return DEFAULT_COMMAND;
+		d = DEFAULT_COMMAND;
 	}
 	return d;
 }
@@ -36,5 +36,6 @@
 	[Preferences defaultDir];
 	[Preferences defaultAutoSaveInterval];
 	[Preferences defaultCommand];
+	[Preferences terminateOnClose];
 }
 @end
