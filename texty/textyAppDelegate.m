@@ -4,8 +4,8 @@
 
 @synthesize window = _window;
 @synthesize tab;
-- (void)applicationDidFinishLaunching:(NSNotification *)aNotification
-{
+- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+	[Preferences initialValues];
 	[[NSApplication sharedApplication] setPresentationOptions:NSFullScreenWindowMask];
 	[self.window setCollectionBehavior: NSWindowCollectionBehaviorFullScreenPrimary];
 	[self.window becomeFirstResponder];

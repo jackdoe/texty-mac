@@ -3,7 +3,7 @@
 #import "m_range.h"
 #import "m_parse.h"
 #import "ExecuteWC.h"
-#import "PrefWC.h"
+#import "Preferences.h"
 @interface TextVC : NSViewController <NSTextStorageDelegate,NSTextViewDelegate> {
 	NSTextView *text;
 	NSScrollView *scroll;

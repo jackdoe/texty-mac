@@ -1,6 +1,6 @@
 #import "m_tabManager.h"
 @implementation m_tabManager
-@synthesize tabView,goto_window = _goto_window,timer,snipplet,pwc;
+@synthesize tabView,goto_window = _goto_window,timer,snipplet;
 - (m_tabManager *) init {
 	return [self initWithFrame:[[NSApp mainWindow] frame]];
 }
@@ -36,7 +36,6 @@
 					userInfo: nil
 					repeats: YES];
 
-		self.pwc = [[PrefWC alloc] init];
 		[self createCodeSnipplets];
 		colorAttr[VARTYPE_COLOR_IDX] = [NSDictionary dictionaryWithObject:VARTYPE_COLOR forKey:NSForegroundColorAttributeName];
 		colorAttr[VALUE_COLOR_IDX] = [NSDictionary dictionaryWithObject:VALUE_COLOR forKey:NSForegroundColorAttributeName];
@@ -187,11 +186,6 @@
 
 - (IBAction)closeButton:(id)sender {
 	TextVC *t = [self.tabView selectedTabViewItem].identifier;
-	if ([pwc.window isVisible]) {
-		[pwc.window orderOut:nil];
-		return;
-	}
-
 	if ([t.ewc.window isVisible]) {
 		[t.ewc.e terminate];
 		[t.ewc.window orderOut:nil];
@@ -400,10 +394,5 @@
 - (IBAction)alwaysOnTop:(id)sender {
 	NSUserDefaults *preferences = [NSUserDefaults standardUserDefaults];
 	[preferences setObject:[NSNumber numberWithBool:([preferences boolForKey:@"DefaultAlwaysOnTop"] == YES) ? NO : YES] forKey:@"DefaultAlwaysOnTop"];
-}
-
-#pragma mark preferences
-- (IBAction)preferences:(id)sender {
-	[pwc.window makeKeyAndOrderFront:nil];
 }
 @end

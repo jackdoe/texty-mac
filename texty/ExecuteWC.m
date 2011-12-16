@@ -1,5 +1,4 @@
 #import "ExecuteWC.h"
-#import "m_parse.h"
 @implementation ExecuteWC
 @synthesize e;
 - (id) init {
@@ -18,7 +17,8 @@
 	[self fixModalTextView];
 }
 - (void) windowWillClose:(NSNotification *)notification {
-	[e terminate];
+	if ([Preferences terminateOnClose])
+		[e terminate];
 }
 - (IBAction)action:(id)sender {
 	switch ([sender tag]) {

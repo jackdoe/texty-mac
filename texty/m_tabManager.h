@@ -1,13 +1,12 @@
 #import <Foundation/Foundation.h>
 #import "m_exec.h"
 #import "TextVC.h"
-#import "PrefWC.h"
+#import "Preferences.h"
 @interface m_tabManager : NSObject <NSTabViewDelegate,NSMenuDelegate> {
 	NSTabView *tabView;
 	NSWindow * IBOutlet goto_window;
 	NSTimer *timer;
 	NSArray *snipplet;
-	PrefWC *pwc;
 }
 - (m_tabManager *) initWithFrame:(NSRect) frame;
 - (IBAction)openButton:(id)sender;
@@ -28,7 +27,6 @@
 - (IBAction)commentSelection:(id)sender;
 - (IBAction)alwaysOnTop:(id)sender;
 - (IBAction)selectTabAtIndex:(id) sender;
-- (IBAction)preferences:(id)sender;
 - (IBAction)run_button:(id)sender;
 - (void) walk_tabs:(void (^)(TextVC *t)) callback;
 - (BOOL) open:(NSURL *) file;
@@ -42,5 +40,4 @@
 @property (retain) NSTimer *timer;
 @property (retain) NSArray *snipplet;
 @property (assign) NSWindow *goto_window;
-@property (retain) PrefWC *pwc;
 @end

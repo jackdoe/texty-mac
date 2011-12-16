@@ -99,5 +99,10 @@
 		<key>COPY</key>
 		<string>rb</string>
 	</dict>
+	<key>pm</key>
+	<dict>
+		<key>COPY</key>
+		<string>pl</string>
+	</dict>
 </dict>
 </plist>

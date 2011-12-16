@@ -375,7 +375,7 @@ do {																		\
 		SET_BLOCK(b,'\'', 0, '\'', 0, STRING1_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_NO_VAR | flags))
 		SET_BLOCK(b,'|', 0, '|', 0, PREPROCESS_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_SHOW_VAR | flags))
 		SET_BLOCK(b,'/', 0, '/', 0, PREPROCESS_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_NO_KEYWORD | flags))
-	} else if ([self ext:ext is:@"sh pl"]) {
+	} else if ([self ext:ext is:@"sh pl pm"]) {
 		SET_BLOCK(b,'#', 0, 0, 0, COMMENT_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_NO_KEYWORD))
 		SET_BLOCK(b,'"', 0, '"', 0, STRING2_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_SHOW_VAR))
 		SET_BLOCK(b,'`', 0, '`', 0, CONSTANT_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_SHOW_VAR | B_SHOW_KEYWORD))

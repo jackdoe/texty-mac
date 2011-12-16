@@ -1,5 +1,7 @@
 #import <Cocoa/Cocoa.h>
 #import "m_exec.h"
+#import "m_parse.h"
+#import "Preferences.h"
 #define TAG_INPUT 	0
 #define TAG_STOP 	1
 #define TAG_CLEAR 	2

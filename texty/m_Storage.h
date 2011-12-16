@@ -1,6 +1,5 @@
 #import <Foundation/Foundation.h>
-#define TEXTY_DIR @"TEXTY_DATA"
-
+#import "Preferences.h"
 @interface m_Storage : NSObject {
 	NSString *data;
 	NSURL *fileURL;

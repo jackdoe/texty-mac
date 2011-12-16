@@ -113,7 +113,7 @@
 }
 - (NSString *) autosave:(BOOL) export_only {
 	NSString *nameDir = [[self.fileURL path] stringByReplacingOccurrencesOfString:@"/" withString:@"_"];
-	NSString *dir = [NSHomeDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"%@/AUTOSAVE/%@",TEXTY_DIR,nameDir]];
+	NSString *dir = [[Preferences defaultDir] stringByAppendingPathComponent:[NSString stringWithFormat:@"AUTOSAVE/%@",nameDir]];
 	NSString *fileName = [dir stringByAppendingPathComponent:[NSString stringWithFormat:@"%@",[self basename]]];
 	if (export_only)
 		return fileName;
@@ -124,7 +124,7 @@
 - (NSArray *) backups {
 		NSFileManager *f = [[NSFileManager alloc] init];
 		NSString *nameDir = [[self.fileURL path] stringByReplacingOccurrencesOfString:@"/" withString:@"_"];
-		NSString *dir = [NSHomeDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"%@/BACKUP/%@",TEXTY_DIR,nameDir]];
+		NSString *dir = [[Preferences defaultDir] stringByAppendingPathComponent:[NSString stringWithFormat:@"BACKUP/%@",nameDir]];
 		NSError *err;
 		NSArray *content = [f contentsOfDirectoryAtPath:dir error:&err];
 		NSMutableArray *ret = [NSMutableArray array];
@@ -146,7 +146,7 @@
 }
 - (void) backup {
 	NSString *nameDir = [[self.fileURL path] stringByReplacingOccurrencesOfString:@"/" withString:@"_"];
-	NSString *dir = [NSHomeDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"%@/BACKUP/%@",TEXTY_DIR,nameDir]];
+	NSString *dir = [[Preferences defaultDir] stringByAppendingPathComponent:[NSString stringWithFormat:@"BACKUP/%@",nameDir]];
 	NSString *fileName = [dir stringByAppendingPathComponent:[NSString stringWithFormat:@"%lu.%@",time(NULL),[self.fileURL pathExtension]]];
 	if ([self createDirecoryWithPath:dir])
 		[self write:self.data toPath:fileName];
@@ -156,7 +156,7 @@
 	NSString *name;
 	NSDateFormatter* formatter = [[NSDateFormatter alloc] init];
 	[formatter setDateFormat:@"yyyy-MM-dd"];
-	NSString *dir = [NSHomeDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"%@/TEMPORARY/%@",TEXTY_DIR,[formatter stringFromDate:[NSDate date]]]];
+	NSString *dir = [[Preferences defaultDir] stringByAppendingPathComponent:[NSString stringWithFormat:@"TEMPORARY/%@",[formatter stringFromDate:[NSDate date]]]];
 ret:
 	
 	name = [dir stringByAppendingPathComponent: [NSString stringWithFormat: @"TEMP-%lu.%ld.txt",time(NULL),random()]];

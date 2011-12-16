@@ -17,7 +17,7 @@
 
 - (void) signal {
 	if (need_to_autosave) {
-		if (time(NULL) - autosave_ts > AUTOSAVE_INTERVAL) {
+		if (time(NULL) - autosave_ts > [Preferences defaultAutoSaveInterval]) {
 			if (s.temporary)
 				[s migrate:s.fileURL withString:[text string] autosaving:YES];
 			else 
@@ -39,7 +39,6 @@
 	if ([s same_as_disk] == NO) 
 		if (locked == NO)
 			[self lockText];
-		
 }
 - (void) label:(int) type {
 	switch(type) {
@@ -399,7 +398,7 @@
 - (void) run_self {
 	NSString *cmd = [self get_execute_command];
 	if (!cmd) {
-		cmd = [PrefWC getDefaultCommand];
+		cmd = [Preferences defaultCommand];
 	}
 	[self save];
 	cmd = [cmd stringByReplacingOccurrencesOfString:@"{MYSELF}" withString:[s.fileURL path]];

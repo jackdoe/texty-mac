@@ -1,5 +1,6 @@
 #import <Cocoa/Cocoa.h>
 #import "m_tabManager.h"
+#import "Preferences.h"
 @interface textyAppDelegate : NSObject <NSApplicationDelegate,NSWindowDelegate> {
 	m_tabManager IBOutlet *tab;
 }
