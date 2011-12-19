@@ -77,6 +77,8 @@
 		self.parser = [[m_parse alloc] init];
 		self.tabItem  = [[NSTabViewItem alloc] initWithIdentifier:self];
 		self.scroll = [[NSScrollView alloc] initWithFrame:frame];
+		NSSize char_size = [[NSString stringWithString:@" "] sizeWithAttributes: [NSDictionary dictionaryWithObject:FONT forKey: NSFontAttributeName]];
+
 		NSSize contentSize = [self.scroll contentSize];
 		[scroll setBorderType:NSNoBorder];
 		[scroll setHasVerticalScroller:YES];
@@ -104,8 +106,8 @@
 		NSMutableDictionary *selected = [[text selectedTextAttributes] mutableCopy];
 		NSMutableParagraphStyle *para = [[NSMutableParagraphStyle alloc] init];
 		[para setLineSpacing:NSLineBreakByTruncatingHead];
-		[para setDefaultTabInterval:36.];
-		[para setTabStops:[NSArray array]];	
+		[para setDefaultTabInterval:(char_size.width * 4)];
+		[para setTabStops:[NSArray array]];			
 		[text setDefaultParagraphStyle:para];
 		[text setTypingAttributes:[NSDictionary dictionaryWithObject:para forKey:NSParagraphStyleAttributeName]];
 		[text setFont:FONT];
@@ -118,7 +120,6 @@
 		[text setBackgroundColor:BG_COLOR];
 		[text setInsertionPointColor:CURSOR_COLOR];
 		NSRect boxRect = [text frame];
-		NSSize char_size = [[NSString stringWithString:@"a"] sizeWithAttributes: [NSDictionary dictionaryWithObject:FONT forKey: NSFontAttributeName]];
 		boxRect.size.width = 1;
 		boxRect.origin.y = 0;
 		boxRect.origin.x +=  char_size.width * 80;

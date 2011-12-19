@@ -149,8 +149,8 @@
 #pragma mark Open/Save/Close/Goto
 - (IBAction)openButton:(id)sender {
 	NSOpenPanel *panel	= [NSOpenPanel openPanel];
-	NSString *home = NSHomeDirectory();
-	[panel setDirectoryURL:[NSURL fileURLWithPath:[home stringByAppendingPathComponent:DEFAULT_OPEN_DIR]]];
+	TextVC *t = [self.tabView selectedTabViewItem].identifier;
+	[panel setDirectoryURL:[[t.s fileURL] URLByDeletingLastPathComponent]];
 	panel.allowsMultipleSelection = YES;
 	if ([panel runModal] == NSOKButton) {
 		NSArray *files = [panel URLs];;
