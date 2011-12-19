@@ -11,4 +11,5 @@
 - (NSRange) paragraph:(NSTextView *) tv;
 + (NSRange) rangeOfLine:(NSInteger) requested_line inString:(NSString *) s;
 + (NSInteger) numberOfLines:(NSString *) s;
++ (NSRange) visibleRangeinTextView:(NSTextView *) tv;
 @end

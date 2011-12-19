@@ -184,8 +184,6 @@ static struct word * word_new(struct word_head *wh) {
 	[lm addTemporaryAttributes:colorAttr[color] forCharacterRange:range];
 }
 
-
-
 - (void) highlight:(NSRange) range inTextView:(NSTextView *) tv {
 	/* XXX: getting more and more ugly */
 	if (!_syntax_color)
@@ -403,15 +401,20 @@ do {																		\
 	return ret;
 }
 
-
-- (void) parse:(m_range *) _range inTextView:(NSTextView *)tv{
-	NSRange area = [_range paragraph:tv];
+- (void) parseNSRange:(NSRange) area inTextView:(NSTextView *)tv {
 	[self clearColors:area inTextView:tv];
 	[self highlight:area inTextView:tv];
 	if ([self get_execute_command:tv]) 
 		[self color:[m_range rangeOfLine:EXECUTE_LINE inString:[tv string]] withColor:CONDITION_COLOR_IDX inTextView:tv];
 }
-
+- (void) parse:(m_range *) _range inTextView:(NSTextView *)tv{
+//	NSRange area = [_range paragraph:tv];
+//	[self parseNSRange:area inTextView:tv];
+	[self parseNSRange:[m_range visibleRangeinTextView:tv] inTextView:tv];
+}
+- (void) scrolledTextView:(NSTextView *) tv {
+	[self parseNSRange:[m_range visibleRangeinTextView:tv] inTextView:tv];
+}
 #pragma mark textView proto
 - (void) dealloc {
 	hash_init(&hash[0]);

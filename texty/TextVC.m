@@ -136,6 +136,10 @@
 		locked = NO;
 		[self label:L_UNDEFINED];
 		[self.scroll setDocumentView:self.text];
+		NSView *m = [self.scroll contentView];
+		[m setPostsBoundsChangedNotifications:YES];
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(boundsDidChange:) name:NSViewBoundsDidChangeNotification object:m]; 
+
     }
     return self;
 }
@@ -430,5 +434,8 @@
 	[s close];
 	[ewc.e terminate];
 	self.ewc = nil;
+}
+- (void) boundsDidChange:(id) noti {
+	[parser scrolledTextView:text];
 }
 @end

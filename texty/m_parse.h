@@ -156,5 +156,6 @@ NSDictionary *colorAttr[20];
 - (NSString *) get_execute_command:(NSTextView *) tv;
 - (void) clearColors:(NSRange) area inTextView:(NSTextView *) tv;
 - (void) color:(NSRange) range withColor:(unsigned char) color inTextView:(NSTextView *) tv;
+- (void) scrolledTextView:(NSTextView *) tv;
 @property (assign) BOOL autoindent;
 @end

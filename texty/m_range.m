@@ -42,11 +42,23 @@
 	NSRange area = [s paragraphRangeForRange:NSMakeRange(i, 0)];
 	return area;
 }
+
++(NSRange) visibleRangeinTextView:(NSTextView *) tv{
+    NSRect visibleRect = [tv visibleRect];
+    NSLayoutManager *lm = [tv layoutManager];
+    NSTextContainer *tc = [tv textContainer];
+    
+    NSRange glyphVisibleRange = [lm glyphRangeForBoundingRect:visibleRect inTextContainer:tc];;
+    NSRange charVisibleRange = [lm characterRangeForGlyphRange:glyphVisibleRange  actualGlyphRange:nil];
+    return charVisibleRange;
+}
+
 - (NSRange) paragraph:(NSTextView *) tv {
-	NSString *s = [tv string];
-	NSInteger len = [s length];
-	/* XXX: parse everything at every keystroke to test the syntax highlighter */
-	return NSMakeRange(0, len);
+	return [m_range visibleRangeinTextView:tv];
+//	NSString *s = [tv string];
+//	NSInteger len = [s length];
+/*  XXX: parse everything at every keystroke to test the syntax highlighter */	
+//	return NSMakeRange(0, len);
 //
 //	
 //	
