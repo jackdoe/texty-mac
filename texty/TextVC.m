@@ -106,7 +106,7 @@
 		NSMutableDictionary *selected = [[text selectedTextAttributes] mutableCopy];
 		NSMutableParagraphStyle *para = [[NSMutableParagraphStyle alloc] init];
 		[para setLineSpacing:NSLineBreakByTruncatingHead];
-		[para setDefaultTabInterval:(char_size.width * 4)];
+		[para setDefaultTabInterval:(char_size.width * 8)];
 		[para setTabStops:[NSArray array]];			
 		[text setDefaultParagraphStyle:para];
 		[text setTypingAttributes:[NSDictionary dictionaryWithObject:para forKey:NSParagraphStyleAttributeName]];
