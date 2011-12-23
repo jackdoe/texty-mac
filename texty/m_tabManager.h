@@ -28,6 +28,7 @@
 - (IBAction)alwaysOnTop:(id)sender;
 - (IBAction)selectTabAtIndex:(id) sender;
 - (IBAction)run_button:(id)sender;
+- (void) diff_button:(id) sender;
 - (void) walk_tabs:(void (^)(TextVC *t)) callback;
 - (BOOL) open:(NSURL *) file;
 - (NSApplicationTerminateReply) gonna_terminate;

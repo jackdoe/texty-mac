@@ -310,6 +310,12 @@
 	}
 	return ret;
 }
+- (void) diff_button:(id) sender {
+	NSMenuItem *m = sender;
+	NSURL *b = [NSURL fileURLWithPath:[m title]];
+	TextVC *t = [self.tabView selectedTabViewItem].identifier;
+	[t run_diff_against:b];
+}
 - (void) encoding_button:(id) sender {
 	NSMenuItem *m = sender;
 	NSStringEncoding enc = m.tag;
