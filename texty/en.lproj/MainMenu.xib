@@ -1699,7 +1699,6 @@
 							<string key="NSFrame">{{66, 20}, {255, 17}}</string>
 							<reference key="NSSuperview" ref="1053201374"/>
 							<reference key="NSWindow"/>
-							<reference key="NSNextKeyView"/>
 							<string key="NSReuseIdentifierKey">_NS:3944</string>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSTextFieldCell" key="NSCell" id="341953075">
@@ -1845,7 +1844,6 @@
 							<string key="NSFrame">{{456, 12}, {82, 32}}</string>
 							<reference key="NSSuperview" ref="433326485"/>
 							<reference key="NSWindow"/>
-							<reference key="NSNextKeyView"/>
 							<string key="NSReuseIdentifierKey">_NS:687</string>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSButtonCell" key="NSCell" id="569562087">
@@ -2009,14 +2007,6 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBActionConnection" key="connection">
-						<string key="label">undo:</string>
-						<reference key="source" ref="1014"/>
-						<reference key="destination" ref="1058277027"/>
-					</object>
-					<int key="connectionID">223</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
 						<string key="label">copy:</string>
 						<reference key="source" ref="1014"/>
 						<reference key="destination" ref="860595796"/>
@@ -2062,14 +2052,6 @@
 						<reference key="destination" ref="679648819"/>
 					</object>
 					<int key="connectionID">230</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
-						<string key="label">redo:</string>
-						<reference key="source" ref="1014"/>
-						<reference key="destination" ref="790794224"/>
-					</object>
-					<int key="connectionID">231</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBActionConnection" key="connection">
@@ -2830,6 +2812,22 @@
 						<reference key="destination" ref="3505219"/>
 					</object>
 					<int key="connectionID">871</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">undo:</string>
+						<reference key="source" ref="778378434"/>
+						<reference key="destination" ref="1058277027"/>
+					</object>
+					<int key="connectionID">955</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">redo:</string>
+						<reference key="source" ref="778378434"/>
+						<reference key="destination" ref="790794224"/>
+					</object>
+					<int key="connectionID">956</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
@@ -4568,7 +4566,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">954</int>
+			<int key="maxID">956</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -4626,6 +4624,7 @@
 						<string key="goto_button:">id</string>
 						<string key="newTabButton:">id</string>
 						<string key="openButton:">id</string>
+						<string key="redo:">id</string>
 						<string key="revertToSavedButton:">id</string>
 						<string key="run_button:">id</string>
 						<string key="saveAsButton:">id</string>
@@ -4635,6 +4634,7 @@
 						<string key="swapLeft:">id</string>
 						<string key="swapRight:">id</string>
 						<string key="tabSelection:">id</string>
+						<string key="undo:">id</string>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="actionInfosByName">
 						<object class="IBActionInfo" key="alwaysOnTop:">
@@ -4673,6 +4673,10 @@
 							<string key="name">openButton:</string>
 							<string key="candidateClassName">id</string>
 						</object>
+						<object class="IBActionInfo" key="redo:">
+							<string key="name">redo:</string>
+							<string key="candidateClassName">id</string>
+						</object>
 						<object class="IBActionInfo" key="revertToSavedButton:">
 							<string key="name">revertToSavedButton:</string>
 							<string key="candidateClassName">id</string>
@@ -4707,6 +4711,10 @@
 						</object>
 						<object class="IBActionInfo" key="tabSelection:">
 							<string key="name">tabSelection:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="undo:">
+							<string key="name">undo:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 					</dictionary>

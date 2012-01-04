@@ -1,6 +1,8 @@
 #import "m_tabManager.h"
 @implementation m_tabManager
 @synthesize tabView,goto_window = _goto_window,timer,snipplet;
+#define CURRENT(__t) 	TextVC *__t = [self.tabView selectedTabViewItem].identifier;
+
 - (m_tabManager *) init {
 	return [self initWithFrame:[[NSApp mainWindow] frame]];
 }
@@ -88,7 +90,7 @@
 	[self walk_tabs:^(TextVC *t) {
 			[opened addObject:[t.s.fileURL path]];
 	}];
-	TextVC *t = [self.tabView selectedTabViewItem].identifier;
+	CURRENT(t);	
 	[preferences setObject:[NSArray arrayWithArray:opened] forKey:@"openedTabs"];
 	[preferences setObject:[t.s.fileURL path] forKey:@"selectedTab"];
 }
@@ -149,7 +151,7 @@
 #pragma mark Open/Save/Close/Goto
 - (IBAction)openButton:(id)sender {
 	NSOpenPanel *panel	= [NSOpenPanel openPanel];
-	TextVC *t = [self.tabView selectedTabViewItem].identifier;
+	CURRENT(t);	
 	[panel setDirectoryURL:[[t.s fileURL] URLByDeletingLastPathComponent]];
 	panel.allowsMultipleSelection = YES;
 	if ([panel runModal] == NSOKButton) {
@@ -161,7 +163,7 @@
 
 }
 - (IBAction)saveButton:(id)sender {
-	TextVC *t = [self.tabView selectedTabViewItem].identifier;
+	CURRENT(t);
 	if (t.s.temporary) {
 		[self saveAsButton:nil];
 	} else {
@@ -169,7 +171,7 @@
 	}
 }
 - (IBAction)saveAsButton:(id)sender {
-	TextVC *t = [self.tabView selectedTabViewItem].identifier;
+	CURRENT(t);
 	NSSavePanel *spanel = [NSSavePanel savePanel];
 	[spanel setPrompt:@"Save"];
 	[spanel setShowsToolbarButton:YES];
@@ -185,7 +187,7 @@
 }
 
 - (IBAction)closeButton:(id)sender {
-	TextVC *t = [self.tabView selectedTabViewItem].identifier;
+	CURRENT(t);
 	if ([t.ewc.window isVisible]) {
 		[t.ewc.e terminate];
 		[t.ewc.window orderOut:nil];
@@ -208,7 +210,7 @@
 	}
 }
 - (IBAction)revertToSavedButton:(id)sender {
-	TextVC *t = [self.tabView selectedTabViewItem].identifier;
+	CURRENT(t);
  	[t revertToSaved];
 }
 - (IBAction)newTabButton:(id)sender {
@@ -217,15 +219,14 @@
 - (IBAction)goto_action:(id)sender {
 	NSTextField *field = sender;
 	NSString *value = [field stringValue];
-	TextVC *t = [self.tabView selectedTabViewItem].identifier;
+	CURRENT(t);
 	[t goto_line:[value integerValue]];	
 	[self.goto_window orderOut:nil];
 }
 
 - (IBAction)commentSelection:(id)sender {
-	NSString *commentSymbol;		
-	TextVC *t = [self.tabView selectedTabViewItem].identifier;
-
+	NSString *commentSymbol;
+	CURRENT(t);
 	if ([t extIs:[NSArray arrayWithObjects:@"c", @"h",@"m",@"cpp",@"java",nil]]) {
 		commentSymbol = @"//";
 	} else {
@@ -239,7 +240,7 @@
 	}
 }
 - (IBAction)tabSelection:(id)sender {
-	TextVC *t = [self.tabView selectedTabViewItem].identifier;
+	CURRENT(t);
 	[t insert:@"\t" atEachLineOfSelectionWithDirection:[sender tag]];	
 }
 - (IBAction)goto_button:(id)sender {
@@ -313,28 +314,28 @@
 - (void) diff_button:(id) sender {
 	NSMenuItem *m = sender;
 	NSURL *b = [NSURL fileURLWithPath:[m title]];
-	TextVC *t = [self.tabView selectedTabViewItem].identifier;
+	CURRENT(t);
 	[t run_diff_against:b];
 }
 - (void) encoding_button:(id) sender {
 	NSMenuItem *m = sender;
 	NSStringEncoding enc = m.tag;
-	TextVC *t = [self.tabView selectedTabViewItem].identifier;
+	CURRENT(t);
 	if ([t.s convertTo:enc]) {
 		[t reload];
 		[t save];
 	}
 }
 - (void) snipplet_button:(id) sender {
+	CURRENT(t);
 	NSMenuItem *m = sender;
-	NSInteger idx = m.tag;
-	TextVC *t = [self.tabView selectedTabViewItem].identifier;
+	NSInteger idx = m.tag;	
 	NSArray *snip = [snipplet objectAtIndex:idx];
 	NSString *value = [NSString stringWithFormat:@"%@\n",[snip objectAtIndex:1]];	
 	[t insert:value atLine:[[snip objectAtIndex:2] intValue]];
 }
 - (void) menuWillOpen:(NSMenu *)menu {
-	TextVC *t = [self.tabView selectedTabViewItem].identifier;
+	CURRENT(t);
 	if ([[menu title] isEqualToString:@"diff"]) {
 		[menu removeAllItems];
 		for (NSString *b in t.s.backups) {
@@ -345,7 +346,7 @@
 	} else if ([[menu title] isEqualToString:@"Encoding"]) {
 		[menu removeAllItems];
 		[menu addItemWithTitle:@"Current Encoding:" action:nil keyEquivalent:@""];
-		NSMenuItem *m = [[NSMenuItem alloc] initWithTitle:[t.s currentEncoding] action:@selector(encoding_button:) keyEquivalent:@""];
+		NSMenuItem *m = [[NSMenuItem alloc] initWithTitle:[t.s currentEncoding] action:nil keyEquivalent:@""];
 		[m setTarget:self];
 		[menu addItem:m];
 		[menu addItem:[NSMenuItem separatorItem]];
@@ -380,7 +381,7 @@
 	}];
 }
 - (IBAction)run_button:(id)sender {
-	TextVC *t = [self.tabView selectedTabViewItem].identifier;
+	CURRENT(t);
 	[t run_self];
 }
 #pragma mark Timer
@@ -400,5 +401,15 @@
 - (IBAction)alwaysOnTop:(id)sender {
 	NSUserDefaults *preferences = [NSUserDefaults standardUserDefaults];
 	[preferences setObject:[NSNumber numberWithBool:([preferences boolForKey:@"DefaultAlwaysOnTop"] == YES) ? NO : YES] forKey:@"DefaultAlwaysOnTop"];
+}
+
+#pragma mark undo/redo
+- (IBAction)undo:(id)sender {
+	CURRENT(t);
+	[[t.text undoManager] undo];
+}
+- (IBAction)redo:(id)sender {
+	CURRENT(t);
+	[[t.text undoManager] redo];
 }
 @end

@@ -11,7 +11,8 @@
 #define FONT [NSFont fontWithName:@"Monaco" size:12]
 #define LINE_80_COLOR RGB(150, 150, 150) 
 #define TEXT_COLOR RGB(0xE0,0xE2,0xE4)
-#define BG_COLOR RGB(0x29,0x31,0x34)
+#define BG_COLOR RGB(0x00,0x00,0x00)
+
 #define CURSOR_COLOR RGB(255,255,255)
 
 #define TEXT_COLOR_IDX 0

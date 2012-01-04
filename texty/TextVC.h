@@ -15,7 +15,6 @@
 	long autosave_ts;
 	NSBox *box;
 	BOOL locked;
-	BOOL bracketColored;
 }
 - (BOOL) open:(NSURL *)file;
 - (BOOL) saveAs:(NSURL *) to;

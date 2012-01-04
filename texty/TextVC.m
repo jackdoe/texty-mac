@@ -139,7 +139,6 @@
 		NSView *m = [self.scroll contentView];
 		[m setPostsBoundsChangedNotifications:YES];
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(boundsDidChange:) name:NSViewBoundsDidChangeNotification object:m]; 
-
     }
     return self;
 }
@@ -218,14 +217,11 @@
 		range._change = change;
 		range._range = editted;
 		something_changed = YES;
-		[self performSelector:@selector(parse:) withObject:range afterDelay:0];		
+		[self performSelector:@selector(parse:) withObject:range afterDelay:0];
 	}
 }
 - (void) textViewDidChangeSelection:(NSNotification *)notification {
-	if (bracketColored)
-		[parser color:[self fullRange] withColor:NOBRACKET_COLOR_IDX inTextView:text];		
-	bracketColored = [self colorBracket];
-	
+	[self colorBracket];	
 }
 - (NSArray *) textView:(NSTextView *)textView completions:(NSArray *)words forPartialWordRange:(NSRange)charRange indexOfSelectedItem:(NSInteger *)index {
 	NSString *part = [[textView string] substringWithRange:charRange];
@@ -237,23 +233,24 @@
 		if (parser.autoindent) {
 			NSString *string = [textView string];
 			NSRange selected = [textView selectedRange];
-			NSRange paraRange = [string paragraphRangeForRange:selected];
-			if (paraRange.location != NSNotFound && paraRange.location != selected.location && paraRange.length > 0) {
-				NSInteger i,max;
-				max = NSMaxRange(paraRange);
-				paraRange =NSMakeRange(paraRange.location, 0);
-				for (i=paraRange.location;i<max;i++) {
-					unichar c = [string characterAtIndex:i];
-					if (c == ' ' || c == '\t') 
-						paraRange.length++;
-					else
-						break;
-				}
-				spaces = [string substringWithRange:paraRange];
+
+			NSInteger i;
+			i = (selected.location > 0) ? selected.location - 1 : 0;
+			for (;i>0;i--) {
+				unichar c = [string characterAtIndex:i];
+				if (c == '\n' || c == '\r')
+					break;
 			}
+			NSRange paraRange = NSMakeRange(i, selected.location - i);
+			NSRange spaceRange = [string rangeOfString:@"^\\s+" options:NSRegularExpressionSearch|NSRegularExpressionAnchorsMatchLines range:paraRange];
+			if (spaceRange.location != NSNotFound)
+				spaces = [[string substringWithRange:spaceRange] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+				
 		}
 		something_changed = YES;
+		[[textView textStorage] beginEditing];
 		[textView insertText:[NSString stringWithFormat:@"\n%@",spaces]];
+		[[textView textStorage] endEditing];
 		return YES;
 	}
 	return NO;
@@ -270,7 +267,7 @@
 	NSInteger required = lineCount < line ? line - lineCount : 0;
 	if (required > 0) {
 		NSMutableString *enter = [NSMutableString string];
-		for (int i=0;i<=required;i++) {
+		for (int i = 0;i <= required;i++) {
 			[enter appendFormat:@"\n"];
 		}
 		[text replaceCharactersInRange:NSMakeRange(0, [self strlen]) withString:[NSString stringWithFormat:@"%@%@",[text string],enter]];
@@ -306,8 +303,6 @@
 
 - (void) insert:(NSString *) value atEachLineOfSelectionWithDirection:(NSInteger) direction {
 	NSRange selection,selected = [text selectedRange];
-	if (selected.length < 2)
-		return;
 	NSString *remove = value;
 	if ([value isEqualToString:@"\t"]) {
 		remove = @"\\s";
@@ -315,8 +310,7 @@
 		
 	if (direction == DIRECTION_LEFT && ![self eachLineOfSelectionBeginsWith:remove]) 
 		return;
-	
-		
+			
 	NSString *string = [text string];
 	NSInteger valueLen = [value length];		
 	selection = [string paragraphRangeForRange:selected];
@@ -337,6 +331,7 @@
 				}
 			}
 		}];
+		
 		[text replaceCharactersInRange:selection withString:update];
 		selection = [string paragraphRangeForRange:updatedRange];
 		[text setSelectedRange:selection];
@@ -367,8 +362,7 @@
 			open--;
 		if (open == 0) {
 			if (foundone) {
-				[parser color:NSMakeRange(pos,1)  withColor:BRACKET_COLOR_IDX inTextView:text];		
-				[parser color:range  withColor:BRACKET_COLOR_IDX inTextView:text];		
+				[text showFindIndicatorForRange:NSMakeRange(pos,1)];
 				return YES;
 			}
 			break;
@@ -391,6 +385,9 @@
 		return [self colorPrev:'(' ends:')' inRange:selected];
 	case ']':
 		return [self colorPrev:'[' ends:']' inRange:selected];
+	break;
+	case '>':
+		return [self colorPrev:'<' ends:'>' inRange:selected];
 	break;
 	}
 	return NO;
