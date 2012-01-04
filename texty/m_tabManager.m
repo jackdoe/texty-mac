@@ -58,7 +58,10 @@
 	}
 	return self;
 }
-
+- (void) tabView:(NSTabView *)tabView didSelectTabViewItem:(NSTabViewItem *)tabViewItem {
+	CURRENT(t);
+	[t.text delayedParse];
+}
 #pragma mark restore workspace
 - (BOOL) openStoredURLs {
 	BOOL ret = NO;
@@ -337,7 +340,7 @@
 	NSInteger idx = m.tag;	
 	NSArray *snip = [snipplet objectAtIndex:idx];
 	NSString *value = [NSString stringWithFormat:@"%@\n",[snip objectAtIndex:1]];	
-	[t.text insert:value atLine:[[snip objectAtIndex:2] intValue]];
+	[t.text insertAtBegin:value];
 }
 - (void) menuWillOpen:(NSMenu *)menu {
 	CURRENT(t);

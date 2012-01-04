@@ -104,7 +104,7 @@ static inline void word_dump(struct word *w);
 static struct word * word_new(struct word_head *wh);
 NSDictionary *colorAttr[20];
 #endif
-
+@class STextView;
 @interface m_parse : NSObject{
 	struct var_symbol _syntax_var_symbol[B_TABLE_SIZE];
 	char 	_syntax_color_numbers;

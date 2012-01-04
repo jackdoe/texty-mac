@@ -70,6 +70,10 @@
 			<key>CFBundleTypeExtensions</key>
 			<array>
 				<string>c</string>
+				<string>h</string>
+				<string>java</string>
+				<string>cc</string>
+				<string>cpp</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
 			<string>texty</string>
@@ -108,7 +112,7 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>d0b8f7b</string>
+	<string>e82689a</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.productivity</string>
 	<key>LSMinimumSystemVersion</key>

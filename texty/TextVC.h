@@ -4,7 +4,7 @@
 #import "ExecuteWC.h"
 #import "Preferences.h"
 #import "STextView.h"
-@interface TextVC : NSViewController <NSTextStorageDelegate,NSTextViewDelegate> {
+@interface TextVC : NSViewController <m_StorageDelegate> {
 	STextView *text;
 	NSScrollView *scroll;
 	m_Storage *s;
@@ -32,7 +32,7 @@
 - (void) run_self;
 - (void) run_diff_against:(NSURL *) b;
 - (void) run: (NSString *) cmd withTimeout:(int) timeout;
-- (void) delayedParse;
+- (void) changed_under_my_nose:(NSURL *) file;
 @property (retain) ExecuteWC *ewc;
 @property (retain) NSTabViewItem *tabItem;
 @property (retain) m_Storage *s;

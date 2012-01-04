@@ -5,16 +5,15 @@
 #define L_UNDEFINED 3
 @implementation TextVC
 @synthesize tabItem,s,parser,text,scroll,ewc;
-- (NSRange) fullRange {
-	NSRange range = {0,[[text string] length]};
-	return range;
-}
 
 + (void) scrollEnd:(NSTextView *) tv {
 	NSRange range = { [[tv string] length], 0 };
 	[tv scrollRangeToVisible: range];
 }
-
+- (void) changed_under_my_nose:(NSURL *) file {
+		if (locked == NO)
+			[self performSelectorOnMainThread:@selector(lockText) withObject:nil waitUntilDone:YES];
+}
 - (void) signal {
 	if (need_to_autosave) {
 		if (time(NULL) - autosave_ts > [Preferences defaultAutoSaveInterval]) {
@@ -35,10 +34,6 @@
 		}
 		something_changed = NO;
 	}
-
-	if ([s same_as_disk] == NO) 
-		if (locked == NO)
-			[self lockText];
 }
 - (void) label:(int) type {
 	switch(type) {
@@ -74,6 +69,7 @@
     self = [super init];
     if (self) {
 		self.s = [[m_Storage alloc] init];
+		s.delegate = self;
 		self.parser = [[m_parse alloc] init];
 		self.tabItem  = [[NSTabViewItem alloc] initWithIdentifier:self];
 		self.scroll = [[NSScrollView alloc] initWithFrame:frame];
@@ -84,8 +80,6 @@
 		[scroll setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
 		tabItem.view = scroll;
 		self.text = [[STextView alloc] initWithFrame:NSMakeRect(0, 0, contentSize.width, contentSize.height)];
-		text.delegate = self;
-		text.textStorage.delegate = self;		
 		locked = NO;
 		[self label:L_UNDEFINED];
 		[self.scroll setDocumentView:self.text];
@@ -100,8 +94,8 @@
 	[scroll becomeFirstResponder];
 }
 - (void) syntax_reload {
-		[parser initSyntax:[[s basename] pathExtension] box:text._box];
-	[self delayedParse];
+	[text.parser initSyntax:[[s basename] pathExtension] box:text._box];
+	[text delayedParse];
 }
 - (BOOL) saveAs:(NSURL *) to {
 	if ([s migrate:to withString:[text string] autosaving:NO]) {
@@ -150,21 +144,8 @@
 	return NO;
 }
 
-- (void) delayedParse {
-	[parser parse:text];
-}
-- (void) textStorageWillProcessEditing:(NSNotification *)notification {
-	NSTextStorage *ts = [notification object];
-	if ([ts editedMask] & NSTextStorageEditedCharacters) {
-		[self performSelector:@selector(delayedParse) withObject:nil afterDelay:0];
-	}
-}
-- (void) textViewDidChangeSelection:(NSNotification *)notification {
-	[text colorBracket];	
-}
-- (NSArray *) textView:(NSTextView *)textView completions:(NSArray *)words forPartialWordRange:(NSRange)charRange indexOfSelectedItem:(NSInteger *)index {
-	NSString *part = [[textView string] substringWithRange:charRange];
-	return [parser hash_to_array:part];
+- (void) boundsDidChange:(id) noti {
+	[text delayedParse];
 }
 
 - (void) run_diff_against:(NSURL *) b {
@@ -172,7 +153,7 @@
 	[self run:[m_exec diff:a against:b] withTimeout:0];
 }
 - (void) run_self {
-	NSString *cmd = [parser get_execute_command:text];
+	NSString *cmd = [text.parser get_execute_command:text];
 	if (!cmd) {
 		cmd = [Preferences defaultCommand];
 	}
@@ -205,8 +186,5 @@
 	[s close];
 	[ewc.e terminate];
 	self.ewc = nil;
-}
-- (void) boundsDidChange:(id) noti {
-	[self delayedParse];
 }
 @end

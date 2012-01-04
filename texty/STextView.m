@@ -1,7 +1,7 @@
 #import "STextView.h"
 
 @implementation STextView
-@synthesize _box,_auto_indent,um;
+@synthesize _box,_auto_indent,um,parser;
 - (STextView *) initWithFrame:(NSRect) frame {
 	self = [super initWithFrame:frame];
 	if (self) {
@@ -50,6 +50,7 @@
 		[_box setAutoresizingMask:NSViewHeightSizable];
 		[_box setTransparent:NO];
 		[_box setHidden:YES];
+		self.parser = [[m_parse alloc] init];
 		self.um = [[NSUndoManager alloc] init];
 		[self addSubview:_box];
 	}
@@ -174,6 +175,7 @@
 	NSRange area = [s paragraphRangeForRange:NSMakeRange(i, 0)];
 	return area;
 }
+
 - (NSInteger) numberOfLines {
 	__block NSUInteger total_lines = 1;
 	[[self string] enumerateLinesUsingBlock:^(NSString *line, BOOL *stop) {
@@ -182,27 +184,9 @@
 	return total_lines;
 }
 
-- (void) insert:(NSString *)value atLine:(NSInteger) atline {
-	__block NSInteger l = 0;
-	NSString *s = [self string];
-	__block NSRange r = NSMakeRange(0, 0);
-	[s enumerateLinesUsingBlock:^(NSString *line, BOOL *stop) {
-			if (l++ < atline) {
-				r.location += [line length] + 1; /* count \n */
-			} else {
-				*stop = YES;
-			}
-	}];
-	NSMutableString *enter = [NSMutableString stringWithFormat:@""];
-	if (l < atline) {
-		for (int i = 1;i < atline - l;i++) {
-			[enter appendFormat:@"\n"];
-		}
-	}
-	NSString *update = [NSString stringWithFormat:@"%@%@%@",enter,value,[[self string] substringWithRange:r]];
-	[self replaceCharactersInRange:r withString:update];
+- (void) insertAtBegin:(NSString *) value {
+	[self replaceCharactersInRange:NSMakeRange(0, 0) withString:value];
 }
-
 
 - (void) insert:(NSString *) value atEachLineOfSelectionWithDirection:(NSInteger) direction {
 	NSRange selection,selected = [self selectedRange];
@@ -210,7 +194,7 @@
 	if ([value isEqualToString:@"\t"]) {
 		remove = @"\\s";
 	}
-		
+	
 	if (direction == DIRECTION_LEFT && ![self eachLineOfSelectionBeginsWith:remove]) 
 		return;
 			
@@ -252,54 +236,62 @@
 - (NSUndoManager *) undoManager {
 	return self.um;
 }
+
 - (void) keyDown:(NSEvent *)theEvent {
-	NSString *characters = [theEvent characters];
 	int modified = 0;
-	if ([characters length]) {
-		unichar c = [[theEvent characters] characterAtIndex:0];
-		switch (c) {
-		case '\n':
-		case '\r':
-			{
-				NSRange paraRange = [self currentLine];
-				NSString *string = [self string];
-				NSString *spaces = @"";
-				NSRange spaceRange = [string rangeOfString:@"^\\s+" options:NSRegularExpressionSearch|NSRegularExpressionAnchorsMatchLines range:paraRange];
-				if (spaceRange.location != NSNotFound)
-					spaces = [[string substringWithRange:spaceRange] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-				[self insertText:[NSString stringWithFormat:@"\n%@",spaces]];
-				modified = 1;
-			}			
-		break;
-		case '{':
-			[self insertText:@"{  }"]; 
-			[self selectMove:-2];
+	unichar c = [[theEvent characters] characterAtIndex:0];
+	switch (c) {
+	case '\n':
+	case '\r':
+		{
+			NSRange paraRange = [self currentLine];
+			NSString *string = [self string];
+			NSString *spaces = @"";
+			NSRange spaceRange = [string rangeOfString:@"^\\s+" options:NSRegularExpressionSearch|NSRegularExpressionAnchorsMatchLines range:paraRange];
+			if (spaceRange.location != NSNotFound)
+				spaces = [[string substringWithRange:spaceRange] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+			[self insertText:[NSString stringWithFormat:@"\n%@",spaces]];
 			modified = 1;
-		break;
-		case '(':
-			[self insertText:@"(  )"];
-			[self selectMove:-2];
-			modified = 1;
-		break;
-		case '"':
-			[self insertText:@"\"  \""];
-			[self selectMove:-2];
-			modified = 1;
-		break;
-		case '\'':
-			[self insertText:@"'  '"];
-			[self selectMove:-2];
-			modified = 1;
-		break;
-		case '[':
-			[self insertText:@"[  ]"];
-			[self selectMove:-2];			
-			modified = 1;
-		break;		
-		}
+		}			
+	break;
+	case '{':
+		[self insertText:@"{  }"]; 
+		[self selectMove:-2];
+		modified = 1;
+	break;
+	case '(':
+		[self insertText:@"(  )"];
+		[self selectMove:-2];
+		modified = 1;
+	break;
+	case '"':
+		[self insertText:@"\"  \""];
+		[self selectMove:-2];
+		modified = 1;
+	break;
+	case '\'':
+		[self insertText:@"'  '"];
+		[self selectMove:-2];
+		modified = 1;
+	break;
+	case '[':
+		[self insertText:@"[  ]"];
+		[self selectMove:-2];			
+		modified = 1;
+	break;
 	}
 	if (!modified) {
 		[super keyDown:theEvent];
+		[self delayedParse];
+		/* XXX */
+		switch (c) {
+			case NSRightArrowFunctionKey:
+			case NSUpArrowFunctionKey:
+			case NSLeftArrowFunctionKey:
+			case NSDownArrowFunctionKey:
+				[self colorBracket];
+			break;				
+		}
 	}
 	
 }
@@ -327,5 +319,11 @@
 	NSLayoutManager *lm = [[self.textStorage layoutManagers] objectAtIndex: 0];
 	[lm setTemporaryAttributes:colorAttr[color] forCharacterRange:range];
 }
-
+- (void) delayedParse {
+	[parser parse:self];
+}
+- (NSArray *) completionsForPartialWordRange:(NSRange)charRange indexOfSelectedItem:(NSInteger *)index {
+	NSString *part = [[self string] substringWithRange:charRange];
+	return [parser hash_to_array:part];
+}
 @end

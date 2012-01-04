@@ -1,6 +1,12 @@
 #import "m_Storage.h"
+#import "FileWatcher.h"
 @implementation m_Storage
-@synthesize fileURL, data,temporary,existing_backups,encoding;
+@synthesize fileURL, data,temporary,existing_backups,encoding,delegate = _delegate;
+- (void) changed_under_your_nose:(NSURL *) file {
+	if (self.delegate && [self.delegate respondsToSelector:@selector(changed_under_my_nose:)]) {
+		[self.delegate changed_under_my_nose:file];
+	}
+}
 + (BOOL) fileExists:(NSString *) path {
 	NSFileManager *f = [[NSFileManager alloc] init];
 	return [f fileExistsAtPath:path];
@@ -39,6 +45,7 @@
 	if (!temporary)
 		[[NSDocumentController sharedDocumentController] noteNewRecentDocumentURL:self.fileURL];
 	self.existing_backups = [self backups];
+	[[FileWatcher shared] watch:self.fileURL notify:self];
 	return TRUE;
 }
 - (NSString *) encodingName:(NSStringEncoding) enc{
@@ -82,7 +89,7 @@
 - (BOOL) close:(BOOL) save {
 	if (save) 
 		[self migrate:self.fileURL withString:self.data autosaving:NO];
-	
+	[self close];
 	self.data = nil;
 	self.fileURL = nil;
 	return TRUE;
@@ -96,19 +103,16 @@
 
 	if (!autosaving)
 		self.temporary = NO;
+	[[FileWatcher shared] unwatch:to];	/* XXX: race */
 	if ([self write:string toURL:to]) {
 		if (!temporary)
 			[[NSDocumentController sharedDocumentController] noteNewRecentDocumentURL:to];
+		[[FileWatcher shared] unwatch:self.fileURL];
+		[[FileWatcher shared] watch:to notify:self];			
 		self.fileURL = to;
 		self.data = [NSString stringWithString:string];	
 		return YES;
 	}
-	return NO;
-}
-- (BOOL) same_as_disk {
-	NSString *temp = [NSString stringWithContentsOfURL:self.fileURL encoding:encoding error:nil];
-	if (temp && [temp isEqualToString:self.data]) 
-		return YES;
 	return NO;
 }
 - (NSString *) autosave:(BOOL) export_only {
@@ -180,7 +184,7 @@ ret:
 }
 - (BOOL) write:(NSString *) string toURL:(NSURL *) file {
 	NSError *err;
-	[string writeToURL:file atomically:YES encoding:(encoding > 0 ? encoding : NSUTF8StringEncoding) error:&err];
+	[string writeToURL:file atomically:NO encoding:(encoding > 0 ? encoding : NSUTF8StringEncoding) error:&err];
 	if (err) {
 		[self noChoiceAlert:[err localizedDescription] withURL:self.fileURL];
 		return NO;
@@ -218,6 +222,7 @@ ret:
 	return (err ? NO : YES);
 }
 - (void) close {
+	[[FileWatcher shared] unwatch:self.fileURL];
 	if ([self.data length] < 1) {
 		[self unlinkIfTemporary];
 	}

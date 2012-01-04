@@ -104,5 +104,19 @@
 		<key>COPY</key>
 		<string>pl</string>
 	</dict>
+	<key>java</key>
+	<dict>
+		<key>color_numbers</key>
+		<true/>
+		<key>display_box</key>
+		<true/>
+		<key>keywords</key>
+		<dict>
+			<key>1</key>
+			<string>abstract continue for new switch assert default goto package synchronized boolean do if private this break double implements protected throw byte else import public throws case enum instanceof return transient catch extends int short try char final interface static voidvclass finally long strictfp volatile const float native super while</string>
+			<key>2</key>
+			<string>String</string>
+		</dict>
+	</dict>
 </dict>
 </plist>
