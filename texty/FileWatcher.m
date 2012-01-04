@@ -1,5 +1,5 @@
 #import "FileWatcher.h"
-#import "m_Storage.h"
+#import <objc/message.h>
 @implementation FileWatcher
 @synthesize ex,list,wakeup;
 static FileWatcher *singleton = nil;
@@ -16,22 +16,6 @@ static FileWatcher *singleton = nil;
 	}
 	return singleton;
 }
-- (id) whoIsChanged:(NSInteger) ident {
-	[ex lock];
-	for (NSURL *u in [list allKeys]) {
-		NSMutableDictionary *d = [list objectForKey:u];
-		NSNumber *fd = [d objectForKey:@"fd"];
-		if ([fd intValue] == ident) {
-			m_Storage * who = [d objectForKey:@"notify"];
-			if (who && [who respondsToSelector:@selector(changed_under_your_nose:)]) {
-				[ex unlock];
-				return who;
-			}
-		}
-	}
-	[ex unlock];
-	return nil;
-}
 - (void) change:(NSInteger) ident {
 	id notify = nil;
 	NSURL *file = nil;
@@ -40,15 +24,13 @@ static FileWatcher *singleton = nil;
 		NSMutableDictionary *d = [list objectForKey:u];
 		NSNumber *fd = [d objectForKey:@"fd"];
 		if ([fd intValue] == ident) {
-			m_Storage * who = [d objectForKey:@"notify"];
-			if (who && [who respondsToSelector:@selector(changed_under_your_nose:)]) {
-				notify = who;
-				file = u;
-				break;
-			}
+			notify = [d objectForKey:@"notify"];
+			file = u;
+			break;
 		}
 	}
 	[ex unlock];
+
 	/* 
 	 * must be done outside of the lock because the alert panel is executed in main thread
 	 * and it will deadlock when the main thread trys to watch: or unwatch: something
@@ -56,7 +38,8 @@ static FileWatcher *singleton = nil;
 	 */
 	
 	if (notify && file) {
-		[(m_Storage *)notify changed_under_your_nose:file];
+		if ([notify respondsToSelector:@selector(changed_under_your_nose:)])
+			objc_msgSend(notify, @selector(changed_under_your_nose:), file);
 	}
 	
 }
