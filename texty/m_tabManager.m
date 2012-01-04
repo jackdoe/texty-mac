@@ -238,15 +238,15 @@
 		commentSymbol = @"#";
 	}
 	
-	if ([t eachLineOfSelectionBeginsWith:commentSymbol]) {
-		[t insert:commentSymbol atEachLineOfSelectionWithDirection:DIRECTION_LEFT];
+	if ([t.text eachLineOfSelectionBeginsWith:commentSymbol]) {
+		[t.text insert:commentSymbol atEachLineOfSelectionWithDirection:DIRECTION_LEFT];
 	} else {
-		[t insert:commentSymbol atEachLineOfSelectionWithDirection:DIRECTION_RIGHT];	
+		[t.text insert:commentSymbol atEachLineOfSelectionWithDirection:DIRECTION_RIGHT];	
 	}
 }
 - (IBAction)tabSelection:(id)sender {
 	CURRENT(t);
-	[t insert:@"\t" atEachLineOfSelectionWithDirection:[sender tag]];	
+	[t.text insert:@"\t" atEachLineOfSelectionWithDirection:[sender tag]];	
 }
 - (IBAction)goto_button:(id)sender {
 	if ([self.goto_window isVisible])
@@ -337,7 +337,7 @@
 	NSInteger idx = m.tag;	
 	NSArray *snip = [snipplet objectAtIndex:idx];
 	NSString *value = [NSString stringWithFormat:@"%@\n",[snip objectAtIndex:1]];	
-	[t insert:value atLine:[[snip objectAtIndex:2] intValue]];
+	[t.text insert:value atLine:[[snip objectAtIndex:2] intValue]];
 }
 - (void) menuWillOpen:(NSMenu *)menu {
 	CURRENT(t);

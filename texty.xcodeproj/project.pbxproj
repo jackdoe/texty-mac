@@ -20,13 +20,13 @@
 		046944EB147B96EB00256B61 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 046944E9147B96EB00256B61 /* MainMenu.xib */; };
 		0469450A147B97CB00256B61 /* m_tabManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 04694509147B97CB00256B61 /* m_tabManager.m */; };
 		04694517147BB06300256B61 /* m_Storage.m in Sources */ = {isa = PBXBuildFile; fileRef = 04694516147BB06300256B61 /* m_Storage.m */; };
+		047A3C2D14B4680700719B4D /* STextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 047A3C2C14B4680700719B4D /* STextView.m */; };
 		0481A17914989FD300F53BEC /* ExecuteWC.m in Sources */ = {isa = PBXBuildFile; fileRef = 0481A17814989FD300F53BEC /* ExecuteWC.m */; };
 		0481A17D1498BAC700F53BEC /* ExecuteWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0481A17C1498BAC600F53BEC /* ExecuteWindow.xib */; };
 		04842D55148557A6007782F6 /* texty_red.icns in Resources */ = {isa = PBXBuildFile; fileRef = 04842D54148557A6007782F6 /* texty_red.icns */; };
 		048A7E5E149B3A0C00BFEC81 /* Preferences.m in Sources */ = {isa = PBXBuildFile; fileRef = 048A7E5D149B3A0C00BFEC81 /* Preferences.m */; };
 		049294361488D6C6003642DF /* TextVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 049294341488D6C6003642DF /* TextVC.m */; };
 		04DFC9E71488F451004D2802 /* m_parse.m in Sources */ = {isa = PBXBuildFile; fileRef = 04DFC9E61488F451004D2802 /* m_parse.m */; };
-		04E84663147E281500E1E027 /* m_range.m in Sources */ = {isa = PBXBuildFile; fileRef = 04E84662147E281500E1E027 /* m_range.m */; };
 		04EE1C4A147D0ACB0056D73F /* m_exec.m in Sources */ = {isa = PBXBuildFile; fileRef = 04EE1C49147D0ACB0056D73F /* m_exec.m */; };
 		04F14A2E148E098900936D73 /* PseudoTTY.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F14A2D148E098900936D73 /* PseudoTTY.m */; };
 /* End PBXBuildFile section */
@@ -55,6 +55,9 @@
 		04694509147B97CB00256B61 /* m_tabManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = m_tabManager.m; sourceTree = "<group>"; };
 		04694515147BB06300256B61 /* m_Storage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = m_Storage.h; sourceTree = "<group>"; };
 		04694516147BB06300256B61 /* m_Storage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = m_Storage.m; sourceTree = "<group>"; };
+		047A3C2B14B4680700719B4D /* STextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = STextView.h; sourceTree = "<group>"; };
+		047A3C2C14B4680700719B4D /* STextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = STextView.m; sourceTree = "<group>"; };
+		047A3C3314B47B9C00719B4D /* colors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = colors.h; sourceTree = "<group>"; };
 		0481A17714989FD300F53BEC /* ExecuteWC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExecuteWC.h; sourceTree = "<group>"; };
 		0481A17814989FD300F53BEC /* ExecuteWC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ExecuteWC.m; sourceTree = "<group>"; };
 		0481A17C1498BAC600F53BEC /* ExecuteWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ExecuteWindow.xib; sourceTree = "<group>"; };
@@ -65,8 +68,6 @@
 		049294341488D6C6003642DF /* TextVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextVC.m; sourceTree = "<group>"; };
 		04DFC9E51488F451004D2802 /* m_parse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = m_parse.h; sourceTree = "<group>"; };
 		04DFC9E61488F451004D2802 /* m_parse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = m_parse.m; sourceTree = "<group>"; };
-		04E84661147E281500E1E027 /* m_range.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = m_range.h; sourceTree = "<group>"; };
-		04E84662147E281500E1E027 /* m_range.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = m_range.m; sourceTree = "<group>"; };
 		04EE1C48147D0ACB0056D73F /* m_exec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = m_exec.h; sourceTree = "<group>"; };
 		04EE1C49147D0ACB0056D73F /* m_exec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = m_exec.m; sourceTree = "<group>"; };
 		04F14A2C148E098900936D73 /* PseudoTTY.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PseudoTTY.h; sourceTree = "<group>"; };
@@ -91,6 +92,7 @@
 				04DFC9E51488F451004D2802 /* m_parse.h */,
 				04DFC9E61488F451004D2802 /* m_parse.m */,
 				0417C7E414900D0400CDFE14 /* SyntaxDef.plist */,
+				047A3C3314B47B9C00719B4D /* colors.h */,
 			);
 			name = Syntax;
 			sourceTree = "<group>";
@@ -186,10 +188,10 @@
 			isa = PBXGroup;
 			children = (
 				0417C7E214900CE200CDFE14 /* Syntax */,
-				04E84661147E281500E1E027 /* m_range.h */,
-				04E84662147E281500E1E027 /* m_range.m */,
 				049294331488D6C6003642DF /* TextVC.h */,
 				049294341488D6C6003642DF /* TextVC.m */,
+				047A3C2B14B4680700719B4D /* STextView.h */,
+				047A3C2C14B4680700719B4D /* STextView.m */,
 			);
 			name = Text;
 			sourceTree = "<group>";
@@ -301,12 +303,12 @@
 				0469450A147B97CB00256B61 /* m_tabManager.m in Sources */,
 				04694517147BB06300256B61 /* m_Storage.m in Sources */,
 				04EE1C4A147D0ACB0056D73F /* m_exec.m in Sources */,
-				04E84663147E281500E1E027 /* m_range.m in Sources */,
 				049294361488D6C6003642DF /* TextVC.m in Sources */,
 				04DFC9E71488F451004D2802 /* m_parse.m in Sources */,
 				04F14A2E148E098900936D73 /* PseudoTTY.m in Sources */,
 				0481A17914989FD300F53BEC /* ExecuteWC.m in Sources */,
 				048A7E5E149B3A0C00BFEC81 /* Preferences.m in Sources */,
+				047A3C2D14B4680700719B4D /* STextView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

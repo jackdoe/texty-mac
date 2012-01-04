@@ -1,7 +1,6 @@
 #import "m_parse.h"
 
 @implementation m_parse
-@synthesize autoindent;
 static void hash_init(struct _hash_table *t) {
 	for (int i=0;i<HASH_SIZE;i++) {
 		if (!SLIST_EMPTY(&t[i].head)) {
@@ -174,17 +173,7 @@ static struct word * word_new(struct word_head *wh) {
 	return w;
 }
 
-- (void) clearColors:(NSRange) area inTextView:(NSTextView *) tv{	
-	NSLayoutManager *lm = [[tv.textStorage layoutManagers] objectAtIndex: 0];
-	[lm setTemporaryAttributes:colorAttr[TEXT_COLOR_IDX] forCharacterRange:area];
-}
-
-- (void) color:(NSRange) range withColor:(unsigned char) color inTextView:(NSTextView *) tv{
-	NSLayoutManager *lm = [[tv.textStorage layoutManagers] objectAtIndex: 0];
-	[lm setTemporaryAttributes:colorAttr[color] forCharacterRange:range];
-}
-
-- (void) highlight:(NSRange) range inTextView:(NSTextView *) tv {
+- (void) highlight:(NSRange) range inTextView:(STextView *) tv {
 	/* XXX: getting more and more ugly */
 	if (!_syntax_color)
 		return;
@@ -225,7 +214,7 @@ static struct word * word_new(struct word_head *wh) {
 			b->range.length++;
 			if (block_cond(b, c, prev, BLOCK_ENDS,pos)) {
 				if ([self block_color:b superBlock:superblock])
-					[self color:b->range withColor:b->color inTextView:tv];
+					[tv color:b->range withColor:b->color];
 				
 				b = NULL;
 			}
@@ -240,7 +229,7 @@ static struct word * word_new(struct word_head *wh) {
 	if (b) {
 		b->range.length++;
 		if ([self block_color:b superBlock:superblock])
-			[self color:b->range withColor:b->color inTextView:tv];
+			[tv color:b->range withColor:b->color];
 
 	}
 
@@ -250,15 +239,15 @@ static struct word * word_new(struct word_head *wh) {
 			goto next;
 		if (_syntax_var_symbol[(char)w->data[0]].color && w->len >= _syntax_var_symbol[(char)w->data[0]].required_len) {
 			if (!(w->current_block_flags & B_NO_VAR)) 	/* dont color vars in single quoted strings */
-				[self color:NSMakeRange(w->pos, w->len) withColor:_syntax_var_symbol[(char) w->data[0]].color inTextView:tv];
+				[tv color:NSMakeRange(w->pos, w->len) withColor:_syntax_var_symbol[(char) w->data[0]].color];
 		} else if (w->current_block_flags == 0 || w->current_block_flags & B_SHOW_KEYWORD) { 		/* find keywords and numbers outside of blocks */
 			if ((w->flags & WORD_NUMBER) == w->flags) {
 				if (_syntax_color_numbers)
-					[self color:NSMakeRange(w->pos, w->len) withColor:VALUE_COLOR_IDX inTextView:tv];	
+					[tv color:NSMakeRange(w->pos, w->len) withColor:VALUE_COLOR_IDX];	
 			} else {
 				struct _hash_entry *e = hash_lookup(&hash[0],w);
 				if (e) 
-					[self color:NSMakeRange(w->pos, w->len) withColor:e->w.color inTextView:tv];			
+					[tv color:NSMakeRange(w->pos, w->len) withColor:e->w.color];			
 			}		
 		}
 next:
@@ -313,7 +302,6 @@ do {																		\
 	hash_init(&hash[0]);
 	_syntax_color_numbers = 0;
 	_syntax_color = 0;
-	autoindent = YES;
 	bzero(_syntax_var_symbol,sizeof(_syntax_var_symbol));
 	for (int i = 0;i < B_TABLE_SIZE; i++) {
 		_syntax_var_symbol[i].required_len = 2;
@@ -384,14 +372,14 @@ do {																		\
 #undef SET_BLOCK
 }
 
-- (NSString *) get_line:(NSInteger) lineno inTextView:(NSTextView *) tv {
-	NSRange area = [m_range rangeOfLine:lineno inString:[tv string]];
-	if (area.location != NSNotFound) {
+- (NSString *) get_line:(NSInteger) lineno inTextView:(STextView *) tv {
+	NSRange area = [tv rangeOfLine:lineno];
+	if (area.location != NSNotFound) 
 		return [[tv string] substringWithRange:area];
-	}
+	
 	return nil;
 }
-- (NSString *) get_execute_command:(NSTextView *) tv {
+- (NSString *) get_execute_command:(STextView *) tv {
 	NSString *line = [self get_line:EXECUTE_LINE inTextView:tv];
 	NSString *ret = nil;
 	NSRange commandRange = [line rangeOfString:EXECUTE_COMMAND];
@@ -401,19 +389,12 @@ do {																		\
 	return ret;
 }
 
-- (void) parseNSRange:(NSRange) area inTextView:(NSTextView *)tv {
-	[self clearColors:area inTextView:tv];
+- (void) parseNSRange:(NSRange) area inTextView:(STextView *)tv {
+	[tv clearColors:area];
 	[self highlight:area inTextView:tv];
-	if ([self get_execute_command:tv]) 
-		[self color:[m_range rangeOfLine:EXECUTE_LINE inString:[tv string]] withColor:CONDITION_COLOR_IDX inTextView:tv];
 }
-- (void) parse:(m_range *) _range inTextView:(NSTextView *)tv{
-//	NSRange area = [_range paragraph:tv];
-//	[self parseNSRange:area inTextView:tv];
-	[self parseNSRange:[m_range visibleRangeinTextView:tv] inTextView:tv];
-}
-- (void) scrolledTextView:(NSTextView *) tv {
-	[self parseNSRange:[m_range visibleRangeinTextView:tv] inTextView:tv];
+- (void) parse:(STextView *) tv {
+	[self parseNSRange:[tv visibleRange] inTextView:tv];	
 }
 #pragma mark textView proto
 - (void) dealloc {
