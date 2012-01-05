@@ -255,28 +255,28 @@
 		}			
 	break;
 	case '{':
-		[self insertText:@"{  }"]; 
-		[self selectMove:-2];
+		[self insertText:@"{}"]; 
+		[self selectMove:-1];
 		modified = 1;
 	break;
 	case '(':
-		[self insertText:@"(  )"];
-		[self selectMove:-2];
+		[self insertText:@"()"];
+		[self selectMove:-1];
 		modified = 1;
 	break;
 	case '"':
-		[self insertText:@"\"  \""];
-		[self selectMove:-2];
+		[self insertText:@"\"\""];
+		[self selectMove:-1];
 		modified = 1;
 	break;
 	case '\'':
-		[self insertText:@"'  '"];
-		[self selectMove:-2];
+		[self insertText:@"''"];
+		[self selectMove:-1];
 		modified = 1;
 	break;
 	case '[':
-		[self insertText:@"[  ]"];
-		[self selectMove:-2];			
+		[self insertText:@"[]"];
+		[self selectMove:-1];			
 		modified = 1;
 	break;
 	}
