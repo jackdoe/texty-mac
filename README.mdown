@@ -90,4 +90,3 @@ Bugs
 ====
 1. TEXTY_EXECUTE
 	+ execute has a race when the reload button is spam clicked, it messess up the output - start/end etc
-	+ there is only 1 undo manager for all the text views
