@@ -114,7 +114,5 @@ NSDictionary *colorAttr[20];
 }
 - (void) initSyntax:(NSString *) ext box:(NSBox *) box;
 - (NSArray *) hash_to_array:(NSString *) part;
-- (NSString *) get_line:(NSInteger) lineno inTextView:(STextView *) tv;
-- (NSString *) get_execute_command:(STextView *) tv;
 - (void) parse:(STextView *) tv;
 @end

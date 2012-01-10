@@ -368,25 +368,7 @@ do {																		\
 		SET_BLOCK(b,'\'', 0, '\'', 0, STRING1_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_NO_VAR))
 		SET_BLOCK(b,'/', 0, '/', 0, PREPROCESS_COLOR_IDX, (B_ENDS_WITH_NEW_LINE | B_NO_KEYWORD))
 	}
-	[self addKeywords:EXECUTE_COMMAND withColor:CONDITION_COLOR_IDX];
 #undef SET_BLOCK
-}
-
-- (NSString *) get_line:(NSInteger) lineno inTextView:(STextView *) tv {
-	NSRange area = [tv rangeOfLine:lineno];
-	if (area.location != NSNotFound) 
-		return [[tv string] substringWithRange:area];
-	
-	return nil;
-}
-- (NSString *) get_execute_command:(STextView *) tv {
-	NSString *line = [self get_line:EXECUTE_LINE inTextView:tv];
-	NSString *ret = nil;
-	NSRange commandRange = [line rangeOfString:EXECUTE_COMMAND];
-	if (commandRange.location != NSNotFound) {
-		ret = [line substringFromIndex:commandRange.location+commandRange.length];
-	}
-	return ret;
 }
 
 - (void) parseNSRange:(NSRange) area inTextView:(STextView *)tv {

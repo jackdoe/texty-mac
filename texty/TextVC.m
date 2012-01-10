@@ -153,26 +153,32 @@
 	[self run:[m_exec diff:a against:b] withTimeout:0];
 }
 - (void) run_self {
-	NSString *cmd = [text.parser get_execute_command:text];
-	if (!cmd) {
-		cmd = [Preferences defaultCommand];
-	}
 	[self save];
-	cmd = [cmd stringByReplacingOccurrencesOfString:@"{MYSELF}" withString:[s.fileURL path]];
-	cmd = [cmd stringByReplacingOccurrencesOfString:@"{MYSELF_BASENAME}" withString:[s basename]];
-	cmd = [cmd stringByReplacingOccurrencesOfString:@"{MYSELF_BASENAME_NOEXT}" withString:[[s basename] stringByDeletingPathExtension]];
-	cmd = [cmd stringByReplacingOccurrencesOfString:@"{MYDIR}" withString:[[s.fileURL path] stringByDeletingLastPathComponent]];
-	int timeout = DEFAULT_EXECUTE_TIMEOUT;  
-	if ([cmd rangeOfString:@"{NOTIMEOUT}"].location != NSNotFound) {
-		timeout = 0;
-		cmd = [cmd stringByReplacingOccurrencesOfString:@"{NOTIMEOUT}" withString:@""];
+	NSString *ext = [s.fileURL pathExtension];
+	NSString *path = [s.fileURL path];
+	NSString *noext = [path stringByDeletingPathExtension];
+	if ([ext isEqualToString:@"rb"])
+		[self run:[NSString stringWithFormat:@"ruby %@",path] withTimeout:0];
+	else if ([ext isEqualToString:@"pl"])
+		[self run:[NSString stringWithFormat:@"perl %@",path] withTimeout:0];
+	else if ([ext isEqualToString:@"sh"])
+		[self run:[NSString stringWithFormat:@"sh %@",path] withTimeout:0];		
+	else if ([ext isEqualToString:@"py"])
+		[self run:[NSString stringWithFormat:@"python %@",path] withTimeout:0];		
+	else if ([ext isEqualToString:@"php"])
+		[self run:[NSString stringWithFormat:@"php %@",path] withTimeout:0];
+	else if ([ext isEqualToString:@"c"])
+		[self run:[NSString stringWithFormat:@"gcc -Wall -o %@ %@ && %@",noext,path,noext] withTimeout:0];		
+	else if ([ext isEqualToString:@"cpp"])
+		[self run:[NSString stringWithFormat:@"g++ -Wall -o %@ %@ && %@",noext,path,noext] withTimeout:0];		
+	else {
+		NSFileManager *f = [[NSFileManager alloc] init];
+		if ([f isExecutableFileAtPath:path]) {
+			[self run:[NSString stringWithFormat:@"%@",path] withTimeout:0];
+		} else {
+			NSRunAlertPanel(@"unknown file extention", @"cant execute file because its not executable or extention is unknown", nil, nil, nil);
+		}
 	}
-	
-	if ([cmd rangeOfString:@"^\\s*?http(s)?://" options:NSRegularExpressionSearch].location != NSNotFound) {
-		[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:[cmd stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]]];
-		return;
-	}
-	[self run:cmd withTimeout:timeout];
 }
 
 - (void) run: (NSString *) cmd withTimeout:(int) timeout {

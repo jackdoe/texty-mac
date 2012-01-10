@@ -244,99 +244,96 @@
 - (NSUndoManager *) undoManager {
 	return self.um;
 }
-- (NSRange) fromCursor:(int) direction {
-
-	NSString *string = [self string];
-	NSRange selected = [self selectedRange];
-	NSInteger len = [string length];
-	NSInteger i;
-	if (selected.location == 0 || selected.location == NSNotFound || selected.location >= len)
-		return NSMakeRange(0, 0);
-
-	if (direction == DIRECTION_LEFT) {
-		for (i = selected.location ;i>0;i--) {
-			unichar c = [string characterAtIndex:i];
-			if (c == '\n' || c == '\r') {
-				i++;
-				break;
-			}
-		}
-		return NSMakeRange(i, (selected.location > i ? selected.location - i : 0));
-	} else {
-		for (i=selected.location;i<len;i++) {
-			unichar c = [string characterAtIndex:i];
-			if (c == '\n' || c == '\r')
-				break;
-		}		
-		return NSMakeRange(selected.location, (selected.location < i ? i - selected.location : 0));	
-	}
-}
-- (NSRange) backCursor {
-	return [self fromCursor:DIRECTION_LEFT];
-}
-- (NSRange) forwardCursor {
-	return [self fromCursor:DIRECTION_RIGHT];
-}
-- (NSString *) backCursorString {
-	return [[self string] substringWithRange:[self backCursor]];
-}
-- (NSString *) forwardCursorString {
-	return [[self string] substringWithRange:[self forwardCursor]];
-}
+//- (NSRange) fromCursor:(int) direction {
+//
+//	NSString *string = [self string];
+//	NSRange selected = [self selectedRange];
+//	NSInteger len = [string length];
+//	NSInteger i;
+//	if (selected.location == 0 || selected.location == NSNotFound || selected.location >= len)
+//		return NSMakeRange(0, 0);
+//
+//	if (direction == DIRECTION_LEFT) {
+//		for (i = selected.location ;i>0;i--) {
+//			unichar c = [string characterAtIndex:i];
+//			if (c == '\n' || c == '\r') {
+//				i++;
+//				break;
+//			}
+//		}
+//		return NSMakeRange(i, (selected.location > i ? selected.location - i : 0));
+//	} else {
+//		for (i=selected.location;i<len;i++) {
+//			unichar c = [string characterAtIndex:i];
+//			if (c == '\n' || c == '\r')
+//				break;
+//		}		
+//		return NSMakeRange(selected.location, (selected.location < i ? i - selected.location : 0));	
+//	}
+//}
+//- (NSRange) backCursor {
+//	return [self fromCursor:DIRECTION_LEFT];
+//}
+//- (NSRange) forwardCursor {
+//	return [self fromCursor:DIRECTION_RIGHT];
+//}
+//- (NSString *) backCursorString {
+//	return [[self string] substringWithRange:[self backCursor]];
+//}
+//- (NSString *) forwardCursorString {
+//	return [[self string] substringWithRange:[self forwardCursor]];
+//}
 
 - (void) keyDown:(NSEvent *)theEvent {
 	int modified = 0;
 	unichar c = [[theEvent characters] characterAtIndex:0];
 	switch (c) {
-	case '\n':
-	case '\r':
-		{
-			/*
-			 * auto indent
-			 */
-			NSRange paraRange = [self currentLine];
-			NSString *string = [self string];
-			NSString *spaces = @"";
-			NSRange spaceRange = [string rangeOfString:@"^\\s+" options:NSRegularExpressionSearch|NSRegularExpressionAnchorsMatchLines range:paraRange];
-			if (spaceRange.location != NSNotFound)
-				spaces = [[string substringWithRange:spaceRange] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-			[self insertText:[NSString stringWithFormat:@"\n%@",spaces]];
-			modified = 1;
-		}
-	break;
-#define SHOULD_INSERT(__a,__b) 														\
-		{																			\
-		[self insertText:__a];														\
-		if ([[self forwardCursorString] rangeOfString:__b].location == NSNotFound) {\
-			[self insertText:__b];													\
-			[self selectMove:-1];													\
-		}																			\
-		modified = 1;																\
-		}
-	case '{': SHOULD_INSERT(@"{", @"}"); break;
-	case '(': SHOULD_INSERT(@"(", @")"); break;
-	case '[': SHOULD_INSERT(@"[", @"]"); break;
-	case '"': SHOULD_INSERT(@"\"", @"\""); break;
-	case '\'': SHOULD_INSERT(@"'", @"'"); break;
-#undef SHOULD_INSERT	
+		case '\n':
+		case '\r':
+			{
+				/*
+				 * auto indent
+				 */
+				NSRange paraRange = [self currentLine];
+				NSString *string = [self string];
+				NSString *spaces = @"";
+				NSRange spaceRange = [string rangeOfString:@"^\\s+" options:NSRegularExpressionSearch|NSRegularExpressionAnchorsMatchLines range:paraRange];
+				if (spaceRange.location != NSNotFound)
+					spaces = [[string substringWithRange:spaceRange] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+				[self insertText:[NSString stringWithFormat:@"\n%@",spaces]];
+				modified = 1;
+			}
+		break;
 	}
-	
+//#define SHOULD_INSERT(__a,__b) 													\
+//		{																			\
+//		[self insertText:__a];														\
+//		if ([[self forwardCursorString] rangeOfString:__b].location == NSNotFound) {\
+//			[self insertText:__b];													\
+//			[self selectMove:-1];													\
+//		}																			\
+//		modified = 1;																\
+//		}
+//	case '{': SHOULD_INSERT(@"{", @"}"); break;
+//	case '(': SHOULD_INSERT(@"(", @")"); break;
+//	case '[': SHOULD_INSERT(@"[", @"]"); break;
+//	case '"': SHOULD_INSERT(@"\"", @"\""); break;
+//	case '\'': SHOULD_INSERT(@"'", @"'"); break;
+//#undef SHOULD_INSERT	
+//	}
 	if (!modified) {
 		[super keyDown:theEvent];
-		[self delayedParse];
-		/* XXX */
+		[self delayedParse];	
 		switch (c) {
 			case NSRightArrowFunctionKey:
 			case NSUpArrowFunctionKey:
 			case NSLeftArrowFunctionKey:
 			case NSDownArrowFunctionKey:
-			case '\n':
-			case '\r':
+			case '}': case ']': case '>': case ')':
 				[self colorBracket];
 			break;				
 		}
 	}
-	
 }
 
 - (void)showFindIndicatorForRange:(NSRange)charRange {

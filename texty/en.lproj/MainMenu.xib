@@ -835,14 +835,14 @@
 								</object>
 								<object class="NSMenuItem" id="1033300993">
 									<reference key="NSMenu" ref="128575035"/>
-									<string key="NSTitle">Snipplets: TEXTY_EXECUTE</string>
+									<string key="NSTitle">Snipplets</string>
 									<string key="NSKeyEquiv"/>
 									<int key="NSMnemonicLoc">2147483647</int>
 									<reference key="NSOnImage" ref="35465992"/>
 									<reference key="NSMixedImage" ref="502551668"/>
 									<string key="NSAction">submenuAction:</string>
 									<object class="NSMenu" key="NSSubmenu" id="943270267">
-										<string key="NSTitle">Snipplets: TEXTY_EXECUTE</string>
+										<string key="NSTitle">Snipplets</string>
 										<array class="NSMutableArray" key="NSMenuItems"/>
 									</object>
 								</object>
@@ -1699,6 +1699,7 @@
 							<string key="NSFrame">{{66, 20}, {255, 17}}</string>
 							<reference key="NSSuperview" ref="1053201374"/>
 							<reference key="NSWindow"/>
+							<reference key="NSNextKeyView"/>
 							<string key="NSReuseIdentifierKey">_NS:3944</string>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSTextFieldCell" key="NSCell" id="341953075">
@@ -1844,6 +1845,7 @@
 							<string key="NSFrame">{{456, 12}, {82, 32}}</string>
 							<reference key="NSSuperview" ref="433326485"/>
 							<reference key="NSWindow"/>
+							<reference key="NSNextKeyView"/>
 							<string key="NSReuseIdentifierKey">_NS:687</string>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSButtonCell" key="NSCell" id="569562087">

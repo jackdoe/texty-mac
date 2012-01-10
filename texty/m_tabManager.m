@@ -8,19 +8,7 @@
 }
 - (void) createCodeSnipplets {
 	NSMutableArray *a = [NSMutableArray array];
-	[a addObject:[NSArray arrayWithObjects:@"c template", @"#include <stdio.h>\n\n//TEXTY_EXECUTE gcc -Wall -o {MYDIR}/{MYSELF_BASENAME_NOEXT} {MYSELF} && {MYDIR}/{MYSELF_BASENAME_NOEXT} {MYSELF}\nint main(int ac, char *av[]) {\n\n\n\treturn 0;\n}" ,[NSNumber numberWithInt:0],nil]];
-
-	[a addObject:[NSArray arrayWithObjects:@"GCC compile", @"//TEXTY_EXECUTE gcc -Wall -o {MYDIR}/{MYSELF_BASENAME_NOEXT} {MYSELF}" ,[NSNumber numberWithInt:EXECUTE_LINE],nil]];
-	[a addObject:[NSArray arrayWithObjects:@"GCC compile and run", @"//TEXTY_EXECUTE gcc -Wall -o {MYDIR}/{MYSELF_BASENAME_NOEXT} {MYSELF} && {MYDIR}/{MYSELF_BASENAME_NOEXT} {NOTIMEOUT}",[NSNumber numberWithInt:EXECUTE_LINE],nil]];
-	[a addObject:[NSArray arrayWithObjects:@"GCC compile and GDB", @"//TEXTY_EXECUTE gcc -g3 -Wall -o {MYDIR}/{MYSELF_BASENAME_NOEXT} {MYSELF} && gdb -f -q {MYDIR}/{MYSELF_BASENAME_NOEXT} {NOTIMEOUT}",[NSNumber numberWithInt:EXECUTE_LINE],nil]];
-
-	[a addObject:[NSArray arrayWithObjects:@"{MYSELF}", @"//TEXTY_EXECUTE {MYSELF} {NOTIMEOUT}",[NSNumber numberWithInt:EXECUTE_LINE],nil]];
-	[a addObject:[NSArray arrayWithObjects:@"perl {MYSELF}", @"#TEXTY_EXECUTE perl {MYSELF} {NOTIMEOUT}",[NSNumber numberWithInt:EXECUTE_LINE],nil]];	
-	[a addObject:[NSArray arrayWithObjects:@"ruby {MYSELF}", @"#TEXTY_EXECUTE ruby {MYSELF} {NOTIMEOUT}",[NSNumber numberWithInt:EXECUTE_LINE],nil]];	
-	[a addObject:[NSArray arrayWithObjects:@"sh {MYSELF}", @"#TEXTY_EXECUTE sh {MYSELF} {NOTIMEOUT}",[NSNumber numberWithInt:EXECUTE_LINE],nil]];	
-	[a addObject:[NSArray arrayWithObjects:@"rails", @"#TEXTY_EXECUTE http://localhost:3000",[NSNumber numberWithInt:EXECUTE_LINE],nil]];	
-	NSString *url = [NSString stringWithFormat:@"http://localhost/~%@/",NSUserName()];
-	[a addObject:[NSArray arrayWithObjects:url, [NSString stringWithFormat:@"#TEXTY_EXECUTE %@",url],[NSNumber numberWithInt:EXECUTE_LINE],nil]];	
+	[a addObject:[NSArray arrayWithObjects:@"c template", @"#include <stdio.h>\n\nint main(int ac, char *av[]) {\n\n\n\treturn 0;\n}" ,[NSNumber numberWithInt:0],nil]];
 
 	self.snipplet = [NSArray arrayWithArray:a];
 }
@@ -366,7 +354,7 @@
 			[menu addItem:m];
 			[m setEnabled:YES];	
 		}
-	} else if ([[menu title] isEqualToString:@"Snipplets: TEXTY_EXECUTE"]) {
+	} else if ([[menu title] isEqualToString:@"Snipplets"]) {
 		[menu removeAllItems];
 		for (NSArray *a in snipplet) {
 			NSString *title = [a objectAtIndex:0];
