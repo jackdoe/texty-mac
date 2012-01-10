@@ -68,13 +68,13 @@
 	}
 	[self setSelectedRange:selected];
 }
-- (BOOL) colorPrev:(unichar) opens ends:(unichar) ends inRange:(NSRange) range{
+
+- (NSRange) findMatching:(unichar) opens ends:(unichar) ends inRange:(NSRange) range inString:(NSString *) string{
 	if (range.location < 1 || range.location == NSNotFound) 
-		return NO;
+		return NSMakeRange(NSNotFound, 0);
 	
 	NSInteger open,pos,foundone;
 	open = foundone = 0;
-	NSString *string = [self string];
 	range.location--;
 	range.length=1;
 	for (pos = range.location; pos >= 0 ; pos--) {
@@ -87,11 +87,18 @@
 			open--;
 		if (open == 0) {
 			if (foundone) {
-				[self showFindIndicatorForRange:NSMakeRange(pos,1)];
-				return YES;
+				return NSMakeRange(pos,1);
 			}
-			break;
 		}
+	}
+	return NSMakeRange(NSNotFound, 0);
+}
+
+- (BOOL) colorPrev:(unichar) opens ends:(unichar) ends inRange:(NSRange) range{
+	NSRange found = [self findMatching:opens ends:ends inRange:range inString:[self string]];
+	if (found.location != NSNotFound) {
+		[self showFindIndicatorForRange:found];
+		return YES;
 	}
 	return NO;
 }
@@ -125,6 +132,7 @@
 	NSRange selected = [self selectedRange];
 	NSInteger i;
 	i = (selected.location > 0) ? selected.location - 1 : 0;
+	
 	for (;i>0;i--) {
 		unichar c = [string characterAtIndex:i];
 		if (c == '\n' || c == '\r')
@@ -236,6 +244,45 @@
 - (NSUndoManager *) undoManager {
 	return self.um;
 }
+- (NSRange) fromCursor:(int) direction {
+
+	NSString *string = [self string];
+	NSRange selected = [self selectedRange];
+	NSInteger len = [string length];
+	NSInteger i;
+	if (selected.location == 0 || selected.location == NSNotFound || selected.location >= len)
+		return NSMakeRange(0, 0);
+
+	if (direction == DIRECTION_LEFT) {
+		for (i = selected.location ;i>0;i--) {
+			unichar c = [string characterAtIndex:i];
+			if (c == '\n' || c == '\r') {
+				i++;
+				break;
+			}
+		}
+		return NSMakeRange(i, (selected.location > i ? selected.location - i : 0));
+	} else {
+		for (i=selected.location;i<len;i++) {
+			unichar c = [string characterAtIndex:i];
+			if (c == '\n' || c == '\r')
+				break;
+		}		
+		return NSMakeRange(selected.location, (selected.location < i ? i - selected.location : 0));	
+	}
+}
+- (NSRange) backCursor {
+	return [self fromCursor:DIRECTION_LEFT];
+}
+- (NSRange) forwardCursor {
+	return [self fromCursor:DIRECTION_RIGHT];
+}
+- (NSString *) backCursorString {
+	return [[self string] substringWithRange:[self backCursor]];
+}
+- (NSString *) forwardCursorString {
+	return [[self string] substringWithRange:[self forwardCursor]];
+}
 
 - (void) keyDown:(NSEvent *)theEvent {
 	int modified = 0;
@@ -244,6 +291,9 @@
 	case '\n':
 	case '\r':
 		{
+			/*
+			 * auto indent
+			 */
 			NSRange paraRange = [self currentLine];
 			NSString *string = [self string];
 			NSString *spaces = @"";
@@ -252,34 +302,25 @@
 				spaces = [[string substringWithRange:spaceRange] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
 			[self insertText:[NSString stringWithFormat:@"\n%@",spaces]];
 			modified = 1;
-		}			
+		}
 	break;
-	case '{':
-		[self insertText:@"{}"]; 
-		[self selectMove:-1];
-		modified = 1;
-	break;
-	case '(':
-		[self insertText:@"()"];
-		[self selectMove:-1];
-		modified = 1;
-	break;
-	case '"':
-		[self insertText:@"\"\""];
-		[self selectMove:-1];
-		modified = 1;
-	break;
-	case '\'':
-		[self insertText:@"''"];
-		[self selectMove:-1];
-		modified = 1;
-	break;
-	case '[':
-		[self insertText:@"[]"];
-		[self selectMove:-1];			
-		modified = 1;
-	break;
+#define SHOULD_INSERT(__a,__b) 														\
+		{																			\
+		[self insertText:__a];														\
+		if ([[self forwardCursorString] rangeOfString:__b].location == NSNotFound) {\
+			[self insertText:__b];													\
+			[self selectMove:-1];													\
+		}																			\
+		modified = 1;																\
+		}
+	case '{': SHOULD_INSERT(@"{", @"}"); break;
+	case '(': SHOULD_INSERT(@"(", @")"); break;
+	case '[': SHOULD_INSERT(@"[", @"]"); break;
+	case '"': SHOULD_INSERT(@"\"", @"\""); break;
+	case '\'': SHOULD_INSERT(@"'", @"'"); break;
+#undef SHOULD_INSERT	
 	}
+	
 	if (!modified) {
 		[super keyDown:theEvent];
 		[self delayedParse];
@@ -289,6 +330,8 @@
 			case NSUpArrowFunctionKey:
 			case NSLeftArrowFunctionKey:
 			case NSDownArrowFunctionKey:
+			case '\n':
+			case '\r':
 				[self colorBracket];
 			break;				
 		}
