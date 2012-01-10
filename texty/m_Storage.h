@@ -1,5 +1,6 @@
 #import <Foundation/Foundation.h>
 #import "Preferences.h"
+BOOL ask(NSString *title,NSString *what);
 @class m_Storage;
 @protocol m_StorageDelegate <NSObject>
 -(void) changed_under_my_nose:(NSURL *) file;

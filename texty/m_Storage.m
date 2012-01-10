@@ -1,5 +1,10 @@
 #import "m_Storage.h"
 #import "FileWatcher.h"
+
+BOOL ask(NSString *title, NSString *message) {
+	return (NSRunAlertPanel(title, message, @"Yes", @"No", nil) == NSAlertDefaultReturn);
+}
+
 @implementation m_Storage
 @synthesize fileURL, data,temporary,existing_backups,encoding,delegate = _delegate;
 - (void) changed_under_your_nose:(NSURL *) file {
@@ -37,10 +42,17 @@
 	NSError *err;
 	NSStringEncoding usedEncoding;
 	self.data = [NSString stringWithContentsOfURL:URL usedEncoding:&usedEncoding error:&err];
+	NSData *d;
 	if (err) {
+		if (err.code == NSFileReadUnknownStringEncodingError && (d = [NSData dataWithContentsOfURL:URL]) && ask([URL path],@"Cant find encoding, do you want to open it as ASCII file?")) {
+			if ((self.data = [NSString stringWithCString:[d bytes] encoding:NSASCIIStringEncoding])) {
+				goto success; /* yee goto! */
+			} 
+		}
 		[self noChoiceAlert:[err localizedDescription] withURL:self.fileURL];
 		return FALSE;	
 	}
+success:	
 	self.encoding = usedEncoding;
 	if (!temporary)
 		[[NSDocumentController sharedDocumentController] noteNewRecentDocumentURL:self.fileURL];
