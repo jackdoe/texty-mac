@@ -48,7 +48,7 @@ Overview
 
 	+ executes the current tab depending on its extention
 	+ .php, .rb, .py,.sh, .plare interpreted with the correct interpretators
-	+ .c .cpp are compiled and ran, the compiled file is with the name of the opened file, but without its extention
+	+ .c .cpp are compiled and executed, the compiled file is with the name of the opened file, but without its extention
 	
 4. Syntax highlighting
 
