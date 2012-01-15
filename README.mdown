@@ -1,6 +1,5 @@
 WARNING
 =======
-> TEXTY_EXECUTE cd {MYDIR} && git add {MYSELF} && git commit -m "fix readme" && git push {NOTIMEOUT}
 
 __WARNING: this is still work in porgress__
 
@@ -16,7 +15,7 @@ Requirements
 ============
 
 * requires: Mac OSX Lion
-* xcode to build the project
+* xcode to build the project, or download the binary from the download section
 
 Overview
 ========
@@ -47,46 +46,15 @@ Overview
 
 3. Execute
 
-	on line number 3 (counting from 1 - ugh.) you can have:
-
-	> TEXTY_EXECUTE command
-
-	if the command begins with http:// your default brawser will be opened with the url
-
-	> example: TEXTY_EXECUTE http://localhost/~jack/index.php
-
-	else a command is ran using /bin/sh -c "command"
-
-	> example: TEXTY_EXECUTE {MYSELF} arg1 arg2
-
-	> example: TEXTY_EXECUTE ~/script.sh arg1 {MYSELF} arg2 # or see this README.mdown at line 3
-
-	* {MYSELF} - is auto replaced with the full path of the file you are editting. (for example: /Users/jack/work/main.c)
-	* {MYSELF_BASENAME} - only basename (for example: main.c)
-	* {MYSELF_BASENAME_NOEXT} - basename without extention (for example: main)
-	* {MYDIR} - file's directory 
-	* {NOTIMEOUT} - if you want the command to run forever /* removed from the line at execute time */
+	+ executes the current tab depending on its extention
+	+ .php, .rb, .py,.sh, .plare interpreted with the correct interpretators
+	+ .c .cpp are compiled and ran, the compiled file is with the name of the opened file, but without its extention
 	
-	For example when you hit RUN on README.mdown as you can see on line no:3
-
-	> TEXTY_EXECUTE cd {MYDIR} && git add {MYSELF} && git commit -m "fix readme" && git push {NOTIMEOUT}
-	
-	becomes:
-
-	> sh -c "cd /Users/jack/work/texty && git add /Users/jack/work/texty/README.mdown && git commit -m "fix readme" && git push"
-
-	and here is the output:
-	[![](http://farm8.staticflickr.com/7152/6465301513_47bf4c761c.jpg)](http://www.flickr.com/photos/71088131@N07/6465301513/)
-
-
-	When you click run - a modal window with the output of the command will be displayed. 
-	note: maximum time out for a job is 1 second, after that the task will be terminated (unless {NOTIMTOUT} is specified).
-
 4. Syntax highlighting
 
 	This is still very experimental, supports keywords superblocks and blocks that require superblocks.
 
 Bugs
 ====
-1. TEXTY_EXECUTE
+1. EXECUTE
 	+ execute has a race when the reload button is spam clicked, it messess up the output - start/end etc
