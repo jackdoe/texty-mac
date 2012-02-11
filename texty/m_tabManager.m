@@ -166,12 +166,15 @@
 	NSSavePanel *spanel = [NSSavePanel savePanel];
 	[spanel setPrompt:@"Save"];
 	[spanel setShowsToolbarButton:YES];
+#if 0
 	if (t.s.temporary) {
 		TextVC *prev = [self.tabView tabViewItemAtIndex:[self getTabIndex:DIRECTION_LEFT]].identifier;
 		[spanel setDirectoryURL:[prev.s.fileURL URLByDeletingLastPathComponent]];
 	} else {
 		[spanel setDirectoryURL:[t.s.fileURL URLByDeletingLastPathComponent]];
 	}
+#endif
+	[spanel setDirectoryURL:[t.s.fileURL URLByDeletingLastPathComponent]];
 	[spanel setRepresentedURL:[t.s.fileURL URLByDeletingLastPathComponent]];
 	[spanel setExtensionHidden:NO];
 	[spanel setNameFieldStringValue:[t.s basename]];
