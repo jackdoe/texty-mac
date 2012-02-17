@@ -43,12 +43,18 @@
 		if (![self openStoredURLs]) {
 			[self open:nil];
 		}
+		[self performSelector:@selector(setTitle:) withObject:nil afterDelay:1];
 	}
 	return self;
+}
+- (void) setTitle:(id) sender {
+	CURRENT(t);
+	[NSApp mainWindow].title = [t.s.fileURL lastPathComponent];
 }
 - (void) tabView:(NSTabView *)tabView didSelectTabViewItem:(NSTabViewItem *)tabViewItem {
 	CURRENT(t);
 	[t.text delayedParse];
+	[NSApp mainWindow].title = [t.s.fileURL lastPathComponent];
 }
 #pragma mark restore workspace
 - (BOOL) openStoredURLs {
@@ -218,8 +224,16 @@
 - (IBAction)goto_action:(id)sender {
 	NSTextField *field = sender;
 	NSString *value = [field stringValue];
-	CURRENT(t);
-	[t goto_line:[value integerValue]];	
+	if ([value intValue] == 0) {// not int
+		[self walk_tabs:^(TextVC *t) {
+			if ([[t.s.fileURL lastPathComponent] rangeOfString:value options:NSRegularExpressionSearch].location != NSNotFound) {
+				[self.tabView selectTabViewItem:t.tabItem];
+			}
+		}];
+	} else {
+		CURRENT(t);
+		[t goto_line:[value integerValue]];	
+	}
 	[self.goto_window orderOut:nil];
 }
 
@@ -248,6 +262,7 @@
 	else 
 		[self.goto_window makeKeyAndOrderFront:nil];
 }
+
 - (BOOL) open:(NSURL *) file {
 	__block TextVC *o = nil;
 	[self walk_tabs:^(TextVC *t) {

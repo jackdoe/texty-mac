@@ -2,10 +2,10 @@
 <archive type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="8.00">
 	<data>
 		<int key="IBDocument.SystemTarget">1070</int>
-		<string key="IBDocument.SystemVersion">11C74</string>
+		<string key="IBDocument.SystemVersion">11D50</string>
 		<string key="IBDocument.InterfaceBuilderVersion">1938</string>
-		<string key="IBDocument.AppKitVersion">1138.23</string>
-		<string key="IBDocument.HIToolboxVersion">567.00</string>
+		<string key="IBDocument.AppKitVersion">1138.32</string>
+		<string key="IBDocument.HIToolboxVersion">568.00</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginVersions">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin</string>
 			<string key="NS.object.0">1938</string>
@@ -863,7 +863,7 @@
 								<object class="NSMenuItem" id="237499905">
 									<reference key="NSMenu" ref="60877760"/>
 									<string key="NSTitle">Select Next Tab</string>
-									<string key="NSKeyEquiv"></string>
+									<string key="NSKeyEquiv">]</string>
 									<int key="NSKeyEquivModMask">1179648</int>
 									<int key="NSMnemonicLoc">2147483647</int>
 									<reference key="NSOnImage" ref="35465992"/>
@@ -872,7 +872,7 @@
 								<object class="NSMenuItem" id="842796674">
 									<reference key="NSMenu" ref="60877760"/>
 									<string key="NSTitle">Select Prev Tab</string>
-									<string key="NSKeyEquiv"></string>
+									<string key="NSKeyEquiv">[</string>
 									<int key="NSKeyEquivModMask">1179648</int>
 									<int key="NSMnemonicLoc">2147483647</int>
 									<reference key="NSOnImage" ref="35465992"/>
@@ -881,7 +881,7 @@
 								<object class="NSMenuItem" id="84514772">
 									<reference key="NSMenu" ref="60877760"/>
 									<string key="NSTitle">Swap Left</string>
-									<string key="NSKeyEquiv"></string>
+									<string key="NSKeyEquiv">[</string>
 									<int key="NSKeyEquivModMask">655360</int>
 									<int key="NSMnemonicLoc">2147483647</int>
 									<reference key="NSOnImage" ref="35465992"/>
@@ -890,7 +890,7 @@
 								<object class="NSMenuItem" id="672502254">
 									<reference key="NSMenu" ref="60877760"/>
 									<string key="NSTitle">Swap Right</string>
-									<string key="NSKeyEquiv"></string>
+									<string key="NSKeyEquiv">]</string>
 									<int key="NSKeyEquivModMask">655360</int>
 									<int key="NSMnemonicLoc">2147483647</int>
 									<reference key="NSOnImage" ref="35465992"/>
@@ -1639,7 +1639,7 @@
 			<object class="NSWindowTemplate" id="762605776">
 				<int key="NSWindowStyleMask">31</int>
 				<int key="NSWindowBacking">2</int>
-				<string key="NSWindowRect">{{167, 107}, {382, 104}}</string>
+				<string key="NSWindowRect">{{167, 107}, {387, 84}}</string>
 				<int key="NSWTFlags">-461896704</int>
 				<string key="NSWindowTitle">Jump</string>
 				<string key="NSWindowClass">NSPanel</string>
@@ -1654,7 +1654,7 @@
 						<object class="NSTextField" id="3505219">
 							<reference key="NSNextResponder" ref="1053201374"/>
 							<int key="NSvFlags">268</int>
-							<string key="NSFrame">{{20, 66}, {347, 19}}</string>
+							<string key="NSFrame">{{20, 45}, {347, 19}}</string>
 							<reference key="NSSuperview" ref="1053201374"/>
 							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="439293002"/>
@@ -1696,7 +1696,7 @@
 						<object class="NSTextField" id="439293002">
 							<reference key="NSNextResponder" ref="1053201374"/>
 							<int key="NSvFlags">268</int>
-							<string key="NSFrame">{{66, 20}, {255, 17}}</string>
+							<string key="NSFrame">{{37, 20}, {312, 17}}</string>
 							<reference key="NSSuperview" ref="1053201374"/>
 							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView"/>
@@ -1705,7 +1705,7 @@
 							<object class="NSTextFieldCell" key="NSCell" id="341953075">
 								<int key="NSCellFlags">68288064</int>
 								<int key="NSCellFlags2">138413056</int>
-								<string key="NSContents">type line # and press Enter</string>
+								<string key="NSContents">type line # or filename regexp and press Enter</string>
 								<object class="NSFont" key="NSSupport" id="795231484">
 									<string key="NSName">LucidaGrande</string>
 									<double key="NSSize">13</double>
@@ -1731,7 +1731,7 @@
 							</object>
 						</object>
 					</array>
-					<string key="NSFrameSize">{382, 104}</string>
+					<string key="NSFrameSize">{387, 84}</string>
 					<reference key="NSSuperview"/>
 					<reference key="NSWindow"/>
 					<reference key="NSNextKeyView" ref="3505219"/>
@@ -4568,7 +4568,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">956</int>
+			<int key="maxID">977</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -4751,8 +4751,8 @@
 		<bool key="IBDocument.PluginDeclaredDependenciesTrackSystemTargetVersion">YES</bool>
 		<int key="IBDocument.defaultPropertyAccessControl">3</int>
 		<dictionary class="NSMutableDictionary" key="IBDocument.LastKnownImageSizes">
-			<string key="NSMenuCheckmark">{9, 8}</string>
-			<string key="NSMenuMixedState">{7, 2}</string>
+			<string key="NSMenuCheckmark">{11, 11}</string>
+			<string key="NSMenuMixedState">{10, 3}</string>
 			<string key="NSSwitch">{15, 15}</string>
 		</dictionary>
 	</data>

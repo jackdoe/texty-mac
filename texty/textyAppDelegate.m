@@ -9,7 +9,6 @@
 	[[NSApplication sharedApplication] setPresentationOptions:NSFullScreenWindowMask];
 	[self.window setCollectionBehavior: NSWindowCollectionBehaviorFullScreenPrimary];
 	[self.window becomeFirstResponder];
-	self.window.title = @"texty";
 	[self.window setContentView:self.tab.tabView];
 	self.window.delegate = self;
 }
