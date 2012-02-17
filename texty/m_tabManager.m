@@ -223,9 +223,9 @@
 - (IBAction)goto_action:(id)sender {
 	NSTextField *field = sender;
 	NSString *value = [field stringValue];
-	if ([value intValue] == 0) {
+	if ([value rangeOfString:@"^\\d+$" options:NSRegularExpressionSearch].location == NSNotFound) {
 		[self walk_tabs:^(TextVC *t) {
-			if ([[t.s.fileURL lastPathComponent] rangeOfString:value options:NSRegularExpressionSearch].location != NSNotFound) {
+			if ([[t.s.fileURL lastPathComponent] rangeOfString:value options:(NSRegularExpressionSearch|NSCaseInsensitiveSearch)].location != NSNotFound) {
 				[self.tabView selectTabViewItem:t.tabItem];
 			}
 		}];
