@@ -156,8 +156,7 @@
 		for (NSURL *url in files) {
 			[self performSelector:@selector(open:) withObject:url afterDelay:0];
 		}
-	}	
-
+	}
 }
 - (IBAction)saveButton:(id)sender {
 	CURRENT(t);
@@ -201,7 +200,7 @@
 
 	if ([t is_modified]) {
 		NSInteger alertReturn = [t.s fileAlert:t.s.fileURL withMessage:@"WARNING: unsaved data." def:@"Cancel" alternate:@"Close w/o Save" other:@"Save & Close"];
-		if (alertReturn == NSAlertOtherReturn) { 		/* Save */
+		if (alertReturn == NSAlertOtherReturn) { 			/* Save */
 			[t save];
 		} else if (alertReturn == NSAlertDefaultReturn) { 	/* Cancel */
 			return; 
@@ -224,7 +223,7 @@
 - (IBAction)goto_action:(id)sender {
 	NSTextField *field = sender;
 	NSString *value = [field stringValue];
-	if ([value intValue] == 0) {// not int
+	if ([value intValue] == 0) {
 		[self walk_tabs:^(TextVC *t) {
 			if ([[t.s.fileURL lastPathComponent] rangeOfString:value options:NSRegularExpressionSearch].location != NSNotFound) {
 				[self.tabView selectTabViewItem:t.tabItem];
