@@ -323,7 +323,7 @@
 //	}
 	if (!modified) {
 		[super keyDown:theEvent];
-		[self delayedParse];	
+		[self delayedParse];
 		switch (c) {
 			case NSRightArrowFunctionKey:
 			case NSUpArrowFunctionKey:

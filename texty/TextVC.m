@@ -80,6 +80,7 @@
 		[scroll setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
 		tabItem.view = scroll;
 		self.text = [[STextView alloc] initWithFrame:NSMakeRect(0, 0, contentSize.width, contentSize.height)];
+        self.text.delegate = self;
 		locked = NO;
 		[self label:L_UNDEFINED];
 		[self.scroll setDocumentView:self.text];
@@ -131,6 +132,7 @@
 - (BOOL) open:(NSURL *)file {
 	if ([s open:file]) {
 		[self reload];
+        [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
 		return YES;
 	}
 	return NO;
@@ -187,10 +189,12 @@
 	[ewc execute:cmd withTimeout:timeout];
 	[ewc.window makeKeyAndOrderFront:nil];
 }
-
 - (void) close {
 	[s close];
 	[ewc.e terminate];
 	self.ewc = nil;
+}
+- (void) textDidChange:(NSNotification *)notification {
+    something_changed = YES;
 }
 @end

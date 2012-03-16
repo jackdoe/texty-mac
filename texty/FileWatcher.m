@@ -102,10 +102,6 @@ static FileWatcher *singleton = nil;
 	for (;;) {
 		count = [self refresh];	
 	    nev = kevent(kq, change, count, event, count,NULL);
-        if (nev == -1) {
-	    	perror("kevent");
-			return;
-		}
 		if (nev > 0) {
 			/* something changed */
 	   		for (int i=0; i < nev ;i++) {

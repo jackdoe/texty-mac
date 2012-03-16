@@ -4,7 +4,7 @@
 #import "ExecuteWC.h"
 #import "Preferences.h"
 #import "STextView.h"
-@interface TextVC : NSViewController <m_StorageDelegate> {
+@interface TextVC : NSViewController <m_StorageDelegate,NSTextViewDelegate> {
 	STextView *text;
 	NSScrollView *scroll;
 	m_Storage *s;
