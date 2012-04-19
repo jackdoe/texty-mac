@@ -23,6 +23,16 @@
 	}
 	return d;
 }
++ (NSString *) defaultTabSymbol {
+	NSUserDefaults *p = [NSUserDefaults standardUserDefaults];
+	NSString *d = [p objectForKey:@"PTabSymbol"];
+	if (!d || [d length] < 1) {
+        d = @"\t";
+		[p setValue:d forKey:@"PTabSymbol"];
+	}
+	return d;
+}
+
 + (BOOL) terminateOnClose {
 	NSUserDefaults *p = [NSUserDefaults standardUserDefaults];
 	NSString *d = [p objectForKey:@"PTerminateOnClose"];
@@ -37,5 +47,6 @@
 	[Preferences defaultAutoSaveInterval];
 	[Preferences defaultCommand];
 	[Preferences terminateOnClose];
+    [Preferences defaultTabSymbol];
 }
 @end

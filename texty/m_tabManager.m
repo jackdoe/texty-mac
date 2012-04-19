@@ -253,7 +253,7 @@
 }
 - (IBAction)tabSelection:(id)sender {
 	CURRENT(t);
-	[t.text insert:@"\t" atEachLineOfSelectionWithDirection:[sender tag]];	
+	[t.text insert:[Preferences defaultTabSymbol] atEachLineOfSelectionWithDirection:[sender tag]];	
 }
 - (IBAction)goto_button:(id)sender {
 	if ([self.goto_window isVisible])

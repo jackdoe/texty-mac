@@ -9,5 +9,6 @@
 + (NSString *) defaultCommand;
 + (BOOL) terminateOnClose;
 + (void) initialValues;
++ (NSString *) defaultTabSymbol;
 + (int) defaultAutoSaveInterval;
 @end

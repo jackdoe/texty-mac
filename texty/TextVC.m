@@ -160,7 +160,7 @@
 	NSString *path = [s.fileURL path];
 	NSString *noext = [path stringByDeletingPathExtension];
 	if ([ext isEqualToString:@"rb"])
-		[self run:[NSString stringWithFormat:@"ruby %@",path] withTimeout:0];
+		[self run:[NSString stringWithFormat:@"rvm-auto-ruby %@",path] withTimeout:0];
 	else if ([ext isEqualToString:@"pl"])
 		[self run:[NSString stringWithFormat:@"perl %@",path] withTimeout:0];
 	else if ([ext isEqualToString:@"sh"])

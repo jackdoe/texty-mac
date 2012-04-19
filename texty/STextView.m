@@ -288,6 +288,12 @@
 	int modified = 0;
 	unichar c = [[theEvent characters] characterAtIndex:0];
 	switch (c) {
+        case '\t':
+            {
+                [self insertText:[Preferences defaultTabSymbol]];
+                modified = 1;
+            }
+            break;
 		case '\n':
 		case '\r':
 			{

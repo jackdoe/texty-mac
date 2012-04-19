@@ -1,5 +1,6 @@
 #import <AppKit/AppKit.h>
 #import "colors.h"
+#import "Preferences.h"
 @class m_parse;
 #import "m_parse.h"
 
